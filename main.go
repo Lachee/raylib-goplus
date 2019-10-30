@@ -34,6 +34,7 @@ package main
 #cgo windows,!opengl11,!opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_33
 
 #include "raylib.h"
+#include <stdlib.h>
 */
 import "C"
 import (
@@ -57,12 +58,15 @@ func (color *Color) cptr() *C.Color {
 func main() {
 	fmt.Println("Testing")
 	cs := C.CString("Hello from stdio")
+	label := C.CString("Congrats! First WIndow!")
+
 	fmt.Println("Unsafe String", cs)
 
-	label := C.CString("Congrats! First WIndow!")
+	defer C.free(cs)
+	defer C.free(label)
+
 	color := Color{R: 255, G: 0, B: 255, A: 255}
 	color2 := Color{R: 255, G: 255, B: 255, A: 255}
-
 	C.InitWindow(800, 400, cs)
 
 	for !C.WindowShouldClose() {
@@ -73,4 +77,5 @@ func main() {
 	}
 
 	C.CloseWindow()
+
 }
