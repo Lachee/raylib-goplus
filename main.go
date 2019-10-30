@@ -1,4 +1,4 @@
-package main
+package ray
 
 /*
 #cgo android LDFLAGS: -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm
@@ -38,7 +38,6 @@ package main
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -55,6 +54,7 @@ func (color *Color) cptr() *C.Color {
 	return (*C.Color)(unsafe.Pointer(color))
 }
 
+/*
 func main() {
 	fmt.Println("Testing")
 	cs := C.CString("Hello from stdio")
@@ -62,8 +62,8 @@ func main() {
 
 	fmt.Println("Unsafe String", cs)
 
-	defer C.free(cs)
-	defer C.free(label)
+	//defer C.free(cs)
+	//defer C.free(label)
 
 	color := Color{R: 255, G: 0, B: 255, A: 255}
 	color2 := Color{R: 255, G: 255, B: 255, A: 255}
@@ -79,3 +79,4 @@ func main() {
 	C.CloseWindow()
 
 }
+*/
