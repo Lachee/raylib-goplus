@@ -1,4 +1,4 @@
-package ray
+package raylib
 
 //Matrix A representation of a 4 x 4 matrix
 type Matrix struct {
