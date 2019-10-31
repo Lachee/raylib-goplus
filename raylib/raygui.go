@@ -1,7 +1,7 @@
 package raylib
 
 /*
-#include "raylib.h"
+#include "raygui.h"
 #include <stdlib.h>
 */
 import "C"
@@ -19,8 +19,8 @@ func (r *Rectangle) cptr() *C.Rectangle {
 	return (*C.Rectangle)(unsafe.Pointer(r))
 }
 
-func Button(rect Rectangle, label string) {
-	//ctext := C.CString(label)
-	//defer C.free(unsafe.Pointer(ctext))
-	//C.GuiButton(*rect.cptr(), ctext)
+func GuiButton(rect Rectangle, label string) {
+	ctext := C.CString(label)
+	defer C.free(unsafe.Pointer(ctext))
+	C.GuiButton(*rect.cptr(), ctext)
 }

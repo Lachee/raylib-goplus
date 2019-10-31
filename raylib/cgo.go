@@ -1,8 +1,0 @@
-package raylib
-
-/*
-
-
-
- */
-import "C"

@@ -18,6 +18,7 @@ package raylib
 import "C"
 import (
 	"fmt"
+	"runtime"
 	"unsafe"
 )
 
@@ -50,6 +51,11 @@ const (
 	// Set to try enabling V-Sync on GPU
 	FlagVsyncHint = 64
 )
+
+func init() {
+	//We have to lock the OS Thread as raylib is sensitive to that stuff.
+	runtime.LockOSThread()
+}
 
 // SetConfigFlags - Setup some window configuration flags
 func SetConfigFlags(flags int) {
