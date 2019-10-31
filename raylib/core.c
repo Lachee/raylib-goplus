@@ -1982,7 +1982,7 @@ void ClearDirectoryFiles(void)
 
         RL_FREE(dirFilesPath);
     }
-    
+
     dirFilesCount = 0;
 }
 
