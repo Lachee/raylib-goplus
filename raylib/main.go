@@ -27,7 +27,7 @@ package raylib
 #cgo linux,!opengl11,!opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_33
 
 #cgo windows LDFLAGS: -lopengl32 -lgdi32 -lwinmm -lole32
-#cgo windows CFLAGS: -D_GLFW_WIN32 -Iexternal -Iexternal/glfw/include -Iexternal/glfw/deps/mingw -DPLATFORM_DESKTOP
+#cgo windows CFLAGS: -D_GLFW_WIN32 -Iexternal -Iexternal/glfw/include -Iexternal/glfw/deps/mingw -DPLATFORM_DESKTOP -DRAYGUI_IMPLEMENTATION
 
 #cgo windows,opengl11 CFLAGS: -DGRAPHICS_API_OPENGL_11
 #cgo windows,opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_21
@@ -85,22 +85,6 @@ func DrawText(label string, x, y, w int, color Color) {
 
 func CloseWindow() {
 	C.CloseWindow()
-}
-
-func main() {
-
-	color := Color{R: 255, G: 0, B: 255, A: 255}
-	color2 := Color{R: 255, G: 255, B: 255, A: 255}
-	InitWindow(800, 400, "Hello World")
-
-	for !WindowShouldClose() {
-		BeginDrawing()
-		ClearBackground(color2)
-		DrawText("Drawing A Label!", 10, 10, 20, color)
-		EndDrawing()
-	}
-
-	CloseWindow()
 }
 
 /*
