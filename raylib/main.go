@@ -1,4 +1,4 @@
-package ray
+package raylib
 
 /*
 #cgo android LDFLAGS: -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm
@@ -52,6 +52,11 @@ type Color struct {
 // cptr returns C pointer
 func (color *Color) cptr() *C.Color {
 	return (*C.Color)(unsafe.Pointer(color))
+}
+
+//WindowShouldClose Should the window clsoe
+func WindowShouldClose() bool {
+	return C.WindowShouldClose()
 }
 
 /*
