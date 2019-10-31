@@ -56,7 +56,51 @@ func (color *Color) cptr() *C.Color {
 
 //WindowShouldClose Should the window clsoe
 func WindowShouldClose() bool {
-	return C.WindowShouldClose()
+	return bool(C.WindowShouldClose())
+}
+
+func InitWindow(width, height int, text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.InitWindow(C.int(width), C.int(height), ctext)
+}
+
+func BeginDrawing() {
+	C.BeginDrawing()
+}
+
+func EndDrawing() {
+	C.EndDrawing()
+}
+
+func ClearBackground(color Color) {
+	C.ClearBackground(*color.cptr())
+}
+
+func DrawText(label string, x, y, w int, color Color) {
+	ctext := C.CString(label)
+	defer C.free(unsafe.Pointer(ctext))
+	C.DrawText(ctext, C.int(x), C.int(y), C.int(w), *color.cptr())
+}
+
+func CloseWindow() {
+	C.CloseWindow()
+}
+
+func main() {
+
+	color := Color{R: 255, G: 0, B: 255, A: 255}
+	color2 := Color{R: 255, G: 255, B: 255, A: 255}
+	InitWindow(800, 400, "Hello World")
+
+	for !WindowShouldClose() {
+		BeginDrawing()
+		ClearBackground(color2)
+		DrawText("Drawing A Label!", 10, 10, 20, color)
+		EndDrawing()
+	}
+
+	CloseWindow()
 }
 
 /*
