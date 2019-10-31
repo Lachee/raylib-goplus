@@ -133,7 +133,7 @@
 #define RAYGUI_VERSION  "2.6-dev"
 
 #if !defined(RAYGUI_STANDALONE)
-    #include "../raylib/raylib.h"
+    #include "raylib.h"
 #endif
 
 #if defined(RAYGUI_IMPLEMENTATION)

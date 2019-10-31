@@ -6,9 +6,7 @@ import (
 
 /*
 #define RAYGUI_IMPLEMENTATION
-#cgo CFLAGS: -I../raylib -DPLATFORM_DESKTOP
-#include "../raylib/raylib.h"
-
+#cgo CFLAGS: -I ${SRCDIR}/../raylib
 #include "raygui.h"
 #include <stdlib.h>
 */
