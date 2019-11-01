@@ -43,19 +43,6 @@ import (
 	"unsafe"
 )
 
-// Color type, RGBA (32bit)
-type Color struct {
-	R uint8
-	G uint8
-	B uint8
-	A uint8
-}
-
-// cptr returns C pointer
-func (color *Color) cptr() *C.Color {
-	return (*C.Color)(unsafe.Pointer(color))
-}
-
 const (
 	// Set to show raylib logo at startup
 	FlagShowLogo = 1
@@ -75,7 +62,7 @@ const (
 
 func init() {
 	//We have to lock the OS Thread as raylib is sensitive to that stuff.
-	//runtime.LockOSThread()
+	runtime.LockOSThread()
 }
 
 // SetConfigFlags - Setup some window configuration flags
@@ -90,7 +77,7 @@ func WindowShouldClose() bool {
 }
 
 // InitWindow - Initialize Window and OpenGL Graphics
-func InitWindow(width int32, height int32, title string) {
+func InitWindow(width int, height int, title string) {
 	cwidth := (C.int)(width)
 	cheight := (C.int)(height)
 
@@ -115,7 +102,7 @@ func ClearBackground(color Color) {
 	C.ClearBackground(clr)
 }
 
-func DrawText(label string, x int32, y int32, w int32, color Color) {
+func DrawText(label string, x int, y int, w int, color Color) {
 	ctext := C.CString(label)
 	clr := *color.cptr()
 	cx := C.int(x)

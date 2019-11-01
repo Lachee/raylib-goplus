@@ -1,6 +1,10 @@
 package main
 
-import r "github.com/lachee/raylib-goplus/raylib"
+import (
+	"strconv"
+
+	r "github.com/lachee/raylib-goplus/raylib"
+)
 
 func main() {
 	RaylibTestWorld()
@@ -31,16 +35,23 @@ func RaylibTestWorld() {
 	r.SetConfigFlags(r.FlagVsyncHint)
 	r.InitWindow(800, 400, "Hello world!")
 
-	color := r.Color{R: 255, G: 0, B: 255, A: 255}
-	color2 := r.Color{R: 255, G: 255, B: 255, A: 255}
-	var frame int = 0
+	//color := r.Color{R: 255, G: 0, B: 255, A: 255}
+	//color2 := r.Color{R: 255, G: 255, B: 255, A: 255}
+
+	var frame int
+	var offset int
+	var completion float32
 
 	for !r.WindowShouldClose() {
 		frame++
+		offset = (offset + 5) % 400
+		completion = 360 * (float32(offset) / 400.0)
 
+		hsv := r.NewColorHSV(r.NewVector3(completion, 1, 1))
+		text := "I LOVE RAINBOW TEXT " + strconv.FormatFloat(float64(completion), 'f', 6, 64)
 		r.BeginDrawing()
-		r.ClearBackground(color2)
-		r.DrawText("How are you today? ", 10, int32(frame%200), 20, color)
+		r.ClearBackground(r.RayWhite)
+		r.DrawText(text, 10, offset, 20, hsv)
 		r.GuiButton(r.Rectangle{X: 10, Y: 30, Width: 200, Height: 20}, "Im a Button!")
 		r.EndDrawing()
 	}

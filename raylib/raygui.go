@@ -1,6 +1,12 @@
 package raylib
 
 /*
+Function Bindings for raygui.
+author: lachee
+source: https://github.com/raysan5/raygui/blob/master/src/raygui.h
+*/
+
+/*
 #include "raygui.h"
 #include <stdlib.h>
 */
