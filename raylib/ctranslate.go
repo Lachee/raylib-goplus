@@ -11,6 +11,7 @@ All moved to a monolithic file instead of their respective classes to limit the
 import "C"
 import "unsafe"
 
+func newVector2FromPointer(ptr unsafe.Pointer) Vector2 { return *(*Vector2)(ptr) }
 func (v *Vector2) cptr() *C.Vector2 {
 	return (*C.Vector2)(unsafe.Pointer(v))
 }
@@ -29,6 +30,8 @@ func (q *Quaternion) cptr() *C.Quaternion {
 func (color *Color) cptr() *C.Color {
 	return (*C.Color)(unsafe.Pointer(color))
 }
+
+func newRectangleFromPointer(ptr unsafe.Pointer) Rectangle { return *(*Rectangle)(ptr) }
 func (r *Rectangle) cptr() *C.Rectangle {
 	return (*C.Rectangle)(unsafe.Pointer(r))
 }

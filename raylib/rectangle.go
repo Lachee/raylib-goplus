@@ -15,7 +15,7 @@ type Rectangle struct {
 
 //NewRectangle creates a new rect
 func NewRectangle(x, y, width, height float32) Rectangle {
-	return Rectange{X: x, Y: y, Width: width, Height: height}
+	return Rectangle{X: x, Y: y, Width: width, Height: height}
 }
 
 //NewRectangleFromVector4 creates a rectangle out of a vector4
@@ -24,7 +24,7 @@ func NewRectangleFromVector4(vector Vector4) Rectangle {
 }
 
 //NewRectangleFromPositionSize creates a rectangle out of a position and size
-func NewRectangleFromPositionSize(position, size Vector2) {
+func NewRectangleFromPositionSize(position, size Vector2) Rectangle {
 	return NewRectangle(position.X, position.Y, size.X, size.Y)
 }
 
@@ -60,5 +60,25 @@ func (r Rectangle) Contains(point Vector2) bool {
 
 //Overlaps checks if a rectangle overlaps another.
 func (r Rectangle) Overlaps(rect Rectangle) bool {
-  return (r.X < (rect.X + rect.Width) && (r.X + r.Width) > rect.X) &&  (r.Y < (rect.Y + rect.Height) && (r.Y + r.Height) > rect.Y))
+	return (r.X < (rect.X+rect.Width) && (r.X+r.Width) > rect.X) && (r.Y < (rect.Y+rect.Height) && (r.Y+r.Height) > rect.Y)
+}
+
+//Lerp a rectangle to a target rectangle
+func (r Rectangle) Lerp(target Rectangle, amount float32) Rectangle {
+	return Rectangle{
+		X:      r.X + amount*(target.X-r.X),
+		Y:      r.Y + amount*(target.Y-r.Y),
+		Width:  r.Width + amount*(target.Width-r.Width),
+		Height: r.Height + amount*(target.Height-r.Height),
+	}
+}
+
+//LerpPosition a rectangle to a target position
+func (r Rectangle) LerpPosition(pos Vector2, amount float32) Rectangle {
+	return Rectangle{
+		X:      r.X + amount*(pos.X-r.X),
+		Y:      r.Y + amount*(pos.Y-r.Y),
+		Width:  r.Width,
+		Height: r.Height,
+	}
 }
