@@ -1,6 +1,9 @@
 package raylib
 
 /*
+#cgo debug CFLAGS: -O0
+#cgo CFLAGS: -w
+
 #cgo android LDFLAGS: -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm
 #cgo android CFLAGS: -DPLATFORM_ANDROID -DGRAPHICS_API_OPENGL_ES2 -DMAL_NO_SDL -Iexternal/android/native_app_glue
 

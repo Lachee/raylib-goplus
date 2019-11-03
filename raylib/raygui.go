@@ -85,11 +85,14 @@ func GuiGetState() GuiState {
 	return GuiState(s)
 }
 
-type Font struct{}
-type Texture2D struct{}
-
-func GuiSetFont(f Font) {}
-func GuiGetFont() Font  { return Font{} }
+func GuiSetFont(f Font) {
+	cf := *f.cptr()
+	C.GuiSetFont(cf)
+}
+func GuiGetFont() Font {
+	cf := C.GuiGetFont()
+	return newFontFromPointer(unsafe.Pointer(&cf))
+}
 
 //GuiSetStyle sets a style property
 func GuiSetStyle(control GuiControl, property GuiProperty, value int) {
@@ -177,9 +180,25 @@ func GuiLabelButton(bounds Rectangle, text string) bool {
 	return bool(C.GuiLabelButton(*bounds.cptr(), ctext))
 }
 
-func GuiImageButton(bounds Rectangle, text string, texture Texture2D) bool { return false }
+//GuiImageButton adds a button with an image within it
+func GuiImageButton(bounds Rectangle, text string, texture Texture2D) bool {
+	cbounds := *bounds.cptr()
+	ctexture := *texture.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	res := C.GuiImageButton(cbounds, ctext, ctexture)
+	return bool(res)
+}
+
+//GuiImageButtonEx adds a button with an image within it
 func GuiImageButtonEx(bounds Rectangle, text string, texture Texture2D, texSource Rectangle) bool {
-	return false
+	cbounds := *bounds.cptr()
+	ctexSource := *texSource.cptr()
+	ctexture := *texture.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	res := C.GuiImageButtonEx(cbounds, ctext, ctexture, ctexSource)
+	return bool(res)
 }
 
 //GuiToggle returns true when active
@@ -190,7 +209,7 @@ func GuiToggle(bounds Rectangle, text string, active bool) bool {
 }
 
 //GuiToggleGroup returns active toggle index
-func GuiToggleGroup(bounds Rectangle, text string, int active) int {
+func GuiToggleGroup(bounds Rectangle, text string, active int) int {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	return int(C.GuiToggleGroup(*bounds.cptr(), ctext, C.int(active)))
@@ -202,26 +221,28 @@ func GuiCheckBox(bounds Rectangle, text string, checked bool) bool {
 	defer C.free(unsafe.Pointer(ctext))
 	return bool(C.GuiCheckBox(*bounds.cptr(), ctext, C.bool(checked)))
 }
-func GuiDropdownBox(bounds Rectangle, string text, active *int, bool editMode) bool {
+func GuiDropdownBox(bounds Rectangle, text string, active int, editMode bool) (bool, int) {
 	ctext := C.CString(text)
+	cactive := C.int(active)
 	defer C.free(unsafe.Pointer(ctext))
-	C.GuiDropdownBox(*bounds.cptr(), ctext)
+	res := C.GuiDropdownBox(*bounds.cptr(), ctext, &cactive, C.bool(editMode))
+	return bool(res), int(cactive)
 }
 func GuiSpinner(bounds Rectangle, text string, value int, min int, max int, editMode bool) (bool, int) {
 	cbounds := *bounds.cptr()
 	ctext := C.CString(text)
-	cvalue := &C.int(value)
+	cvalue := C.int(value)
 	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiSpinner(cbounds, ctext, cvalue, C.int(min), C.int(max), c.bool(editMode))
-	return bool(res), int(*cvalue)
+	res := C.GuiSpinner(cbounds, ctext, &cvalue, C.int(min), C.int(max), C.bool(editMode))
+	return bool(res), int(cvalue)
 }
 func GuiValueBox(bounds Rectangle, text string, value int, min int, max int, editMode bool) (bool, int) {
 	cbounds := *bounds.cptr()
 	ctext := C.CString(text)
-	cvalue := &C.int(value)
+	cvalue := C.int(value)
 	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiValueBox(cbounds, ctext, cvalue, C.int(min), C.int(max), c.bool(editMode))
-	return bool(res), int(*cvalue)
+	res := C.GuiValueBox(cbounds, ctext, &cvalue, C.int(min), C.int(max), C.bool(editMode))
+	return bool(res), int(cvalue)
 }
 func GuiTextBox(bounds Rectangle, text string, textSize int, editMode bool) (bool, string) {
 	cbounds := *bounds.cptr()
@@ -241,8 +262,8 @@ func GuiSlider(bounds Rectangle, textLeft string, textRight string, value float3
 	cbounds := *bounds.cptr()
 	ctextLeft := C.CString(textLeft)
 	ctextRight := C.CString(textRight)
-	defer C.free(unsafe.Pointer(textLeft))
-	defer C.free(unsafe.Pointer(textRight))
+	defer C.free(unsafe.Pointer(ctextLeft))
+	defer C.free(unsafe.Pointer(ctextRight))
 	res := C.GuiSlider(cbounds, ctextLeft, ctextRight, C.float(value), C.float(min), C.float(max))
 	return float32(res)
 }
@@ -250,8 +271,8 @@ func GuiSliderBar(bounds Rectangle, textLeft string, textRight string, value flo
 	cbounds := *bounds.cptr()
 	ctextLeft := C.CString(textLeft)
 	ctextRight := C.CString(textRight)
-	defer C.free(unsafe.Pointer(textLeft))
-	defer C.free(unsafe.Pointer(textRight))
+	defer C.free(unsafe.Pointer(ctextLeft))
+	defer C.free(unsafe.Pointer(ctextRight))
 	res := C.GuiSliderBar(cbounds, ctextLeft, ctextRight, C.float(value), C.float(min), C.float(max))
 	return float32(res)
 }
@@ -259,8 +280,8 @@ func GuiProgressBar(bounds Rectangle, textLeft string, textRight string, value f
 	cbounds := *bounds.cptr()
 	ctextLeft := C.CString(textLeft)
 	ctextRight := C.CString(textRight)
-	defer C.free(unsafe.Pointer(textLeft))
-	defer C.free(unsafe.Pointer(textRight))
+	defer C.free(unsafe.Pointer(ctextLeft))
+	defer C.free(unsafe.Pointer(ctextRight))
 	res := C.GuiProgressBar(cbounds, ctextLeft, ctextRight, C.float(value), C.float(min), C.float(max))
 	return float32(res)
 }
@@ -270,7 +291,7 @@ func GuiStatusBar(bounds Rectangle, text string) {
 	defer C.free(unsafe.Pointer(ctext))
 	C.GuiStatusBar(cbounds, ctext)
 }
-func GuiDummyRect(bounds, text string) {
+func GuiDummyRect(bounds Rectangle, text string) {
 	cbounds := *bounds.cptr()
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
@@ -284,5 +305,5 @@ func GuiScrollBar(bounds Rectangle, value, min, max int) int {
 func GuiGrid(bounds Rectangle, spacing float32, subdivs int) Vector2 {
 	cbounds := *bounds.cptr()
 	res := C.GuiGrid(cbounds, C.float(spacing), C.int(subdivs))
-	return newVector2FromPointer(unsafe.Pointer(res))
+	return newVector2FromPointer(unsafe.Pointer(&res))
 }

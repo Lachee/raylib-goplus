@@ -30,6 +30,12 @@ func (q *Quaternion) cptr() *C.Quaternion {
 func (color *Color) cptr() *C.Color {
 	return (*C.Color)(unsafe.Pointer(color))
 }
+func (t *Texture2D) cptr() *C.Texture2D {
+	return (*C.Texture2D)(unsafe.Pointer(t))
+}
+func (i *Image) cptr() *C.Image {
+	return (*C.Image)(unsafe.Pointer(i))
+}
 
 func newRectangleFromPointer(ptr unsafe.Pointer) Rectangle { return *(*Rectangle)(ptr) }
 func (r *Rectangle) cptr() *C.Rectangle {
