@@ -45,6 +45,7 @@ func RaylibTestWorld() {
 	windowVisible := true
 
 	texture := r.LoadTexture("raylib_32x32.png")
+	r.GuiLoadStyle("cyber/cyber.rgs")
 
 	for !r.WindowShouldClose() {
 		frame++

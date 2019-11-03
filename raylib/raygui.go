@@ -307,3 +307,12 @@ func GuiGrid(bounds Rectangle, spacing float32, subdivs int) Vector2 {
 	res := C.GuiGrid(cbounds, C.float(spacing), C.int(subdivs))
 	return newVector2FromPointer(unsafe.Pointer(&res))
 }
+
+func GuiLoadStyle(fileName string) {
+	cs := C.CString(fileName)
+	defer C.free(unsafe.Pointer(cs))
+	C.GuiLoadStyle(cs)
+}
+func GuiLoadStyleDefault() {
+	C.GuiLoadStyleDefault()
+}
