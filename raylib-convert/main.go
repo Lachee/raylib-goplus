@@ -142,10 +142,6 @@ func translatePrototype(prototype *prototype) (string, error) {
 			return "", errors.New("cannot process pointer of pointer arg types")
 		}
 
-		if arg.valueType == "void" {
-			return "", errors.New("cannot process void arg types")
-		}
-
 		//Append to the header
 		argHeaders[i] = arg.name + " " + convertType(arg.valueType)
 		bodyArgPart, bodyPrefixPart := castToC(*arg)
@@ -204,7 +200,8 @@ func castToC(a argument) (string, string) {
 		}
 
 		return "C." + a.valueType + "(" + a.name + ")", ""
-
+	case "void":
+		return a.name, ""
 	case "char":
 		return csname, csname + " := C.CString(" + a.name + ")\ndefer C.free(unsafe.Pointer(" + csname + "))"
 	}
@@ -222,6 +219,8 @@ func castToGo(variable, t string) string {
 		return convertType(t) + "(" + variable + ")"
 	case "char":
 		return "C.GoString(" + variable + ")"
+	case "void":
+		return "unsafe.Pointer(" + variable + ")"
 	default:
 		return "new" + convertType(t) + "FromPointer(unsafe.Pointer(" + variable + "))"
 	}
@@ -236,6 +235,8 @@ func convertType(t string) string {
 		return "float32"
 	case "char":
 		return "string"
+	case "void":
+		return "unsafe.Pointer"
 	}
 }
 
@@ -317,13 +318,13 @@ type argument struct {
 func (p *prototype) HasPointer() bool { return p.pointerDepth > 0 }
 func (p *argument) HasPointer() bool  { return p.pointerDepth > 0 }
 func (p *argument) GetPraticalPointerDepth() int {
-	if p.valueType == "char" {
+	if p.valueType == "char" || p.valueType == "void" {
 		return p.pointerDepth - 1
 	}
 	return p.pointerDepth
 }
 func (p *prototype) GetPraticalPointerDepth() int {
-	if p.returnType == "char" {
+	if p.returnType == "char" || p.returnType == "void" {
 		return p.pointerDepth - 1
 	}
 	return p.pointerDepth

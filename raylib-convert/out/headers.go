@@ -101,6 +101,12 @@ func SetWindowSize(width int, height int) {
 
 }
 
+//GetWindowHandle : Get native window handle
+func GetWindowHandle() {
+	C.GetWindowHandle()
+
+}
+
 //GetScreenWidth : Get current screen width
 func GetScreenWidth() int {
 	res := C.GetScreenWidth()
@@ -1283,6 +1289,13 @@ func GetScreenData() Image {
 	return newImageFromPointer(unsafe.Pointer(&res))
 }
 
+//UpdateTexture : Update GPU texture with new data
+func UpdateTexture(texture Texture2D, pixels unsafe.Pointer) {
+	ctexture := *texture.cptr()
+	C.UpdateTexture(ctexture, pixels)
+
+}
+
 //ImageCopy : Create an image duplicate (useful for transformations)
 func ImageCopy(image Image) Image {
 	cimage := *image.cptr()
@@ -2418,6 +2431,20 @@ func GetShaderLocation(shader Shader, uniformName string) int {
 	return int(&res)
 }
 
+//SetShaderValue : Set shader uniform value
+func SetShaderValue(shader Shader, uniformLoc int, value unsafe.Pointer, uniformType int) {
+	cshader := *shader.cptr()
+	C.SetShaderValue(cshader, C.int(uniformLoc), value, C.int(uniformType))
+
+}
+
+//SetShaderValueV : Set shader uniform value vector
+func SetShaderValueV(shader Shader, uniformLoc int, value unsafe.Pointer, uniformType int, count int) {
+	cshader := *shader.cptr()
+	C.SetShaderValueV(cshader, C.int(uniformLoc), value, C.int(uniformType), C.int(count))
+
+}
+
 //SetShaderValueMatrix : Set shader uniform value (matrix 4x4)
 func SetShaderValueMatrix(shader Shader, uniformLoc int, mat Matrix) {
 	cmat := *mat.cptr()
@@ -2612,6 +2639,13 @@ func LoadSoundFromWave(wave Wave) Sound {
 	cwave := *wave.cptr()
 	res := C.LoadSoundFromWave(cwave)
 	return newSoundFromPointer(unsafe.Pointer(&res))
+}
+
+//UpdateSound : Update sound buffer with new data
+func UpdateSound(sound Sound, data unsafe.Pointer, samplesCount int) {
+	csound := *sound.cptr()
+	C.UpdateSound(csound, data, C.int(samplesCount))
+
 }
 
 //UnloadWave : Unload wave data
@@ -2831,6 +2865,13 @@ func GetMusicTimePlayed(music Music) float32 {
 func InitAudioStream(sampleRate int, sampleSize int, channels int) AudioStream {
 	res := C.InitAudioStream(C.int(sampleRate), C.int(sampleSize), C.int(channels))
 	return newAudioStreamFromPointer(unsafe.Pointer(&res))
+}
+
+//UpdateAudioStream : Update audio stream buffers with data
+func UpdateAudioStream(stream AudioStream, data unsafe.Pointer, samplesCount int) {
+	cstream := *stream.cptr()
+	C.UpdateAudioStream(cstream, data, C.int(samplesCount))
+
 }
 
 //CloseAudioStream : Close audio stream and free memory

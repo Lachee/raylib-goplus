@@ -1,7 +1,4 @@
 
-//cannot process pointer return types
-RLAPI void *GetWindowHandle(void);                                // Get native window handle
-
 //invalid amount of matches for arguments
 RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR)
 
@@ -16,9 +13,6 @@ RLAPI Color *GetImageData(Image image);                                         
 
 //cannot process pointer return types
 RLAPI Vector4 *GetImageDataNormalized(Image image);                                                      // Get pixel data from image as Vector4 array (float normalized)
-
-//cannot process void arg types
-RLAPI void UpdateTexture(Texture2D texture, const void *pixels);                                         // Update GPU texture with new data
 
 //cannot process pointer return types
 RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)
@@ -53,17 +47,5 @@ RLAPI Material *LoadMaterials(const char *fileName, int *materialCount);        
 //cannot process pointer return types
 RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animsCount);                       // Load model animations from file
 
-//cannot process void arg types
-RLAPI void SetShaderValue(Shader shader, int uniformLoc, const void *value, int uniformType);               // Set shader uniform value
-
-//cannot process void arg types
-RLAPI void SetShaderValueV(Shader shader, int uniformLoc, const void *value, int uniformType, int count);   // Set shader uniform value vector
-
-//cannot process void arg types
-RLAPI void UpdateSound(Sound sound, const void *data, int samplesCount);// Update sound buffer with new data
-
 //cannot process pointer return types
 RLAPI float *GetWaveData(Wave wave);                                  // Get samples data from wave as a floats array
-
-//cannot process void arg types
-RLAPI void UpdateAudioStream(AudioStream stream, const void *data, int samplesCount); // Update audio stream buffers with data
