@@ -50,6 +50,7 @@ func main() {
 	fileHeader := defaultHeader
 	filenameSuccess := "main" + *fileSuffix + ".go"
 	filenameFailed := "main" + *fileSuffix + ".failed"
+	ignoring := false
 
 	//Read each line of the input file and generate the prototypes
 	scanner := bufio.NewScanner(file)
@@ -87,11 +88,19 @@ func main() {
 				case "cgo":
 					fileHeader = fileHeader + strings.Join(parts[2:], ":") + "\n"
 					fmt.Println("Header: " + fileHeader)
+
+				case "ignore":
+					ignoring = parts[2] == "start"
 				}
 
 			}
 
 			//Skip because its a command line
+			continue
+		}
+
+		//We are ignoring, so skip the lines
+		if ignoring {
 			continue
 		}
 
