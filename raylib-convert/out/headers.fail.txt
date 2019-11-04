@@ -1,0 +1,399 @@
+
+//cannot process pointer return types
+RLAPI void *GetWindowHandle(void);                                // Get native window handle
+
+//invalid amount of matches for arguments
+RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR)
+
+//invalid amount of matches for header
+RLAPI char **GetDirectoryFiles(const char *dirPath, int *count);  // Get filenames in a directory path (memory should be freed)
+
+//invalid amount of matches for header
+RLAPI char **GetDroppedFiles(int *count);                         // Get dropped files names (memory should be freed)
+
+//invalid amount of matches for header
+RLAPI unsigned char *CompressData(unsigned char *data, int dataLength, int *compDataLength);        // Compress data (DEFLATE algorythm)
+
+//invalid amount of matches for header
+RLAPI unsigned char *DecompressData(unsigned char *compData, int compDataLength, int *dataLength);  // Decompress data (DEFLATE algorythm)
+
+//cannot process pointer arg types
+RLAPI void UpdateCamera(Camera *camera);                          // Update camera position for selected mode
+
+//cannot process pointer arg types
+RLAPI void DrawLineStrip(Vector2 *points, int numPoints, Color color);                                   // Draw lines sequence
+
+//cannot process pointer arg types
+RLAPI void DrawTriangleFan(Vector2 *points, int numPoints, Color color);                                 // Draw a triangle fan defined by points (first vertex is the center)
+
+//cannot process pointer arg types
+RLAPI void DrawTriangleStrip(Vector2 *points, int pointsCount, Color color);                             // Draw a triangle strip defined by points
+
+//cannot process pointer arg types
+RLAPI Image LoadImageEx(Color *pixels, int width, int height);                                           // Load image from Color array data (RGBA - 32bit)
+
+//cannot process pointer arg types
+RLAPI Image LoadImagePro(void *data, int width, int height, int format);                                 // Load image from raw data with parameters
+
+//cannot process pointer return types
+RLAPI Color *GetImageData(Image image);                                                                  // Get pixel data from image as a Color struct array
+
+//cannot process pointer return types
+RLAPI Vector4 *GetImageDataNormalized(Image image);                                                      // Get pixel data from image as Vector4 array (float normalized)
+
+//cannot process pointer arg types
+RLAPI void UpdateTexture(Texture2D texture, const void *pixels);                                         // Update GPU texture with new data
+
+//cannot process pointer arg types
+RLAPI void ImageToPOT(Image *image, Color fillColor);                                                    // Convert image to POT (power-of-two)
+
+//cannot process pointer arg types
+RLAPI void ImageFormat(Image *image, int newFormat);                                                     // Convert image data to desired format
+
+//cannot process pointer arg types
+RLAPI void ImageAlphaMask(Image *image, Image alphaMask);                                                // Apply alpha mask to image
+
+//cannot process pointer arg types
+RLAPI void ImageAlphaClear(Image *image, Color color, float threshold);                                  // Clear alpha channel to desired color
+
+//cannot process pointer arg types
+RLAPI void ImageAlphaCrop(Image *image, float threshold);                                                // Crop image depending on alpha value
+
+//cannot process pointer arg types
+RLAPI void ImageAlphaPremultiply(Image *image);                                                          // Premultiply alpha channel
+
+//cannot process pointer arg types
+RLAPI void ImageCrop(Image *image, Rectangle crop);                                                      // Crop an image to a defined rectangle
+
+//cannot process pointer arg types
+RLAPI void ImageResize(Image *image, int newWidth, int newHeight);                                       // Resize image (Bicubic scaling algorithm)
+
+//cannot process pointer arg types
+RLAPI void ImageResizeNN(Image *image, int newWidth,int newHeight);                                      // Resize image (Nearest-Neighbor scaling algorithm)
+
+//cannot process pointer arg types
+RLAPI void ImageResizeCanvas(Image *image, int newWidth, int newHeight, int offsetX, int offsetY, Color color);  // Resize canvas and fill with color
+
+//cannot process pointer arg types
+RLAPI void ImageMipmaps(Image *image);                                                                   // Generate all mipmap levels for a provided image
+
+//cannot process pointer arg types
+RLAPI void ImageDither(Image *image, int rBpp, int gBpp, int bBpp, int aBpp);                            // Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
+
+//cannot process pointer return types
+RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)
+
+//cannot process pointer arg types
+RLAPI void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint);             // Draw a source image within a destination image (tint applied to source)
+
+//cannot process pointer arg types
+RLAPI void ImageDrawRectangle(Image *dst, Rectangle rec, Color color);                                   // Draw rectangle within an image
+
+//cannot process pointer arg types
+RLAPI void ImageDrawRectangleLines(Image *dst, Rectangle rec, int thick, Color color);                   // Draw rectangle lines within an image
+
+//cannot process pointer arg types
+RLAPI void ImageDrawText(Image *dst, Vector2 position, const char *text, int fontSize, Color color);     // Draw text (default font) within an image (destination)
+
+//cannot process pointer arg types
+RLAPI void ImageDrawTextEx(Image *dst, Vector2 position, Font font, const char *text, float fontSize, float spacing, Color color); // Draw text (custom sprite font) within an image (destination)
+
+//cannot process pointer arg types
+RLAPI void ImageFlipVertical(Image *image);                                                              // Flip image vertically
+
+//cannot process pointer arg types
+RLAPI void ImageFlipHorizontal(Image *image);                                                            // Flip image horizontally
+
+//cannot process pointer arg types
+RLAPI void ImageRotateCW(Image *image);                                                                  // Rotate image clockwise 90deg
+
+//cannot process pointer arg types
+RLAPI void ImageRotateCCW(Image *image);                                                                 // Rotate image counter-clockwise 90deg
+
+//cannot process pointer arg types
+RLAPI void ImageColorTint(Image *image, Color color);                                                    // Modify image color: tint
+
+//cannot process pointer arg types
+RLAPI void ImageColorInvert(Image *image);                                                               // Modify image color: invert
+
+//cannot process pointer arg types
+RLAPI void ImageColorGrayscale(Image *image);                                                            // Modify image color: grayscale
+
+//cannot process pointer arg types
+RLAPI void ImageColorContrast(Image *image, float contrast);                                             // Modify image color: contrast (-100 to 100)
+
+//cannot process pointer arg types
+RLAPI void ImageColorBrightness(Image *image, int brightness);                                           // Modify image color: brightness (-255 to 255)
+
+//cannot process pointer arg types
+RLAPI void ImageColorReplace(Image *image, Color color, Color replace);                                  // Modify image color: replace color
+
+//cannot process pointer arg types
+RLAPI void GenTextureMipmaps(Texture2D *texture);                                                        // Generate GPU mipmaps for a texture
+
+//cannot process pointer arg types
+RLAPI Font LoadFontEx(const char *fileName, int fontSize, int *fontChars, int charsCount);  // Load font from file with extended parameters
+
+//cannot process pointer return types
+RLAPI CharInfo *LoadFontData(const char *fileName, int fontSize, int *fontChars, int charsCount, int type); // Load font data for further use
+
+//invalid amount of matches for arguments
+RLAPI Image GenImageFontAtlas(const CharInfo *chars, Rectangle **recs, int charsCount, int fontSize, int padding, int packMethod);  // Generate image font atlas using chars info
+
+//invalid amount of matches for header
+RLAPI void DrawTextRecEx(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint,
+
+//invalid amount of matches for header
+                         int selectStart, int selectLength, Color selectText, Color selectBack);    // Draw text using font inside rectangle limits with support for text selection
+
+//invalid amount of matches for header
+RLAPI unsigned int TextLength(const char *text);                                            // Get text length, checks for '\0' ending
+
+//invalid amount of matches for arguments
+RLAPI const char *TextFormat(const char *text, ...);                                        // Text formatting with variables (sprintf style)
+
+//invalid amount of matches for header
+RLAPI const char **TextSplit(const char *text, char delimiter, int *count);                 // Split text into multiple strings
+
+//cannot process pointer arg types
+RLAPI void TextAppend(char *text, const char *append, int *position);                       // Append text at specific position and move cursor!
+
+//cannot process pointer arg types
+RLAPI char *TextToUtf8(int *codepoints, int length);                  // Encode text codepoint into utf8 text (memory must be freed!)
+
+//cannot process pointer return types
+RLAPI int *GetCodepoints(const char *text, int *count);               // Get all codepoints in a string, codepoints count returned by parameters
+
+//cannot process pointer arg types
+RLAPI int GetNextCodepoint(const char *text, int *bytesProcessed);    // Returns next codepoint in a UTF8 encoded string; 0x3f('?') is returned on failure
+
+//cannot process pointer arg types
+RLAPI const char *CodepointToUtf8(int codepoint, int *byteLength);    // Encode codepoint into utf8 text (char array length returned as parameter)
+
+//cannot process pointer return types
+RLAPI Mesh *LoadMeshes(const char *fileName, int *meshCount);                                           // Load meshes from model file
+
+//cannot process pointer return types
+RLAPI Material *LoadMaterials(const char *fileName, int *materialCount);                                // Load materials from model file
+
+//cannot process pointer arg types
+RLAPI void SetMaterialTexture(Material *material, int mapType, Texture2D texture);                      // Set texture for a material map type (MAP_DIFFUSE, MAP_SPECULAR...)
+
+//cannot process pointer arg types
+RLAPI void SetModelMeshMaterial(Model *model, int meshId, int materialId);                              // Set material for a mesh
+
+//cannot process pointer return types
+RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animsCount);                       // Load model animations from file
+
+//cannot process pointer arg types
+RLAPI void MeshTangents(Mesh *mesh);                                                                    // Compute mesh tangents
+
+//cannot process pointer arg types
+RLAPI void MeshBinormals(Mesh *mesh);                                                                   // Compute mesh binormals
+
+//cannot process pointer arg types
+RLAPI bool CheckCollisionRaySphereEx(Ray ray, Vector3 center, float radius, Vector3 *collisionPoint);   // Detect collision between ray and sphere, returns collision point
+
+//cannot process pointer arg types
+RLAPI void SetShaderValue(Shader shader, int uniformLoc, const void *value, int uniformType);               // Set shader uniform value
+
+//cannot process pointer arg types
+RLAPI void SetShaderValueV(Shader shader, int uniformLoc, const void *value, int uniformType, int count);   // Set shader uniform value vector
+
+//cannot process pointer arg types
+RLAPI void UpdateVrTracking(Camera *camera);            // Update VR tracking (position and orientation) and camera
+
+//cannot process pointer arg types
+RLAPI void UpdateSound(Sound sound, const void *data, int samplesCount);// Update sound buffer with new data
+
+//cannot process pointer arg types
+RLAPI void WaveFormat(Wave *wave, int sampleRate, int sampleSize, int channels);  // Convert wave data to desired format
+
+//cannot process pointer arg types
+RLAPI void WaveCrop(Wave *wave, int initSample, int finalSample);     // Crop a wave to defined samples range
+
+//cannot process pointer return types
+RLAPI float *GetWaveData(Wave wave);                                  // Get samples data from wave as a floats array
+
+//cannot process pointer arg types
+RLAPI void UpdateAudioStream(AudioStream stream, const void *data, int samplesCount); // Update audio stream buffers with data
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiEnable(void);                                         // Enable gui controls (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiDisable(void);                                        // Disable gui controls (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiLock(void);                                           // Lock gui controls (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiUnlock(void);                                         // Unlock gui controls (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiFade(float alpha);                                    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiSetState(int state);                                  // Set gui state (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiGetState(void);                                        // Get gui state (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiSetFont(Font font);                                   // Set gui custom font (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF Font GuiGetFont(void);                                        // Get gui custom font (global state)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiSetStyle(int control, int property, int value);       // Set one style property
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiGetStyle(int control, int property);                   // Get one style property
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxSetActive(Rectangle bounds);                   // Sets the active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF Rectangle GuiTextBoxGetActive(void);                          // Get bounds of active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxSetCursor(int cursor);                         // Set cursor position of active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiTextBoxGetCursor(void);                                // Get cursor position of active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxSetSelection(int start, int length);           // Set selection of active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF Vector2 GuiTextBoxGetSelection(void);                         // Get selection of active textbox (x - selection start  y - selection length)
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiTextBoxIsActive(Rectangle bounds);                    // Returns true if a textbox control with specified `bounds` is the active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF GuiTextBoxState GuiTextBoxGetState(void);                     // Get state for the active textbox
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxSetState(GuiTextBoxState state);               // Set state for the active textbox (state must be valid else things will break)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxSelectAll(const char *text);                   // Select all characters in the active textbox (same as pressing `CTRL` + `A`)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxCopy(const char *text);                        // Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxPaste(char *text, int textSize);               // Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiTextBoxCut(char *text);                               // Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiTextBoxDelete(char *text, int length, bool before);    // Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiTextBoxGetByteIndex(const char *text, int start, int from, int to); // Get the byte index for a character starting at position `from` with index `start` until position `to`.
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiWindowBox(Rectangle bounds, const char *title);                                       // Window Box control, shows a window that can be closed
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiGroupBox(Rectangle bounds, const char *text);                                         // Group Box control with text name
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiLine(Rectangle bounds, const char *text);                                             // Line separator control, could contain text
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiPanel(Rectangle bounds);                                                              // Panel control, useful to group controls
+
+//invalid amount of matches for header
+RAYGUIDEF Rectangle GuiScrollPanel(Rectangle bounds, Rectangle content, Vector2 *scroll);               // Scroll Panel control
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiLabel(Rectangle bounds, const char *text);                                            // Label control, shows text
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiButton(Rectangle bounds, const char *text);                                           // Button control, returns true when clicked
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiLabelButton(Rectangle bounds, const char *text);                                      // Label button control, show true when clicked
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiImageButton(Rectangle bounds, const char *text, Texture2D texture);                   // Image button control, returns true when clicked
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiImageButtonEx(Rectangle bounds, const char *text, Texture2D texture, Rectangle texSource);    // Image button extended control, returns true when clicked
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiToggle(Rectangle bounds, const char *text, bool active);                              // Toggle Button control, returns true when active
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiToggleGroup(Rectangle bounds, const char *text, int active);                           // Toggle Group control, returns active toggle index
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiCheckBox(Rectangle bounds, const char *text, bool checked);                           // Check Box control, returns true when active
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiComboBox(Rectangle bounds, const char *text, int active);                              // Combo Box control, returns selected item index
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);          // Dropdown Box control, returns selected item
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiSpinner(Rectangle bounds, const char *text, int *value, int minValue, int maxValue, bool editMode);     // Spinner control, returns selected value
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, int maxValue, bool editMode);    // Value Box control, updates input text with numbers
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editMode);                   // Text Box control, updates input text
+
+//invalid amount of matches for header
+RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool editMode);              // Text Box control with multiple lines
+
+//invalid amount of matches for header
+RAYGUIDEF float GuiSlider(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);       // Slider control, returns selected value
+
+//invalid amount of matches for header
+RAYGUIDEF float GuiSliderBar(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);    // Slider Bar control, returns selected value
+
+//invalid amount of matches for header
+RAYGUIDEF float GuiProgressBar(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);  // Progress Bar control, shows current progress value
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiStatusBar(Rectangle bounds, const char *text);                                        // Status Bar control, shows info text
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiDummyRec(Rectangle bounds, const char *text);                                         // Dummy control for placeholders
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxValue);                    // Scroll Bar control
+
+//invalid amount of matches for header
+RAYGUIDEF Vector2 GuiGrid(Rectangle bounds, float spacing, int subdivs);                                // Grid control
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiListView(Rectangle bounds, const char *text, int *scrollIndex, int active);            // List View control, returns selected list item index
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiListViewEx(Rectangle bounds, const char **text, int count, int *focus, int *scrollIndex, int active);      // List View with extended parameters
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *buttons);                 // Message Box control, displays a message
+
+//invalid amount of matches for header
+RAYGUIDEF int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, const char *buttons, char *text);   // Text Input Box control, ask for text
+
+//invalid amount of matches for header
+RAYGUIDEF Color GuiColorPicker(Rectangle bounds, Color color);                                          // Color Picker control
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiLoadStyle(const char *fileName);              // Load style file (.rgs)
+
+//invalid amount of matches for header
+RAYGUIDEF void GuiLoadStyleDefault(void);                       // Load style default over global style
+
+//invalid amount of matches for header
+RAYGUIDEF const char *GuiIconText(int iconId, const char *text); // Get text with icon id prepended
