@@ -28,11 +28,23 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
+		//Read the line
 		line := scanner.Text()
 		p, err := parseLine(line)
-		if err == nil {
+
+		if err != nil {
+			//Failed to parse the file
+			fmt.Println("Failed: ", line, err)
+			failed = append(failed, "\n//"+err.Error()+"\n"+line)
+		} else {
+			//We parsed it, but comments return no errors and nil prototypes.
 			if p != nil {
+
+				//Add the prototype to our list of processed.
 				prototypes = append(prototypes, p)
+
+				//Translate it. If we are successful then add it to our success list,
+				// otherwise add it to our fail list
 				trans, terr := translatePrototype(p)
 				if terr == nil {
 					success = append(success, trans)
@@ -41,9 +53,6 @@ func main() {
 					failed = append(failed, "\n//"+terr.Error()+"\n"+line)
 				}
 			}
-		} else {
-			fmt.Println("Failed: ", line, err)
-			failed = append(failed, "\n//"+err.Error()+"\n"+line)
 		}
 	}
 
@@ -55,6 +64,7 @@ func main() {
 	failedResults := strings.Join(failed, "\n")
 	sucessResults := "package raylib\n" + strings.Join(success, "\n")
 
+	//Write the failures
 	ioutil.WriteFile("out/headers.fail.txt", []byte(failedResults), 0644)
 
 	if format {
@@ -75,7 +85,7 @@ func main() {
 		ioutil.WriteFile("out/headers.go", []byte(sucessResults), 0644)
 	}
 
-	fmt.Println("Completed ", len(success), " / ", len(prototypes), " functions")
+	fmt.Println("Completed ", len(success), " / ", len(prototypes), " functions (", (float64(len(success)) / float64(len(prototypes)) * 100), "% Yield)")
 	fmt.Println("DOES NOT HAVE RETURN TYPES YET")
 }
 
@@ -179,7 +189,6 @@ func parseLine(line string) (*prototype, error) {
 		//return nil, errors.New("line is a comment or blank")
 	}
 
-	//rePrototype := regexp.MustCompile(`(RLAPI|RAYGUIDEF)\s+(\w{2,})\s+(\w+)\s?\(([^!@#$+%^]+?)\);\s*\/\/(.*)`)
 	rePrototype := regexp.MustCompile(`(RLAPI)( const)?\s+([a-zA-Z0-9]{2,}(\s?\*)?)\s?(\w+)\s?\(([^!@#$+%^]+?)\);\s*\/\/(.*)`)
 	reArgument := regexp.MustCompile(`(const |unsigned )?([a-zA-Z0-9]+) (\*?)([a-zA-Z0-9]+)`)
 
