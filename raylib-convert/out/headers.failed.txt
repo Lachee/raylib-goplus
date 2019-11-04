@@ -2,27 +2,6 @@
 //cannot process pointer return types
 RLAPI void *GetWindowHandle(void);                                // Get native window handle
 
-//invalid amount of matches for header
-RLAPI void BeginMode2D(Camera2D camera);                          // Initialize 2D mode with custom camera (2D)
-
-//invalid amount of matches for header
-RLAPI void EndMode2D(void);                                       // Ends 2D mode with custom camera
-
-//invalid amount of matches for header
-RLAPI void BeginMode3D(Camera3D camera);                          // Initializes 3D mode with custom camera (3D)
-
-//invalid amount of matches for header
-RLAPI void EndMode3D(void);                                       // Ends 3D mode and returns to default 2D orthographic mode
-
-//invalid amount of matches for header
-RLAPI Matrix GetCameraMatrix2D(Camera2D camera);                  // Returns camera 2d transform matrix
-
-//invalid amount of matches for header
-RLAPI Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Returns the screen space position for a 2d camera world space position
-
-//invalid amount of matches for header
-RLAPI Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // Returns the world space position for a 2d camera screen space position
-
 //invalid amount of matches for arguments
 RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR)
 
@@ -62,20 +41,8 @@ RLAPI const char *TextFormat(const char *text, ...);                            
 //cannot process pointer return types
 RLAPI const char **TextSplit(const char *text, char delimiter, int *count);                 // Split text into multiple strings
 
-//invalid amount of matches for header
-RLAPI char *TextToUtf8(int *codepoints, int length);                  // Encode text codepoint into utf8 text (memory must be freed!)
-
 //cannot process pointer return types
 RLAPI int *GetCodepoints(const char *text, int *count);               // Get all codepoints in a string, codepoints count returned by parameters
-
-//invalid amount of matches for header
-RLAPI const char *CodepointToUtf8(int codepoint, int *byteLength);    // Encode codepoint into utf8 text (char array length returned as parameter)
-
-//invalid amount of matches for header
-RLAPI void DrawLine3D(Vector3 startPos, Vector3 endPos, Color color);                                    // Draw a line in 3D world space
-
-//invalid amount of matches for header
-RLAPI void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color); // Draw a circle in 3D world space
 
 //cannot process pointer return types
 RLAPI Mesh *LoadMeshes(const char *fileName, int *meshCount);                                           // Load meshes from model file

@@ -247,7 +247,7 @@ func parseLine(line string) (*prototype, error) {
 		return nil, nil
 	}
 
-	rePrototype := regexp.MustCompile(`(RAYGUIDEF|RLAPI) (const |unsigned )?([a-zA-Z0-9]+) (\**)([a-zA-Z]+)\s?\(([^!@#$+%^]+?)\);\s*(\/\/(.*))?`)
+	rePrototype := regexp.MustCompile(`(RAYGUIDEF|RLAPI) (const |unsigned )?([a-zA-Z0-9]+) (\**)([a-zA-Z0-9]+)\s?\(([^!@#$+%^]+?)\);\s*(\/\/(.*))?`)
 	reArgument := regexp.MustCompile(`(const |unsigned )?([a-zA-Z0-9]+) (\**)([a-zA-Z0-9]+)`)
 
 	matches := rePrototype.FindAllStringSubmatch(line, -1)

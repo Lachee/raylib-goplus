@@ -218,6 +218,32 @@ func EndDrawing() {
 
 }
 
+//BeginMode2D : Initialize 2D mode with custom camera (2D)
+func BeginMode2D(camera Camera2D) {
+	ccamera := *camera.cptr()
+	C.BeginMode2D(ccamera)
+
+}
+
+//EndMode2D : Ends 2D mode with custom camera
+func EndMode2D() {
+	C.EndMode2D()
+
+}
+
+//BeginMode3D : Initializes 3D mode with custom camera (3D)
+func BeginMode3D(camera Camera3D) {
+	ccamera := *camera.cptr()
+	C.BeginMode3D(ccamera)
+
+}
+
+//EndMode3D : Ends 3D mode and returns to default 2D orthographic mode
+func EndMode3D() {
+	C.EndMode3D()
+
+}
+
 //BeginTextureMode : Initializes render texture for drawing
 func BeginTextureMode(target RenderTexture2D) {
 	ctarget := *target.cptr()
@@ -258,11 +284,34 @@ func GetCameraMatrix(camera Camera) Matrix {
 	return newMatrixFromPointer(unsafe.Pointer(&res))
 }
 
+//GetCameraMatrix2D : Returns camera 2d transform matrix
+func GetCameraMatrix2D(camera Camera2D) Matrix {
+	ccamera := *camera.cptr()
+	res := C.GetCameraMatrix2D(ccamera)
+	return newMatrixFromPointer(unsafe.Pointer(&res))
+}
+
 //GetWorldToScreen : Returns the screen space position for a 3d world space position
 func GetWorldToScreen(position Vector3, camera Camera) Vector2 {
 	ccamera := *camera.cptr()
 	cposition := *position.cptr()
 	res := C.GetWorldToScreen(cposition, ccamera)
+	return newVector2FromPointer(unsafe.Pointer(&res))
+}
+
+//GetWorldToScreen2D : Returns the screen space position for a 2d camera world space position
+func GetWorldToScreen2D(position Vector2, camera Camera2D) Vector2 {
+	ccamera := *camera.cptr()
+	cposition := *position.cptr()
+	res := C.GetWorldToScreen2D(cposition, ccamera)
+	return newVector2FromPointer(unsafe.Pointer(&res))
+}
+
+//GetScreenToWorld2D : Returns the world space position for a 2d camera screen space position
+func GetScreenToWorld2D(position Vector2, camera Camera2D) Vector2 {
+	ccamera := *camera.cptr()
+	cposition := *position.cptr()
+	res := C.GetScreenToWorld2D(cposition, ccamera)
 	return newVector2FromPointer(unsafe.Pointer(&res))
 }
 
@@ -1834,6 +1883,13 @@ func TextToInteger(text string) int {
 	return int(&res)
 }
 
+//TextToUtf8 : Encode text codepoint into utf8 text (memory must be freed!)
+func TextToUtf8(codepoints int, length int) (string, int) {
+	ccodepoints := C.int(codepoints)
+	res := C.TextToUtf8(&ccodepoints, C.int(length))
+	return C.GoString(&res), int(ccodepoints)
+}
+
 //GetCodepointsCount : Get total number of characters (codepoints) in a UTF8 encoded string
 func GetCodepointsCount(text string) int {
 	ctext := C.CString(text)
@@ -1849,6 +1905,31 @@ func GetNextCodepoint(text string, bytesProcessed int) (int, int) {
 	defer C.free(unsafe.Pointer(ctext))
 	res := C.GetNextCodepoint(ctext, &cbytesProcessed)
 	return int(&res), int(cbytesProcessed)
+}
+
+//CodepointToUtf8 : Encode codepoint into utf8 text (char array length returned as parameter)
+func CodepointToUtf8(codepoint int, byteLength int) (string, int) {
+	cbyteLength := C.int(byteLength)
+	res := C.CodepointToUtf8(C.int(codepoint), &cbyteLength)
+	return C.GoString(&res), int(cbyteLength)
+}
+
+//DrawLine3D : Draw a line in 3D world space
+func DrawLine3D(startPos Vector3, endPos Vector3, color Color) {
+	ccolor := *color.cptr()
+	cendPos := *endPos.cptr()
+	cstartPos := *startPos.cptr()
+	C.DrawLine3D(cstartPos, cendPos, ccolor)
+
+}
+
+//DrawCircle3D : Draw a circle in 3D world space
+func DrawCircle3D(center Vector3, radius float32, rotationAxis Vector3, rotationAngle float32, color Color) {
+	ccolor := *color.cptr()
+	crotationAxis := *rotationAxis.cptr()
+	ccenter := *center.cptr()
+	C.DrawCircle3D(ccenter, C.float(radius), crotationAxis, C.float(rotationAngle), ccolor)
+
 }
 
 //DrawCube : Draw cube
