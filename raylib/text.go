@@ -1,7 +1,9 @@
 package raylib
 
-//#include "raylib.h"
-//#include <stdlib.h>
+/*
+#include "raylib.h"
+#include <stdlib.h>
+*/
 import "C"
 import "unsafe"
 

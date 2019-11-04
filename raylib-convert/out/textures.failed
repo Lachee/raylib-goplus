@@ -1,9 +1,0 @@
-
-//cannot process pointer return types
-RLAPI Color *GetImageData(Image image);                                                                  // Get pixel data from image as a Color struct array
-
-//cannot process pointer return types
-RLAPI Vector4 *GetImageDataNormalized(Image image);                                                      // Get pixel data from image as Vector4 array (float normalized)
-
-//cannot process pointer return types
-RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)

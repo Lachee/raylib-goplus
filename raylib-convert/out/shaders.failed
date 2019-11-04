@@ -1,3 +1,0 @@
-
-//cannot process pointer return types
-RLAPI char *LoadText(const char *fileName);                               // Load chars array from text file

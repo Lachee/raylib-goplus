@@ -567,6 +567,7 @@ RLAPI void SetAudioStreamPitch(AudioStream stream, float pitch);      // Set pit
 
 //RAYGUI
 //conv:g:raygui
+//conv:cgo:#include "raygui.h"
 // Global gui modification functions
 RAYGUIDEF void GuiEnable(void);                                         // Enable gui controls (global state)
 RAYGUIDEF void GuiDisable(void);                                        // Disable gui controls (global state)
@@ -583,24 +584,6 @@ RAYGUIDEF Font GuiGetFont(void);                                        // Get g
 // Style set/get functions
 RAYGUIDEF void GuiSetStyle(int control, int property, int value);       // Set one style property
 RAYGUIDEF int GuiGetStyle(int control, int property);                   // Get one style property
-
-
-// GuiTextBox() extended functions
-RAYGUIDEF void GuiTextBoxSetActive(Rectangle bounds);                   // Sets the active textbox
-RAYGUIDEF Rectangle GuiTextBoxGetActive(void);                          // Get bounds of active textbox
-RAYGUIDEF void GuiTextBoxSetCursor(int cursor);                         // Set cursor position of active textbox
-RAYGUIDEF int GuiTextBoxGetCursor(void);                                // Get cursor position of active textbox
-RAYGUIDEF void GuiTextBoxSetSelection(int start, int length);           // Set selection of active textbox
-RAYGUIDEF Vector2 GuiTextBoxGetSelection(void);                         // Get selection of active textbox (x - selection start  y - selection length)
-RAYGUIDEF bool GuiTextBoxIsActive(Rectangle bounds);                    // Returns true if a textbox control with specified `bounds` is the active textbox
-RAYGUIDEF GuiTextBoxState GuiTextBoxGetState(void);                     // Get state for the active textbox
-RAYGUIDEF void GuiTextBoxSetState(GuiTextBoxState state);               // Set state for the active textbox (state must be valid else things will break)
-RAYGUIDEF void GuiTextBoxSelectAll(const char *text);                   // Select all characters in the active textbox (same as pressing `CTRL` + `A`)
-RAYGUIDEF void GuiTextBoxCopy(const char *text);                        // Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
-RAYGUIDEF void GuiTextBoxPaste(char *text, int textSize);               // Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
-RAYGUIDEF void GuiTextBoxCut(char *text);                               // Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
-RAYGUIDEF int GuiTextBoxDelete(char *text, int length, bool before);    // Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
-RAYGUIDEF int GuiTextBoxGetByteIndex(const char *text, int start, int from, int to); // Get the byte index for a character starting at position `from` with index `start` until position `to`.
 
 
 // Container/separator controls, useful for controls organization
@@ -645,3 +628,23 @@ RAYGUIDEF void GuiLoadStyle(const char *fileName);              // Load style fi
 RAYGUIDEF void GuiLoadStyleDefault(void);                       // Load style default over global style
 
 RAYGUIDEF const char *GuiIconText(int iconId, const char *text); // Get text with icon id prepended
+
+//conv:g:rayguiext
+//conv:cgo:#define RAYGUI_TEXTBOX_EXTENDED
+//conv:cgo:#include "raygui.h"
+// GuiTextBox() extended functions
+RAYGUIDEF void GuiTextBoxSetActive(Rectangle bounds);                   // Sets the active textbox
+RAYGUIDEF Rectangle GuiTextBoxGetActive(void);                          // Get bounds of active textbox
+RAYGUIDEF void GuiTextBoxSetCursor(int cursor);                         // Set cursor position of active textbox
+RAYGUIDEF int GuiTextBoxGetCursor(void);                                // Get cursor position of active textbox
+RAYGUIDEF void GuiTextBoxSetSelection(int start, int length);           // Set selection of active textbox
+RAYGUIDEF Vector2 GuiTextBoxGetSelection(void);                         // Get selection of active textbox (x - selection start  y - selection length)
+RAYGUIDEF bool GuiTextBoxIsActive(Rectangle bounds);                    // Returns true if a textbox control with specified `bounds` is the active textbox
+RAYGUIDEF GuiTextBoxState GuiTextBoxGetState(void);                     // Get state for the active textbox
+RAYGUIDEF void GuiTextBoxSetState(GuiTextBoxState state);               // Set state for the active textbox (state must be valid else things will break)
+RAYGUIDEF void GuiTextBoxSelectAll(const char *text);                   // Select all characters in the active textbox (same as pressing `CTRL` + `A`)
+RAYGUIDEF void GuiTextBoxCopy(const char *text);                        // Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
+RAYGUIDEF void GuiTextBoxPaste(char *text, int textSize);               // Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
+RAYGUIDEF void GuiTextBoxCut(char *text);                               // Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
+RAYGUIDEF int GuiTextBoxDelete(char *text, int length, bool before);    // Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
+RAYGUIDEF int GuiTextBoxGetByteIndex(const char *text, int start, int from, int to); // Get the byte index for a character starting at position `from` with index `start` until position `to`.

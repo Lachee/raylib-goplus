@@ -1,8 +1,17 @@
-//GuiListViewEx :  List View with extended parameters
-func GuiListViewEx(bounds Rectangle, text string, count int, focus int, scrollIndex int, active int) (int, string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
+//GuiListViewEx : List View with extended parameters
+func GuiListViewEx(bounds Rectangle, text []string, count int, focus int, scrollIndex int, active int) (int, int, int) {
+	cscrollIndex := C.int(scrollIndex)
+	cfocus := C.int(focus)
 	cbounds := *bounds.cptr()
-	res := C.GuiListViewEx(cbounds, &ctext, C.int(count), C.int(focus), C.int(scrollIndex), C.int(active))
-	return int(res), C.GoString(ctext)
+	
+	//Copies the string into an array in C memory
+	cargs := C.makeCharArray(C.int(len(text)))
+	defer C.freeCharArray(cargs, C.int(len(text)))
+	for i, s := range sargs {
+        C.setArrayString(cargs, C.CString(s), C.int(i))
+	}
+
+	//Create the thingy
+	res := C.GuiListViewEx(cbounds, cargs, C.int(count), &cfocus, &cscrollIndex, C.int(active))
+	return int(res), int(cfocus), int(cscrollIndex)
 }

@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	fileSuffix        = flag.String("suffix", "_gen", "the suffic to append to each file")
 	format            = flag.Bool("format", true, "run gofmt to the resulting output")
 	input             = flag.String("in", "headers.txt", "raylib-convert compatible header file")
 	manualDir         = flag.String("manual", "manual/", "directory that stores the manual files")
@@ -44,8 +45,11 @@ func main() {
 	failed := make([]string, 0)
 	success := make([]string, 0)
 
-	filenameSuccess := "main.go"
-	filenameFailed := "main.failed"
+	defaultHeader := "#include \"raylib.h\"\n#include <stdlib.h>\n#include \"go.h\"\n"
+
+	fileHeader := defaultHeader
+	filenameSuccess := "main" + *fileSuffix + ".go"
+	filenameFailed := "main" + *fileSuffix + ".failed"
 
 	//Read each line of the input file and generate the prototypes
 	scanner := bufio.NewScanner(file)
@@ -61,22 +65,30 @@ func main() {
 			if len(parts) > 0 {
 				switch parts[1] {
 				default:
+
+					//A file group
 				case "g":
 
 					//Write the old filename and recrate the values
 					failedResults := strings.Join(failed, "\n")
-					sucessResults := "package raylib\n" + strings.Join(success, "\n")
+					sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\n" + strings.Join(success, "\n")
 					saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
 
 					//Clear previous arrays
+					fileHeader = defaultHeader
 					failed = make([]string, 0)
 					success = make([]string, 0)
 
 					//Prepare the new filename
-					filenameSuccess = parts[2] + ".go"
-					filenameFailed = parts[2] + ".failed"
+					filenameSuccess = parts[2] + *fileSuffix + ".go"
+					filenameFailed = parts[2] + *fileSuffix + ".failed"
 
+					//A new header line
+				case "cgo":
+					fileHeader = fileHeader + strings.Join(parts[2:], ":") + "\n"
+					fmt.Println("Header: " + fileHeader)
 				}
+
 			}
 
 			//Skip because its a command line
@@ -118,7 +130,7 @@ func main() {
 
 	//Write the old filename and recrate the values
 	failedResults := strings.Join(failed, "\n")
-	sucessResults := "package raylib\n" + strings.Join(success, "\n")
+	sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\n" + strings.Join(success, "\n")
 	saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
 
 	//Complete
@@ -190,13 +202,13 @@ func translatePrototype(prototype *prototype) (string, error) {
 
 		//Append to the header
 		argHeaders[i] = arg.name + " " + convertType(arg.valueType)
-		bodyArgPart, bodyPrefixPart := castToC(*arg)
+		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
 		if arg.GetPraticalPointerDepth() == 1 {
 			returnHeaders = append(returnHeaders, convertType(arg.valueType))
 			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType))
 
-			if arg.valueType != "char" {
+			if !pointerless {
 				bodyArgPart = "&" + bodyArgPart
 			}
 		}
@@ -227,7 +239,7 @@ func translatePrototype(prototype *prototype) (string, error) {
 
 //castType creates a cast for a type, returning first the name of the variable and then the definition of the variable.
 // There are some cases where there is no definition.
-func castToC(a argument) (string, string) {
+func castToC(a argument) (string, string, bool) {
 	csname := "c" + a.name
 
 	switch a.valueType {
@@ -238,11 +250,11 @@ func castToC(a argument) (string, string) {
 		}
 
 		if *functionalConvert {
-			return csname, csname + " := " + deref + a.name + ".cptr()"
+			return csname, csname + " := " + deref + a.name + ".cptr()", true
 		}
 
 		//func (v *Vector3) cptr() *C.Vector3 { return (*C.Vector3)(unsafe.Pointer(v)) 	}
-		return csname, csname + " := " + deref + "( (*C." + a.valueType + ")(unsafe.Pointer(&" + a.name + ")) )"
+		return csname, csname + " := " + deref + "( (*C." + a.valueType + ")(unsafe.Pointer(&" + a.name + ")) )", true
 	case "float":
 		fallthrough
 	case "int":
@@ -251,14 +263,14 @@ func castToC(a argument) (string, string) {
 		fallthrough
 	case "bool":
 		if a.GetPraticalPointerDepth() == 1 {
-			return csname, csname + " := C." + a.valueType + "(" + a.name + ")"
+			return csname, csname + " := C." + a.valueType + "(" + a.name + ")", false
 		}
 
-		return "C." + a.valueType + "(" + a.name + ")", ""
+		return "C." + a.valueType + "(" + a.name + ")", "", false
 	case "void":
-		return a.name, ""
+		return a.name, "", true
 	case "char":
-		return csname, csname + " := C.CString(" + a.name + ")\ndefer C.free(unsafe.Pointer(" + csname + "))"
+		return csname, csname + " := C.CString(" + a.name + ")\ndefer C.free(unsafe.Pointer(" + csname + "))", true
 	}
 }
 
@@ -326,7 +338,7 @@ func parseLine(line string) (*prototype, error) {
 		entire: matches[0][0],
 		returnArg: argument{
 			name:         "return",
-			constant:     matches[0][2] == "const ",
+			constant:     strings.Trim(matches[0][2], " ") == "const",
 			valueType:    matches[0][3],
 			pointerDepth: len(strings.Trim(matches[0][4], " ")),
 		},
@@ -356,7 +368,7 @@ func parseLine(line string) (*prototype, error) {
 
 		arguments[i] = &argument{
 			entire:       matches[0][0],
-			constant:     matches[0][1] == "const",
+			constant:     strings.Trim(matches[0][1], " ") == "const",
 			valueType:    matches[0][2],
 			pointerDepth: len(strings.Trim(matches[0][3], " ")),
 			name:         name,
