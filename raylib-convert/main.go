@@ -15,11 +15,11 @@ import (
 )
 
 var (
-	format      = flag.Bool("format", true, "run gofmt to the resulting output")
-	input       = flag.String("in", "headers.txt", "raylib-convert compatible header file")
-	manualDir   = flag.String("manual", "manual/", "directory that stores the manual files")
-	output      = flag.String("out", "out/headers.go", "the output go file")
-	errorOutput = flag.String("err", "out/headers.failed.txt", "the output file for hte failed headers")
+	format            = flag.Bool("format", true, "run gofmt to the resulting output")
+	input             = flag.String("in", "headers.txt", "raylib-convert compatible header file")
+	manualDir         = flag.String("manual", "manual/", "directory that stores the manual files")
+	output            = flag.String("out", "out/", "the output directory")
+	functionalConvert = flag.Bool("use_func", true, "tells the converter to use newTypeFromPointer and cptr() functions")
 )
 
 func main() {
@@ -36,22 +36,59 @@ func main() {
 	//Defer the close until the end
 	defer file.Close()
 
+	successTally := 0
+	failureTally := 0
+
 	//PRepare a bunch of variables to hold our succes, failed and prototypes
 	prototypes := make([]*prototype, 0)
 	failed := make([]string, 0)
 	success := make([]string, 0)
+
+	filenameSuccess := "main.go"
+	filenameFailed := "main.failed"
 
 	//Read each line of the input file and generate the prototypes
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 
 		//Read the line
-		line := scanner.Text()
+		line := strings.Trim(scanner.Text(), " ")
+
+		//We are special instructions
+		if strings.HasPrefix(line, "//conv:") {
+			fmt.Println("Processing Command")
+			parts := strings.Split(line, ":")
+			if len(parts) > 0 {
+				switch parts[1] {
+				default:
+				case "g":
+
+					//Write the old filename and recrate the values
+					failedResults := strings.Join(failed, "\n")
+					sucessResults := "package raylib\n" + strings.Join(success, "\n")
+					saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
+
+					//Clear previous arrays
+					failed = make([]string, 0)
+					success = make([]string, 0)
+
+					//Prepare the new filename
+					filenameSuccess = parts[2] + ".go"
+					filenameFailed = parts[2] + ".failed"
+
+				}
+			}
+
+			//Skip because its a command line
+			continue
+		}
+
+		//Process the line
 		p, err := parseLine(line)
 
 		if err != nil {
 			//Failed to parse the file
-			fmt.Println("Failed: ", line, err)
+			fmt.Println("Failed: ", line)
 			failed = append(failed, "\n//"+err.Error()+"\n"+line)
 		} else {
 			//We parsed it, but comments return no errors and nil prototypes.
@@ -65,9 +102,11 @@ func main() {
 				trans, terr := translatePrototype(p)
 				if terr == nil {
 					success = append(success, trans)
+					successTally++
 				} else {
-					fmt.Println("Failed: ", line, terr)
+					fmt.Println("Failed: ", line)
 					failed = append(failed, "\n//"+terr.Error()+"\n"+line)
+					failureTally++
 				}
 			}
 		}
@@ -77,28 +116,36 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//WRite the headers and the failures
+	//Write the old filename and recrate the values
 	failedResults := strings.Join(failed, "\n")
 	sucessResults := "package raylib\n" + strings.Join(success, "\n")
+	saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
+
+	//Complete
+	fmt.Println("Completed ", successTally, " / ", len(prototypes), " functions (", (float64(successTally) / float64(len(prototypes)) * 100), "% Yield)")
+}
+
+func saveProgress(filenameFailed string, filenameSuccess string, successResults string, failureResults string) {
 
 	//Write the failures
-	ioutil.WriteFile(*errorOutput, []byte(failedResults), 0644)
+	if len(failureResults) > 0 {
+		ioutil.WriteFile(*output+"/"+filenameFailed, []byte(failureResults), 0644)
+	}
 
 	if *format {
 		fmt.Println("Formatting...")
 		cmd := exec.Command("gofmt")
-		cmd.Stdin = strings.NewReader(sucessResults)
+		cmd.Stdin = strings.NewReader(successResults)
 		var out bytes.Buffer
 		cmd.Stdout = &out
 		if err := cmd.Run(); err != nil {
 			fmt.Println("Failed to format!", err)
-			ioutil.WriteFile(*output, []byte(sucessResults), 0644)
+			ioutil.WriteFile(*output+"/"+filenameSuccess, []byte(successResults), 0644)
 		} else {
-			ioutil.WriteFile(*output, out.Bytes(), 0644)
+			ioutil.WriteFile(*output+"/"+filenameSuccess, out.Bytes(), 0644)
 		}
 	}
 
-	fmt.Println("Completed ", len(success), " / ", len(prototypes), " functions (", (float64(len(success)) / float64(len(prototypes)) * 100), "% Yield)")
 }
 
 func translatePrototype(prototype *prototype) (string, error) {
@@ -126,8 +173,7 @@ func translatePrototype(prototype *prototype) (string, error) {
 	//Add the first item to the return headers
 	if prototype.returnArg.valueType != "void" {
 		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType))
-		returnExpre = append(returnExpre, castToGo("&res", prototype.returnArg.valueType))
-
+		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType))
 		body = "res := " + body
 	}
 
@@ -149,7 +195,10 @@ func translatePrototype(prototype *prototype) (string, error) {
 		if arg.GetPraticalPointerDepth() == 1 {
 			returnHeaders = append(returnHeaders, convertType(arg.valueType))
 			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType))
-			bodyArgPart = "&" + bodyArgPart
+
+			if arg.valueType != "char" {
+				bodyArgPart = "&" + bodyArgPart
+			}
 		}
 
 		//Append to C function header
@@ -168,11 +217,11 @@ func translatePrototype(prototype *prototype) (string, error) {
 	body = body + strings.Join(bodyArgs, ", ") + ")"
 	returnFooter := ""
 	if len(returnExpre) > 0 {
-		returnFooter = "return " + strings.Join(returnExpre, ", ")
+		returnFooter = "\nreturn " + strings.Join(returnExpre, ", ")
 	}
 
 	//Prepare the function
-	text := "func " + prototype.name + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + body + "\n" + returnFooter + "\n}"
+	text := "func " + prototype.name + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + body + returnFooter + "\n}"
 	return "//" + prototype.name + " : " + prototype.comment + "\n" + text, nil
 }
 
@@ -187,7 +236,13 @@ func castToC(a argument) (string, string) {
 		if a.HasPointer() {
 			deref = ""
 		}
-		return csname, csname + " := " + deref + a.name + ".cptr()"
+
+		if *functionalConvert {
+			return csname, csname + " := " + deref + a.name + ".cptr()"
+		}
+
+		//func (v *Vector3) cptr() *C.Vector3 { return (*C.Vector3)(unsafe.Pointer(v)) 	}
+		return csname, csname + " := " + deref + "( (*C." + a.valueType + ")(unsafe.Pointer(&" + a.name + ")) )"
 	case "float":
 		fallthrough
 	case "int":
@@ -225,7 +280,12 @@ func castToGo(variable, t string) string {
 	case "void":
 		return "unsafe.Pointer(" + variable + ")"
 	default:
-		return "new" + convertType(t) + "FromPointer(unsafe.Pointer(" + variable + "))"
+		//func newRectangleFromPointer(ptr unsafe.Pointer) Rectangle { return *(*Rectangle)(ptr) }
+		if *functionalConvert {
+			return "new" + convertType(t) + "FromPointer(unsafe.Pointer(&" + variable + "))"
+		}
+
+		return "*(*" + convertType(t) + ")(unsafe.Pointer(&" + variable + "))"
 	}
 }
 
@@ -263,10 +323,15 @@ func parseLine(line string) (*prototype, error) {
 
 	//Prepare the prototype
 	p := &prototype{
-		entire:    matches[0][0],
-		returnArg: argument{name: "return", valueType: matches[0][3], pointerDepth: len(strings.Trim(matches[0][4], " "))},
-		name:      matches[0][5],
-		comment:   strings.Trim(matches[0][7], " /"),
+		entire: matches[0][0],
+		returnArg: argument{
+			name:         "return",
+			constant:     matches[0][2] == "const ",
+			valueType:    matches[0][3],
+			pointerDepth: len(strings.Trim(matches[0][4], " ")),
+		},
+		name:    matches[0][5],
+		comment: strings.Trim(matches[0][7], " /"),
 	}
 
 	//Prepare the arguments
@@ -291,6 +356,7 @@ func parseLine(line string) (*prototype, error) {
 
 		arguments[i] = &argument{
 			entire:       matches[0][0],
+			constant:     matches[0][1] == "const",
 			valueType:    matches[0][2],
 			pointerDepth: len(strings.Trim(matches[0][3], " ")),
 			name:         name,
@@ -316,11 +382,12 @@ type argument struct {
 	valueType    string
 	name         string
 	pointerDepth int
+	constant     bool
 }
 
 func (p *argument) HasPointer() bool { return p.pointerDepth > 0 }
 func (p *argument) GetPraticalPointerDepth() int {
-	if p.valueType == "char" || p.valueType == "void" {
+	if (p.constant && p.valueType == "char") || p.valueType == "void" {
 		return p.pointerDepth - 1
 	}
 	return p.pointerDepth

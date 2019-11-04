@@ -1,0 +1,9 @@
+
+//cannot process pointer return types
+RLAPI Mesh *LoadMeshes(const char *fileName, int *meshCount);                                           // Load meshes from model file
+
+//cannot process pointer return types
+RLAPI Material *LoadMaterials(const char *fileName, int *materialCount);                                // Load materials from model file
+
+//cannot process pointer return types
+RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animsCount);                       // Load model animations from file

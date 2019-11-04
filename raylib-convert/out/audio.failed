@@ -1,0 +1,3 @@
+
+//cannot process pointer return types
+RLAPI float *GetWaveData(Wave wave);                                  // Get samples data from wave as a floats array

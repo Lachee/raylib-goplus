@@ -1,0 +1,30 @@
+
+//cannot process pointer return types
+RLAPI CharInfo *LoadFontData(const char *fileName, int fontSize, int *fontChars, int charsCount, int type); // Load font data for further use
+
+//cannot process pointer of pointer arg types
+RLAPI Image GenImageFontAtlas(const CharInfo *chars, Rectangle **recs, int charsCount, int fontSize, int padding, int packMethod);  // Generate image font atlas using chars info
+
+//invalid amount of matches for header
+RLAPI void DrawTextRecEx(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint,
+
+//invalid amount of matches for header
+int selectStart, int selectLength, Color selectText, Color selectBack);    // Draw text using font inside rectangle limits with support for text selection
+
+//invalid amount of matches for arguments
+RLAPI const char *TextFormat(const char *text, ...);                                        // Text formatting with variables (sprintf style)
+
+//cannot process pointer return types
+RLAPI char *TextReplace(char *text, const char *replace, const char *by);                   // Replace text string (memory must be freed!)
+
+//cannot process pointer return types
+RLAPI char *TextInsert(const char *text, const char *insert, int position);                 // Insert text in a position (memory must be freed!)
+
+//cannot process pointer return types
+RLAPI const char **TextSplit(const char *text, char delimiter, int *count);                 // Split text into multiple strings
+
+//cannot process pointer return types
+RLAPI char *TextToUtf8(int *codepoints, int length);                  // Encode text codepoint into utf8 text (memory must be freed!)
+
+//cannot process pointer return types
+RLAPI int *GetCodepoints(const char *text, int *count);               // Get all codepoints in a string, codepoints count returned by parameters
