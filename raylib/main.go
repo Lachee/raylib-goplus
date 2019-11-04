@@ -41,7 +41,6 @@ package raylib
 */
 import "C"
 import (
-	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -105,58 +104,6 @@ func ClearBackground(color Color) {
 	C.ClearBackground(clr)
 }
 
-func DrawText(label string, x int, y int, w int, color Color) {
-	ctext := C.CString(label)
-	clr := *color.cptr()
-	cx := C.int(x)
-	cy := C.int(y)
-	cw := C.int(w)
-
-	defer C.free(unsafe.Pointer(ctext))
-	C.DrawText(ctext, cx, cy, cw, clr)
-}
-
 func CloseWindow() {
 	C.CloseWindow()
-}
-
-func TestWorld() {
-	InitWindow(800, 400, "Hello world!")
-
-	color := Color{R: 255, G: 0, B: 255, A: 255}
-	color2 := Color{R: 255, G: 255, B: 255, A: 255}
-
-	for !WindowShouldClose() {
-		BeginDrawing()
-		ClearBackground(color2)
-		DrawText("How are you today? ", 10, 10, 20, color)
-		EndDrawing()
-	}
-
-	CloseWindow()
-}
-
-func HelloWorld() {
-	fmt.Println("Testing")
-	cs := C.CString("Hello from stdio")
-	label := C.CString("Congrats! First WIndow!")
-
-	fmt.Println("Unsafe String", cs)
-
-	//defer C.free(cs)
-	//defer C.free(label)
-
-	color := Color{R: 255, G: 0, B: 255, A: 255}
-	color2 := Color{R: 255, G: 255, B: 255, A: 255}
-	C.InitWindow(800, 400, cs)
-
-	for !C.WindowShouldClose() {
-		C.BeginDrawing()
-		C.ClearBackground(*color2.cptr())
-		C.DrawText(label, 10, 10, 20, *color.cptr())
-		C.EndDrawing()
-	}
-
-	C.CloseWindow()
-
 }
