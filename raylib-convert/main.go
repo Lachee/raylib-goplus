@@ -110,7 +110,7 @@ func translatePrototype(prototype *prototype) (string, error) {
 	}
 
 	//We do not support return types really yet, but when we do we have a special case for pointers
-	if prototype.GetPraticalPointerDepth() >= 1 {
+	if prototype.returnArg.GetPraticalPointerDepth() >= 1 {
 		return "", errors.New("cannot process pointer return types")
 	}
 
@@ -124,9 +124,9 @@ func translatePrototype(prototype *prototype) (string, error) {
 	body := "C." + prototype.name + "("
 
 	//Add the first item to the return headers
-	if prototype.returnType != "void" {
-		returnHeaders = append(returnHeaders, convertType(prototype.returnType))
-		returnExpre = append(returnExpre, castToGo("&res", prototype.returnType))
+	if prototype.returnArg.valueType != "void" {
+		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType))
+		returnExpre = append(returnExpre, castToGo("&res", prototype.returnArg.valueType))
 
 		body = "res := " + body
 	}
@@ -207,9 +207,12 @@ func castToC(a argument) (string, string) {
 	}
 }
 
+//casts a c type to a go type
 func castToGo(variable, t string) string {
 	switch t {
 	case "float":
+		fallthrough
+	case "double":
 		fallthrough
 	case "int":
 		fallthrough
@@ -237,6 +240,8 @@ func convertType(t string) string {
 		return "string"
 	case "void":
 		return "unsafe.Pointer"
+	case "double":
+		return "float64"
 	}
 }
 
@@ -258,11 +263,10 @@ func parseLine(line string) (*prototype, error) {
 
 	//Prepare the prototype
 	p := &prototype{
-		entire:       matches[0][0],
-		returnType:   matches[0][3],
-		pointerDepth: len(strings.Trim(matches[0][4], " ")),
-		name:         matches[0][5],
-		comment:      strings.Trim(matches[0][7], " /"),
+		entire:    matches[0][0],
+		returnArg: argument{name: "return", valueType: matches[0][3], pointerDepth: len(strings.Trim(matches[0][4], " "))},
+		name:      matches[0][5],
+		comment:   strings.Trim(matches[0][7], " /"),
 	}
 
 	//Prepare the arguments
@@ -300,12 +304,11 @@ func parseLine(line string) (*prototype, error) {
 }
 
 type prototype struct {
-	entire       string
-	returnType   string
-	pointerDepth int
-	name         string
-	args         []*argument
-	comment      string
+	entire    string
+	name      string
+	args      []*argument
+	returnArg argument
+	comment   string
 }
 
 type argument struct {
@@ -315,16 +318,9 @@ type argument struct {
 	pointerDepth int
 }
 
-func (p *prototype) HasPointer() bool { return p.pointerDepth > 0 }
-func (p *argument) HasPointer() bool  { return p.pointerDepth > 0 }
+func (p *argument) HasPointer() bool { return p.pointerDepth > 0 }
 func (p *argument) GetPraticalPointerDepth() int {
 	if p.valueType == "char" || p.valueType == "void" {
-		return p.pointerDepth - 1
-	}
-	return p.pointerDepth
-}
-func (p *prototype) GetPraticalPointerDepth() int {
-	if p.returnType == "char" || p.returnType == "void" {
 		return p.pointerDepth - 1
 	}
 	return p.pointerDepth

@@ -340,9 +340,9 @@ func GetFrameTime() float32 {
 }
 
 //GetTime : Returns elapsed time in seconds since InitWindow()
-func GetTime() double {
+func GetTime() float64 {
 	res := C.GetTime()
-	return newdoubleFromPointer(unsafe.Pointer(&res))
+	return float64(&res)
 }
 
 //ColorToInt : Returns hexadecimal value for a Color
