@@ -2,16 +2,20 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 )
 
 func main() {
+	format := true
+
 	file, err := os.Open("headers.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -48,8 +52,29 @@ func main() {
 	}
 
 	//WRite the headers and the failures
-	ioutil.WriteFile("out/headers.go", []byte("package raylib\n"+strings.Join(success, "\n")), 0644)
-	ioutil.WriteFile("out/headers.fail.txt", []byte(strings.Join(failed, "\n")), 0644)
+	failedResults := strings.Join(failed, "\n")
+	sucessResults := "package raylib\n" + strings.Join(success, "\n")
+
+	ioutil.WriteFile("out/headers.fail.txt", []byte(failedResults), 0644)
+
+	if format {
+		fmt.Println("Formatting...")
+		cmd := exec.Command("gofmt")
+		cmd.Stdin = strings.NewReader(sucessResults)
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		if err := cmd.Run(); err != nil {
+			fmt.Println("Failed to format!", err)
+			format = false
+		} else {
+			ioutil.WriteFile("out/headers.go", out.Bytes(), 0644)
+		}
+	}
+
+	if !format {
+		ioutil.WriteFile("out/headers.go", []byte(sucessResults), 0644)
+	}
+
 	fmt.Println("Completed ", len(success), " / ", len(prototypes), " functions")
 	fmt.Println("DOES NOT HAVE RETURN TYPES YET")
 }
