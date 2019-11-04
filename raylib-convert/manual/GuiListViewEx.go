@@ -7,7 +7,7 @@ func GuiListViewEx(bounds Rectangle, text []string, count int, focus int, scroll
 	//Copies the string into an array in C memory
 	cargs := C.makeCharArray(C.int(len(text)))
 	defer C.freeCharArray(cargs, C.int(len(text)))
-	for i, s := range sargs {
+	for i, s := range text {
         C.setArrayString(cargs, C.CString(s), C.int(i))
 	}
 

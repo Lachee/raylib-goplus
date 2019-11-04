@@ -4,9 +4,16 @@ package raylib
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
+#define RAYGUI_IMPLEMENTATION
+#define RAYGUI_TEXTBOX_EXTENDED
 #include "raygui.h"
 */
 import "C"
+import "unsafe"
+
+func (state *GuiTextBoxState) cptr() *C.GuiTextBoxState {
+	return (*C.GuiTextBoxState)(unsafe.Pointer(state))
+}
 
 //GuiEnable : Enable gui controls (global state)
 func GuiEnable() {
@@ -206,7 +213,7 @@ func GuiSpinner(bounds Rectangle, text string, value int, minValue int, maxValue
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiSpinner(cbounds, ctext, &cvalue, C.int(minValue), C.int(maxValue), C.bool(editMode))
+	res := C.GuiValueBox(cbounds, ctext, &cvalue, C.int(minValue), C.int(maxValue), C.bool(editMode))
 	return bool(res), int(cvalue)
 }
 
@@ -320,7 +327,7 @@ func GuiListViewEx(bounds Rectangle, text []string, count int, focus int, scroll
 	//Copies the string into an array in C memory
 	cargs := C.makeCharArray(C.int(len(text)))
 	defer C.freeCharArray(cargs, C.int(len(text)))
-	for i, s := range sargs {
+	for i, s := range text {
 		C.setArrayString(cargs, C.CString(s), C.int(i))
 	}
 
@@ -383,4 +390,103 @@ func GuiIconText(iconId int, text string) string {
 	defer C.free(unsafe.Pointer(ctext))
 	res := C.GuiIconText(C.int(iconId), ctext)
 	return C.GoString(res)
+}
+
+//GuiTextBoxSetActive : Sets the active textbox
+func GuiTextBoxSetActive(bounds Rectangle) {
+	cbounds := *bounds.cptr()
+	C.GuiTextBoxSetActive(cbounds)
+}
+
+//GuiTextBoxGetActive : Get bounds of active textbox
+func GuiTextBoxGetActive() Rectangle {
+	res := C.GuiTextBoxGetActive()
+	return newRectangleFromPointer(unsafe.Pointer(&res))
+}
+
+//GuiTextBoxSetCursor : Set cursor position of active textbox
+func GuiTextBoxSetCursor(cursor int) {
+	C.GuiTextBoxSetCursor(C.int(cursor))
+}
+
+//GuiTextBoxGetCursor : Get cursor position of active textbox
+func GuiTextBoxGetCursor() int {
+	res := C.GuiTextBoxGetCursor()
+	return int(res)
+}
+
+//GuiTextBoxSetSelection : Set selection of active textbox
+func GuiTextBoxSetSelection(start int, length int) {
+	C.GuiTextBoxSetSelection(C.int(start), C.int(length))
+}
+
+//GuiTextBoxGetSelection : Get selection of active textbox (x - selection start  y - selection length)
+func GuiTextBoxGetSelection() Vector2 {
+	res := C.GuiTextBoxGetSelection()
+	return newVector2FromPointer(unsafe.Pointer(&res))
+}
+
+//GuiTextBoxIsActive : Returns true if a textbox control with specified `bounds` is the active textbox
+func GuiTextBoxIsActive(bounds Rectangle) bool {
+	cbounds := *bounds.cptr()
+	res := C.GuiTextBoxIsActive(cbounds)
+	return bool(res)
+}
+
+//GuiTextBoxGetState : Get state for the active textbox
+func GuiTextBoxGetState() GuiTextBoxState {
+	res := C.GuiTextBoxGetState()
+	return newGuiTextBoxStateFromPointer(unsafe.Pointer(&res))
+}
+
+//GuiTextBoxSetState : Set state for the active textbox (state must be valid else things will break)
+func GuiTextBoxSetState(state GuiTextBoxState) {
+	cstate := *state.cptr()
+	C.GuiTextBoxSetState(cstate)
+}
+
+//GuiTextBoxSelectAll : Select all characters in the active textbox (same as pressing `CTRL` + `A`)
+func GuiTextBoxSelectAll(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.GuiTextBoxSelectAll(ctext)
+}
+
+//GuiTextBoxCopy : Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
+func GuiTextBoxCopy(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.GuiTextBoxCopy(ctext)
+}
+
+//GuiTextBoxPaste : Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
+func GuiTextBoxPaste(text string, textSize int) string {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.GuiTextBoxPaste(ctext, C.int(textSize))
+	return C.GoString(ctext)
+}
+
+//GuiTextBoxCut : Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
+func GuiTextBoxCut(text string) string {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.GuiTextBoxCut(ctext)
+	return C.GoString(ctext)
+}
+
+//GuiTextBoxDelete : Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
+func GuiTextBoxDelete(text string, length int, before bool) (int, string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	res := C.GuiTextBoxDelete(ctext, C.int(length), C.bool(before))
+	return int(res), C.GoString(ctext)
+}
+
+//GuiTextBoxGetByteIndex : Get the byte index for a character starting at position `from` with index `start` until position `to`.
+func GuiTextBoxGetByteIndex(text string, start int, from int, to int) int {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	res := C.GuiTextBoxGetByteIndex(ctext, C.int(start), C.int(from), C.int(to))
+	return int(res)
 }

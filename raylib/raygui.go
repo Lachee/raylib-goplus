@@ -33,11 +33,6 @@ func newGuiTextBoxStateFromPointer(ptr unsafe.Pointer) GuiTextBoxState {
 	return *(*GuiTextBoxState)(ptr)
 }
 
-/*
-func (state *GuiTextBoxState) cptr() *C.GuiTextBoxState {
-	return (*C.GuiTextBoxState)(unsafe.Pointer(state))
-}
-*/
 const (
 	GuiStateNormal GuiState = iota
 	GuiStateFocused

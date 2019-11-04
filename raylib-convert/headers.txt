@@ -567,6 +567,8 @@ RLAPI void SetAudioStreamPitch(AudioStream stream, float pitch);      // Set pit
 
 //RAYGUI
 //conv:g:raygui
+//conv:cgo:#define RAYGUI_IMPLEMENTATION
+//conv:cgo:#define RAYGUI_TEXTBOX_EXTENDED
 //conv:cgo:#include "raygui.h"
 // Global gui modification functions
 RAYGUIDEF void GuiEnable(void);                                         // Enable gui controls (global state)
@@ -629,9 +631,6 @@ RAYGUIDEF void GuiLoadStyleDefault(void);                       // Load style de
 
 RAYGUIDEF const char *GuiIconText(int iconId, const char *text); // Get text with icon id prepended
 
-//conv:g:rayguiext
-//conv:cgo:#define RAYGUI_TEXTBOX_EXTENDED
-//conv:cgo:#include "raygui.h"
 // GuiTextBox() extended functions
 RAYGUIDEF void GuiTextBoxSetActive(Rectangle bounds);                   // Sets the active textbox
 RAYGUIDEF Rectangle GuiTextBoxGetActive(void);                          // Get bounds of active textbox

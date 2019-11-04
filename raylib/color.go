@@ -2,6 +2,7 @@ package raylib
 
 import (
 	"math"
+	"unsafe"
 )
 
 var (
@@ -66,6 +67,8 @@ type Color struct {
 	B uint8
 	A uint8
 }
+
+func newColorFromPointer(ptr unsafe.Pointer) Color { return *(*Color)(ptr) }
 
 //NewColor creates a new colour
 func NewColor(r, g, b, a uint8) Color { return Color{R: r, G: g, B: b, A: a} }
