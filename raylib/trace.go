@@ -96,7 +96,8 @@ func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
 	}
 }
 
-//TraceLog shows log messages.
+//TraceLog creates a new log with a particular type. If a custom callback for logs
+// is set, then it will directly invoke it, avoiding the raylib function.
 func TraceLog(logType TraceLogType, a ...interface{}) {
 	line := fmt.Sprint(a...)
 	if traceCallback != nil {
