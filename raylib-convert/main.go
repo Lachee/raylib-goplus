@@ -194,7 +194,7 @@ func translatePrototype(prototype *prototype) (string, error) {
 	//Add the first item to the return headers
 	if prototype.returnArg.valueType != "void" {
 		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType))
-		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType))
+		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType, prototype.returnArg.HasPointer()))
 		body = "res := " + body
 	}
 
@@ -215,7 +215,7 @@ func translatePrototype(prototype *prototype) (string, error) {
 
 		if arg.GetPraticalPointerDepth() == 1 {
 			returnHeaders = append(returnHeaders, convertType(arg.valueType))
-			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType))
+			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType, arg.HasPointer()))
 
 			if !pointerless {
 				bodyArgPart = "&" + bodyArgPart
@@ -264,9 +264,12 @@ func castToC(a argument) (string, string, bool) {
 
 		//func (v *Vector3) cptr() *C.Vector3 { return (*C.Vector3)(unsafe.Pointer(v)) 	}
 		return csname, csname + " := " + deref + "( (*C." + a.valueType + ")(unsafe.Pointer(&" + a.name + ")) )", true
-	case "float":
-		fallthrough
 	case "int":
+		if a.GetPraticalPointerDepth() == 1 {
+			return csname, csname + " := C." + a.valueType + "(int32(" + a.name + "))", false
+		}
+		return "C." + a.valueType + "(int32(" + a.name + "))", "", false
+	case "float":
 		fallthrough
 	case "uint8":
 		fallthrough
@@ -274,7 +277,6 @@ func castToC(a argument) (string, string, bool) {
 		if a.GetPraticalPointerDepth() == 1 {
 			return csname, csname + " := C." + a.valueType + "(" + a.name + ")", false
 		}
-
 		return "C." + a.valueType + "(" + a.name + ")", "", false
 	case "void":
 		return a.name, "", true
@@ -284,13 +286,18 @@ func castToC(a argument) (string, string, bool) {
 }
 
 //casts a c type to a go type
-func castToGo(variable, t string) string {
+func castToGo(variable, t string, isPointer bool) string {
+	addr := ""
+	if !isPointer {
+		addr = "&"
+	}
+
 	switch t {
+	case "int":
+		return convertType(t) + "(int32(" + variable + "))"
 	case "float":
 		fallthrough
 	case "double":
-		fallthrough
-	case "int":
 		fallthrough
 	case "uint8":
 		fallthrough
@@ -299,14 +306,14 @@ func castToGo(variable, t string) string {
 	case "char":
 		return "C.GoString(" + variable + ")"
 	case "void":
-		return "unsafe.Pointer(" + variable + ")"
+		return "unsafe.Pointer(" + addr + variable + ")"
 	default:
 		//func newRectangleFromPointer(ptr unsafe.Pointer) Rectangle { return *(*Rectangle)(ptr) }
 		if *functionalConvert {
-			return "new" + convertType(t) + "FromPointer(unsafe.Pointer(&" + variable + "))"
+			return "new" + convertType(t) + "FromPointer(unsafe.Pointer(" + addr + variable + "))"
 		}
 
-		return "*(*" + convertType(t) + ")(unsafe.Pointer(&" + variable + "))"
+		return "*(*" + convertType(t) + ")(unsafe.Pointer(" + addr + variable + "))"
 	}
 }
 
