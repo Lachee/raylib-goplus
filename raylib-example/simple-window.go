@@ -1,42 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	r "github.com/lachee/raylib-goplus/raylib"
 )
 
 func main() {
-	RaylibTestWorld()
-	//r.TestWorld()
-
-	/*
-		color := r.Color{R: 255, G: 0, B: 255, A: 255}
-		color2 := r.Color{R: 255, G: 255, B: 255, A: 255}
-		r.InitWindow(800, 400, "Hello World")
-
-		for !r.WindowShouldClose() {
-			r.BeginDrawing()
-			r.ClearBackground(color2)
-			r.DrawText("Drawing A Label!", 10, 10, 20, color)
-
-			//r.Button(r.Rectangle{X: 30, Y: 10, Width: 200, Height: 25}, "Testing")
-			r.EndDrawing()
-		}
-
-		r.CloseWindow()
-	*/
-	//r.HelloWorld()
-
-}
-
-func RaylibTestWorld() {
 
 	r.SetConfigFlags(r.FlagVsyncHint)
 	r.InitWindow(800, 400, "Hello world!")
 
 	//color := r.Color{R: 255, G: 0, B: 255, A: 255}
 	//color2 := r.Color{R: 255, G: 255, B: 255, A: 255}
+	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
+		fmt.Println("Trace ", logType, ": ", text)
+	})
 
 	var frame int
 	var offset int
@@ -48,6 +28,13 @@ func RaylibTestWorld() {
 	r.GuiLoadStyle("cyber/cyber.rgs")
 
 	for !r.WindowShouldClose() {
+
+		if r.IsFileDropped() {
+			files := r.GetDroppedFiles()
+			fmt.Println("Dropped Files: ", files)
+			r.ClearDroppedFiles()
+		}
+
 		frame++
 		offset = (offset + 5) % 400
 		completion = 360 * (float32(offset) / 400.0)

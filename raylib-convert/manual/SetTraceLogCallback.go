@@ -1,0 +1,1 @@
+//SetTraceLogCallback is manually implemented elsewhere
