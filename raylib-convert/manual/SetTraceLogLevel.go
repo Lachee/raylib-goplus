@@ -1,1 +1,1 @@
-//SetTraceLogLevel is implemented manually
+//SetTraceLogLevel is in trace.go

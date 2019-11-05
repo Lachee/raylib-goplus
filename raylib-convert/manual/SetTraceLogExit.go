@@ -1,1 +1,1 @@
-//SetTraceLogExit is implemented elsewhere
+//SetTraceLogExit is in trace.go

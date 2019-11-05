@@ -1,1 +1,1 @@
-//SetTraceLogCallback is manually implemented elsewhere
+//SetTraceLogCallback is in trace.go
