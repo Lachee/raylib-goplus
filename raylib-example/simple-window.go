@@ -13,7 +13,7 @@ func main() {
 	r.InitWindow(800, 400, "Hello world!")
 
 	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
-		fmt.Println("Trace ", logType, ": ", text)
+		fmt.Println(logType.ToString(), ": ", text)
 	})
 
 	r.TraceLog(r.LogInfo, "Simply, define! ", "Just like", "fmt!")

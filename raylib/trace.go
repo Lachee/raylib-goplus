@@ -48,6 +48,30 @@ const (
 	LogNone
 )
 
+//ToString converts the TraceLogType to a string. This can be useful for custom loggers.
+func (v TraceLogType) ToString() string {
+	switch v {
+	default:
+		return fmt.Sprint(v)
+	case LogAll:
+		return "all"
+	case LogTrace:
+		return "TRACE"
+	case LogDebug:
+		return "DEBUG"
+	case LogInfo:
+		return "INFO"
+	case LogWarning:
+		return "WARNING"
+	case LogError:
+		return "ERROR"
+	case LogFatal:
+		return "FATAL"
+	case LogNone:
+		return "none"
+	}
+}
+
 var logLevelType TraceLogType = LogInfo
 var traceCallback func(logType TraceLogType, text string)
 
@@ -74,7 +98,7 @@ func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
 
 //TraceLog shows log messages.
 func TraceLog(logType TraceLogType, a ...interface{}) {
-	line := fmt.Sprintln(a...)
+	line := fmt.Sprint(a...)
 	if traceCallback != nil {
 
 		//Make sure we are the correct level. Since we are doing this ourselves,
