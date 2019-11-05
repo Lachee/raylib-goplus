@@ -74,7 +74,7 @@ func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
 
 //TraceLog shows log messages.
 func TraceLog(logType TraceLogType, a ...interface{}) {
-	line := fmt.Sprintln(a)
+	line := fmt.Sprintln(a...)
 	if traceCallback != nil {
 
 		//Make sure we are the correct level. Since we are doing this ourselves,

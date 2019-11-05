@@ -12,11 +12,11 @@ func main() {
 	r.SetConfigFlags(r.FlagVsyncHint)
 	r.InitWindow(800, 400, "Hello world!")
 
-	//color := r.Color{R: 255, G: 0, B: 255, A: 255}
-	//color2 := r.Color{R: 255, G: 255, B: 255, A: 255}
 	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
 		fmt.Println("Trace ", logType, ": ", text)
 	})
+
+	r.TraceLog(r.LogInfo, "Simply, define! ", "Just like", "fmt!")
 
 	var frame int
 	var offset int
