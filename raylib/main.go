@@ -107,3 +107,29 @@ func ClearBackground(color Color) {
 func CloseWindow() {
 	C.CloseWindow()
 }
+
+//IsFileDropped : Check if a file has been dropped into window
+func IsFileDropped() bool {
+	res := C.IsFileDropped()
+	return bool(res)
+}
+
+//GetDroppedFiles : Get dropped files names (memory should be freed)
+func GetDroppedFiles() []string {
+	ccount := C.int(0)
+	res := C.GetDroppedFiles(&ccount)
+	count := int(ccount)
+
+	tmpslice := (*[1 << 24]*C.char)(unsafe.Pointer(res))[:count:count]
+	gostrings := make([]string, count)
+	for i, s := range tmpslice {
+		gostrings[i] = C.GoString(s)
+	}
+
+	return gostrings
+}
+
+//ClearDroppedFiles : Clear dropped files paths buffer (free memory)
+func ClearDroppedFiles() {
+	C.ClearDroppedFiles()
+}
