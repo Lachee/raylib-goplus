@@ -44,6 +44,9 @@ func main() {
 		r.BeginDrawing()
 		r.ClearBackground(r.RayWhite)
 		r.DrawText(fmt.Sprintf("Playing Music %2f%%", float64(duration)), 100, 80, 10, r.Black)
+		r.DrawText("Music from https://filmmusic.io", 100, 150, 10, r.Black)
+		r.DrawText("\"Midnight Tale\" by Kevin MacLeod (https://incompetech.com)", 100, 160, 10, r.Black)
+		r.DrawText("License: CC BY (http://creativecommons.org/licenses/by/4.0/)", 100, 170, 10, r.Black)
 		r.DrawFPS(3, 3)
 		r.EndDrawing()
 	}
