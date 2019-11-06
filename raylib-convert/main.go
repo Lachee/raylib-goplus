@@ -207,8 +207,8 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 	//Add the first item to the return headers
 	if prototype.returnArg.valueType != "void" {
-		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType))
-		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType, prototype.returnArg.HasPointer()))
+		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType, prototype.returnArg.unsigned))
+		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType, prototype.returnArg.HasPointer(), prototype.returnArg.unsigned))
 		body = "res := " + body
 	}
 
@@ -226,13 +226,13 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		//Update our name
 		//Append to the header
 		argNames[i] = arg.name
-		argHeaders[i] = arg.name + " " + convertType(arg.valueType)
+		argHeaders[i] = arg.name + " " + convertType(arg.valueType, arg.unsigned)
 
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
 		if arg.GetPraticalPointerDepth() == 1 {
-			returnHeaders = append(returnHeaders, convertType(arg.valueType))
-			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType, arg.HasPointer()))
+			returnHeaders = append(returnHeaders, convertType(arg.valueType, arg.unsigned))
+			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType, arg.HasPointer(), arg.unsigned))
 
 			if !pointerless {
 				bodyArgPart = "&" + bodyArgPart
@@ -307,6 +307,15 @@ func castToC(a argument) (string, string, bool) {
 		//func (v *Vector3) cptr() *C.Vector3 { return (*C.Vector3)(unsafe.Pointer(v)) 	}
 		return csname, csname + " := " + deref + "( (*C." + a.valueType + ")(unsafe.Pointer(&" + a.name + ")) )", true
 	case "int":
+		//WE are unsigned, so do a converntional convert
+		if a.unsigned {
+			if a.GetPraticalPointerDepth() == 1 {
+				return csname, csname + " := C.u" + a.valueType + "(" + a.name + ")", false
+			}
+			return "C.u" + a.valueType + "(" + a.name + ")", "", false
+		}
+
+		//We are not unsigned, so proceed as normal
 		if a.GetPraticalPointerDepth() == 1 {
 			return csname, csname + " := C." + a.valueType + "(int32(" + a.name + "))", false
 		}
@@ -328,7 +337,7 @@ func castToC(a argument) (string, string, bool) {
 }
 
 //casts a c type to a go type
-func castToGo(variable, t string, isPointer bool) string {
+func castToGo(variable, t string, isPointer bool, unsigned bool) string {
 	addr := ""
 	if !isPointer {
 		addr = "&"
@@ -336,7 +345,10 @@ func castToGo(variable, t string, isPointer bool) string {
 
 	switch t {
 	case "int":
-		return convertType(t) + "(int32(" + variable + "))"
+		if unsigned {
+			return convertType(t, unsigned) + "(" + variable + ")"
+		}
+		return convertType(t, false) + "(int32(" + variable + "))"
 	case "float":
 		fallthrough
 	case "double":
@@ -344,7 +356,7 @@ func castToGo(variable, t string, isPointer bool) string {
 	case "uint8":
 		fallthrough
 	case "bool":
-		return convertType(t) + "(" + variable + ")"
+		return convertType(t, unsigned) + "(" + variable + ")"
 	case "char":
 		return "C.GoString(" + variable + ")"
 	case "void":
@@ -352,17 +364,20 @@ func castToGo(variable, t string, isPointer bool) string {
 	default:
 		//func newRectangleFromPointer(ptr unsafe.Pointer) Rectangle { return *(*Rectangle)(ptr) }
 		if *functionalConvert {
-			return "new" + convertType(t) + "FromPointer(unsafe.Pointer(" + addr + variable + "))"
+			return "new" + convertType(t, unsigned) + "FromPointer(unsafe.Pointer(" + addr + variable + "))"
 		}
 
-		return "*(*" + convertType(t) + ")(unsafe.Pointer(" + addr + variable + "))"
+		return "*(*" + convertType(t, unsigned) + ")(unsafe.Pointer(" + addr + variable + "))"
 	}
 }
 
 //convertType converts a c type to a go type
-func convertType(t string) string {
+func convertType(t string, unsigned bool) string {
 	switch t {
 	default:
+		if unsigned {
+			return "u" + t
+		}
 		return t
 	case "float":
 		return "float32"
@@ -372,6 +387,11 @@ func convertType(t string) string {
 		return "unsafe.Pointer"
 	case "double":
 		return "float64"
+	case "int":
+		if unsigned {
+			return "uint32"
+		}
+		return "int"
 	}
 }
 
@@ -416,6 +436,7 @@ func parseLine(line string) (*prototype, error) {
 		returnArg: argument{
 			name:         "return",
 			constant:     strings.Trim(matches[0][2], " ") == "const",
+			unsigned:     strings.Trim(matches[0][2], " ") == "unsigned",
 			valueType:    matches[0][3],
 			pointerDepth: len(strings.Trim(matches[0][4], " ")),
 		},
@@ -446,6 +467,7 @@ func parseLine(line string) (*prototype, error) {
 		arguments[i] = &argument{
 			entire:       matches[0][0],
 			constant:     strings.Trim(matches[0][1], " ") == "const",
+			unsigned:     strings.Trim(matches[0][1], " ") == "unsigned",
 			valueType:    matches[0][2],
 			pointerDepth: len(strings.Trim(matches[0][3], " ")),
 			name:         name,
@@ -472,6 +494,7 @@ type argument struct {
 	name         string
 	pointerDepth int
 	constant     bool
+	unsigned     bool
 }
 
 func (p *argument) HasPointer() bool { return p.pointerDepth > 0 }

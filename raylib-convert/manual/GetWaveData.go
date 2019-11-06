@@ -10,7 +10,7 @@ func GetWaveData(wave Wave) []float32 {
 
 	gostrings := make([]float32, samples)
 	for i, s := range tmpslice {
-		gostrings[i] = float32(s)
+		gostrings[i] = float32(*s)
 	}
 
 	return gostrings

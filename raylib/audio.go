@@ -11,8 +11,8 @@ import "unsafe"
 type Wave struct {
 	SampleCount uint32
 	SampleRate  uint32
-	SampleSize  uint
-	Channels    uint
+	SampleSize  uint32
+	Channels    uint32
 	data        unsafe.Pointer
 }
 
@@ -42,8 +42,8 @@ func (s *Sound) cptr() *C.Sound {
 //Note that Buffer is an unsafe.Pointer and is a C stream.
 type AudioStream struct {
 	SampleRate uint32
-	SampleSize uint
-	Channels   uint
+	SampleSize uint32
+	Channels   uint32
 	Buffer     unsafe.Pointer
 }
 
@@ -62,4 +62,12 @@ type Music struct {
 	SampleCount uint32
 	LoopCount   uint32
 	Stream      AudioStream
+}
+
+func newMusicFromPointer(ptr unsafe.Pointer) Music {
+	return *(*Music)(ptr)
+}
+
+func (music *Music) cptr() *C.Music {
+	return (*C.Music)(unsafe.Pointer(music))
 }
