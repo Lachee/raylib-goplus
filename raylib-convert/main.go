@@ -21,6 +21,7 @@ var (
 	manualDir         = flag.String("manual", "manual/", "directory that stores the manual files")
 	output            = flag.String("out", "out/", "the output directory")
 	functionalConvert = flag.Bool("use_func", true, "tells the converter to use newTypeFromPointer and cptr() functions")
+	oopOnly           = flag.Bool("oop_only", false, "should only the OOP version of the function be generated?")
 )
 
 func main() {
@@ -50,7 +51,9 @@ func main() {
 	fileHeader := defaultHeader
 	filenameSuccess := "main" + *fileSuffix + ".go"
 	filenameFailed := "main" + *fileSuffix + ".failed"
+
 	ignoring := false
+	asOOP := false
 
 	//Read each line of the input file and generate the prototypes
 	scanner := bufio.NewScanner(file)
@@ -91,6 +94,9 @@ func main() {
 
 				case "ignore":
 					ignoring = parts[2] == "start"
+
+				case "oop":
+					asOOP = parts[2] == "start"
 				}
 
 			}
@@ -120,7 +126,7 @@ func main() {
 
 				//Translate it. If we are successful then add it to our success list,
 				// otherwise add it to our fail list
-				trans, terr := translatePrototype(p)
+				trans, terr := translatePrototype(p, asOOP)
 				if terr == nil {
 					success = append(success, trans)
 					successTally++
@@ -169,7 +175,7 @@ func saveProgress(filenameFailed string, filenameSuccess string, successResults 
 
 }
 
-func translatePrototype(prototype *prototype) (string, error) {
+func translatePrototype(prototype *prototype, objectOriented bool) (string, error) {
 
 	//We have a manual definition, so use that instead
 	if _, err := os.Stat(*manualDir + prototype.name + ".go"); err == nil {
@@ -182,9 +188,19 @@ func translatePrototype(prototype *prototype) (string, error) {
 		return "", errors.New("cannot process pointer return types")
 	}
 
+	isOOP := false
+	isOOPDif := 0
+	if len(prototype.args) >= 1 && prototype.args[0] != nil &&
+		isObject(prototype.args[0].valueType) && objectOriented && !strings.Contains(prototype.name, "Load") {
+		fmt.Println("OOP: ", prototype.name)
+		isOOP = true
+		isOOPDif = 1
+	}
+
 	//Prepare some variables
-	argHeaders := make([]string, len(prototype.args))
+	argHeaders := make([]string, len(prototype.args)-isOOPDif)
 	bodyArgs := make([]string, len(prototype.args))
+	argNames := make([]string, len(prototype.args))
 	bodyArgsTally := 0
 	returnHeaders := make([]string, 0)
 	returnExpre := make([]string, 0)
@@ -209,8 +225,14 @@ func translatePrototype(prototype *prototype) (string, error) {
 			return "", errors.New("cannot process pointer of pointer arg types")
 		}
 
+		//Update our name
+		argNames[i] = arg.name
+
 		//Append to the header
-		argHeaders[i] = arg.name + " " + convertType(arg.valueType)
+		if i > 0 || !isOOP {
+			argHeaders[i-isOOPDif] = arg.name + " " + convertType(arg.valueType)
+		}
+
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
 		if arg.GetPraticalPointerDepth() == 1 {
@@ -242,8 +264,27 @@ func translatePrototype(prototype *prototype) (string, error) {
 	}
 
 	//Prepare the function
-	text := "func " + prototype.name + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + body + returnFooter + "\n}"
-	return "//" + prototype.name + " : " + prototype.comment + "\n" + text, nil
+	text := ""
+	if isOOP {
+		argName := prototype.args[0].valueType
+		funcName := strings.Replace(prototype.name, "From"+argName, "", 1)
+		funcName = strings.Replace(funcName, argName, "", 1)
+
+		oopBody := body + returnFooter
+		if !*oopOnly {
+			oopBody = prototype.name + "(*" + strings.Join(argNames, ", ") + ")"
+		}
+
+		text += "//" + funcName + " : " + prototype.comment + "\n"
+		text += "func (" + prototype.args[0].name + " *" + prototype.args[0].valueType + ") " + funcName + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + oopBody + "\n}\n"
+	}
+
+	if !*oopOnly || !isOOP {
+		text += "//" + prototype.name + " : " + prototype.comment + "\n"
+		text += "func " + prototype.name + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + body + returnFooter + "\n}"
+	}
+
+	return text, nil
 }
 
 //castType creates a cast for a type, returning first the name of the variable and then the definition of the variable.
@@ -330,6 +371,25 @@ func convertType(t string) string {
 		return "unsafe.Pointer"
 	case "double":
 		return "float64"
+	}
+}
+
+func isObject(t string) bool {
+	switch t {
+	default:
+		return true
+	case "float":
+		fallthrough
+	case "int":
+		fallthrough
+	case "char":
+		fallthrough
+	case "void":
+		fallthrough
+	case "double":
+		fallthrough
+	case "bool":
+		return false
 	}
 }
 

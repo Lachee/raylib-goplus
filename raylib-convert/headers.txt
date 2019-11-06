@@ -505,6 +505,7 @@ RLAPI void EndVrDrawing(void);                          // End VR simulator ster
 // Audio Loading and Playing Functions (Module: audio)
 //------------------------------------------------------------------------------------
 //conv:g:audio
+//conv:oop:start
 
 // Audio device management functions
 RLAPI void InitAudioDevice(void);                                     // Initialize audio device and context
@@ -565,7 +566,7 @@ RLAPI bool IsAudioStreamPlaying(AudioStream stream);                  // Check i
 RLAPI void StopAudioStream(AudioStream stream);                       // Stop audio stream
 RLAPI void SetAudioStreamVolume(AudioStream stream, float volume);    // Set volume for audio stream (1.0 is max level)
 RLAPI void SetAudioStreamPitch(AudioStream stream, float pitch);      // Set pitch for audio stream (1.0 is base level)
-
+//conv:oop:stop
 
 //RAYGUI
 //conv:g:raygui
