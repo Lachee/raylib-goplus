@@ -189,16 +189,14 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	}
 
 	isOOP := false
-	isOOPDif := 0
 	if len(prototype.args) >= 1 && prototype.args[0] != nil &&
 		isObject(prototype.args[0].valueType) && objectOriented && !strings.Contains(prototype.name, "Load") {
 		fmt.Println("OOP: ", prototype.name)
 		isOOP = true
-		isOOPDif = 1
 	}
 
 	//Prepare some variables
-	argHeaders := make([]string, len(prototype.args)-isOOPDif)
+	argHeaders := make([]string, len(prototype.args))
 	bodyArgs := make([]string, len(prototype.args))
 	argNames := make([]string, len(prototype.args))
 	bodyArgsTally := 0
@@ -226,12 +224,9 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		}
 
 		//Update our name
-		argNames[i] = arg.name
-
 		//Append to the header
-		if i > 0 || !isOOP {
-			argHeaders[i-isOOPDif] = arg.name + " " + convertType(arg.valueType)
-		}
+		argNames[i] = arg.name
+		argHeaders[i] = arg.name + " " + convertType(arg.valueType)
 
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
@@ -266,17 +261,20 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	//Prepare the function
 	text := ""
 	if isOOP {
+		//Prepare the function name
 		argName := prototype.args[0].valueType
 		funcName := strings.Replace(prototype.name, "From"+argName, "", 1)
 		funcName = strings.Replace(funcName, argName, "", 1)
 
+		//Prepare the body
 		oopBody := body + returnFooter
 		if !*oopOnly {
 			oopBody = prototype.name + "(*" + strings.Join(argNames, ", ") + ")"
 		}
 
+		//Prepare the function itself
 		text += "//" + funcName + " : " + prototype.comment + "\n"
-		text += "func (" + prototype.args[0].name + " *" + prototype.args[0].valueType + ") " + funcName + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + oopBody + "\n}\n"
+		text += "func (" + prototype.args[0].name + " *" + prototype.args[0].valueType + ") " + funcName + "(" + strings.Join(argHeaders[1:], ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + oopBody + "\n}\n"
 	}
 
 	if !*oopOnly || !isOOP {
