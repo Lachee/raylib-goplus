@@ -270,6 +270,9 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		oopBody := body + returnFooter
 		if !*oopOnly {
 			oopBody = prototype.name + "(*" + strings.Join(argNames, ", ") + ")"
+			if len(returnFooter) > 0 {
+				oopBody = "return " + oopBody
+			}
 		}
 
 		//Prepare the function itself
