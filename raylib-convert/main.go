@@ -75,7 +75,7 @@ func main() {
 
 					//Write the old filename and recrate the values
 					failedResults := strings.Join(failed, "\n")
-					sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\n" + strings.Join(success, "\n")
+					sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\nimport \"unsafe\"\n" + strings.Join(success, "\n")
 					saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
 
 					//Clear previous arrays
@@ -145,7 +145,7 @@ func main() {
 
 	//Write the old filename and recrate the values
 	failedResults := strings.Join(failed, "\n")
-	sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\n" + strings.Join(success, "\n")
+	sucessResults := "package raylib\n/*\n" + fileHeader + "*/\nimport \"C\"\nimport \"unsafe\"\n" + strings.Join(success, "\n")
 	saveProgress(filenameFailed, filenameSuccess, sucessResults, failedResults)
 
 	//Complete
