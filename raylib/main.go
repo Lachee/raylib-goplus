@@ -41,6 +41,8 @@ package raylib
 */
 import "C"
 import (
+	"errors"
+	"os/exec"
 	"runtime"
 	"time"
 	"unsafe"
@@ -140,4 +142,18 @@ func GetDroppedFiles() []string {
 //ClearDroppedFiles : Clear dropped files paths buffer (free memory)
 func ClearDroppedFiles() {
 	C.ClearDroppedFiles()
+}
+
+//OpenURL opens a URL in the system browser.
+func OpenURL(url string) error {
+	switch runtime.GOOS {
+	case "linux":
+		return exec.Command("xdg-open", url).Start()
+	case "windows":
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		return exec.Command("open", url).Start()
+	default:
+		return errors.New("unsupported platform")
+	}
 }

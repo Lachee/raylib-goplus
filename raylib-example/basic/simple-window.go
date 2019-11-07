@@ -51,7 +51,9 @@ func main() {
 			windowVisible = false
 		}
 
-		r.GuiImageButton(r.NewRectangle(400, 30, 32, 32), "Raylib Logo", texture)
+		if r.GuiImageButton(r.NewRectangle(400, 30, 32, 32), "Raylib Logo", texture) {
+			r.OpenURL("https://www.raylib.com/")
+		}
 
 		r.DrawFPS(3, 3)
 		r.EndDrawing()
