@@ -5,5 +5,6 @@ func LoadImageEx(pixels []Color, width, height int32) *Image {
 	cheight := (C.int)(height)
 	ret := C.LoadImageEx(cpixels, cwidth, cheight) //We call the C function as raylib uses stb_image to load images.
 	v := newImageFromPointer(unsafe.Pointer(&ret))
+	addUnloadable(v)
 	return v
 }

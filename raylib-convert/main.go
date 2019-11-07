@@ -261,7 +261,8 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
-		if arg.GetPraticalPointerDepth() == 1 {
+		//We dont want to do this if we are OOP and its the first item
+		if (!isOOP || i > 0) && arg.GetPraticalPointerDepth() == 1 {
 
 			if !objectOriented {
 				spacing = ""

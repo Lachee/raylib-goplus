@@ -233,23 +233,24 @@ func SetSoundPitch(sound *Sound, pitch float32) {
 }
 
 //Format : Convert wave data to desired format
-func (wave *Wave) Format(sampleRate int, sampleSize int, channels int) *Wave {
+func (wave *Wave) Format(sampleRate int, sampleSize int, channels int) {
 	cwave := wave.cptr()
 	C.WaveFormat(cwave, C.int(int32(sampleRate)), C.int(int32(sampleSize)), C.int(int32(channels)))
-	return newWaveFromPointer(unsafe.Pointer(cwave))
 }
 
 //WaveFormat : Convert wave data to desired format
 //Recommended to use wave.Format(sampleRate, sampleSize, channels) instead
-func WaveFormat(wave *Wave, sampleRate int, sampleSize int, channels int) *Wave {
-	return wave.Format(sampleRate, sampleSize, channels)
+func WaveFormat(wave *Wave, sampleRate int, sampleSize int, channels int) {
+	wave.Format(sampleRate, sampleSize, channels)
 }
 
 //Copy : Copy a wave to a new wave
 func (wave *Wave) Copy() *Wave {
 	cwave := *wave.cptr()
 	res := C.WaveCopy(cwave)
-	return newWaveFromPointer(unsafe.Pointer(&res))
+	retval := newWaveFromPointer(unsafe.Pointer(&res))
+	addUnloadable(retval)
+	return retval
 }
 
 //WaveCopy : Copy a wave to a new wave
@@ -259,16 +260,15 @@ func WaveCopy(wave *Wave) *Wave {
 }
 
 //Crop : Crop a wave to defined samples range
-func (wave *Wave) Crop(initSample int, finalSample int) *Wave {
+func (wave *Wave) Crop(initSample int, finalSample int) {
 	cwave := wave.cptr()
 	C.WaveCrop(cwave, C.int(int32(initSample)), C.int(int32(finalSample)))
-	return newWaveFromPointer(unsafe.Pointer(cwave))
 }
 
 //WaveCrop : Crop a wave to defined samples range
 //Recommended to use wave.Crop(initSample, finalSample) instead
-func WaveCrop(wave *Wave, initSample int, finalSample int) *Wave {
-	return wave.Crop(initSample, finalSample)
+func WaveCrop(wave *Wave, initSample int, finalSample int) {
+	wave.Crop(initSample, finalSample)
 }
 
 //GetWaveData : Get samples data from wave as a floats array
@@ -449,7 +449,9 @@ func GetMusicTimePlayed(music *Music) float32 {
 //InitAudioStream : Init audio stream (to stream raw audio pcm data)
 func InitAudioStream(sampleRate uint32, sampleSize uint32, channels uint32) *AudioStream {
 	res := C.InitAudioStream(C.uint(sampleRate), C.uint(sampleSize), C.uint(channels))
-	return newAudioStreamFromPointer(unsafe.Pointer(&res))
+	retval := newAudioStreamFromPointer(unsafe.Pointer(&res))
+	addUnloadable(retval)
+	return retval
 }
 
 //Update : Update audio stream buffers with data
@@ -464,16 +466,16 @@ func UpdateAudioStream(stream *AudioStream, data unsafe.Pointer, samplesCount in
 	stream.Update(data, samplesCount)
 }
 
-//Close : Close audio stream and free memory
-func (stream *AudioStream) Close() {
+//Unload : Close audio stream and free memory
+func (stream *AudioStream) Unload() {
 	cstream := *stream.cptr()
 	C.CloseAudioStream(cstream)
 }
 
 //CloseAudioStream : Close audio stream and free memory
-//Recommended to use stream.Close() instead
+//Recommended to use stream.Unload() instead
 func CloseAudioStream(stream *AudioStream) {
-	stream.Close()
+	stream.Unload()
 }
 
 //IsProcessed : Check if any audio stream buffers requires refill

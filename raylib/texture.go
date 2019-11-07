@@ -21,49 +21,107 @@ func (t *Texture2D) cptr() *C.Texture2D {
 	return (*C.Texture2D)(unsafe.Pointer(t))
 }
 
-func newTextureFromPointer(ptr unsafe.Pointer) Texture2D {
-	return *(*Texture2D)(ptr)
-}
-
-//LoadTexture from a file into GPU memory
-func LoadTexture(filename string) Texture2D {
-	cs := C.CString(filename)
-	defer C.free(unsafe.Pointer(cs))
-	ct2d := C.LoadTexture(cs)
-	return newTextureFromPointer(unsafe.Pointer(&ct2d))
-}
-
-//LoadTextureFromImage loads image data
-func LoadTextureFromImage(image *Image) Texture2D {
-	i := *image.cptr()
-	ct2d := C.LoadTextureFromImage(i)
-	return newTextureFromPointer(unsafe.Pointer(&ct2d))
+func newTexture2DFromPointer(ptr unsafe.Pointer) *Texture2D {
+	return (*Texture2D)(ptr)
 }
 
 //LoadTextureFromGoImage loads image data from image.Image. Uses NewImageFromGoImage.
-func LoadTextureFromGoImage(image image.Image) Texture2D {
+func LoadTextureFromGoImage(image image.Image) *Texture2D {
 	return LoadTextureFromImage(NewImageFromGoImage(image))
 }
 
-/*
-RLAPI TextureCubemap LoadTextureCubemap(Image image, int layoutType);                                    // Load cubemap from image, multiple image cubemap layouts supported
-RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
-RLAPI TextureCubemap LoadTextureCubemap(Image image, int layoutType);                                    // Load cubemap from image, multiple image cubemap layouts supported
-RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
-RLAPI Image GetTextureData(Texture2D texture);
-RLAPI void UpdateTexture(Texture2D texture, const void *pixels);
+//TextureCubemap type, actuall the same as a Texture2D
+type TextureCubemap Texture2D
+type CubemapLayoutType int32
 
-// Texture2D configuration functions
-RLAPI void GenTextureMipmaps(Texture2D *texture);                                                        // Generate GPU mipmaps for a texture
-RLAPI void SetTextureFilter(Texture2D texture, int filterMode);                                          // Set texture scaling filter mode
-RLAPI void SetTextureWrap(Texture2D texture, int wrapMode);                                              // Set texture wrapping mode
+const (
+	//CubmapAutoDetect automatically detect layout type
+	CubmapAutoDetect CubemapLayoutType = iota
+	//CubemapLineVertical Layout is defined by a vertical line with faces
+	CubemapLineVertical
+	//CubemapLineHorizontal Layout is defined by an horizontal line with faces
+	CubemapLineHorizontal
+	//CubemapCrossThreeByFour Layout is defined by a 3x4 cross with cubemap faces
+	CubemapCrossThreeByFour
+	//CubemapCrossFourByThree Layout is defined by a 4x3 cross with cubemap faces
+	CubemapCrossFourByThree
+	//CubemapPanorama Layout is defined by a panorama image (equirectangular map)
+	CubemapPanorama
+)
 
-// Texture2D drawing functions
-RLAPI void DrawTexture(Texture2D texture, int posX, int posY, Color tint);                               // Draw a Texture2D
-RLAPI void DrawTextureV(Texture2D texture, Vector2 position, Color tint);                                // Draw a Texture2D with position defined as Vector2
-RLAPI void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint);  // Draw a Texture2D with extended parameters
-RLAPI void DrawTextureRec(Texture2D texture, Rectangle sourceRec, Vector2 position, Color tint);         // Draw a part of a texture defined by a rectangle
-RLAPI void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Rectangle quad, Color tint);  // Draw texture quad with tiling and offset parameters
-RLAPI void DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint);       // Draw a part of a texture defined by a rectangle with 'pro' parameters
-RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle destRec, Vector2 origin, float rotation, Color tint);  // Draws a texture (or part of it) that stretches or shrinks nicely
-*/
+func (t *TextureCubemap) cptr() *C.TextureCubemap {
+	return (*C.TextureCubemap)(unsafe.Pointer(t))
+}
+
+func newTextureCubemapFromPointer(ptr unsafe.Pointer) *TextureCubemap {
+	return (*TextureCubemap)(ptr)
+}
+
+//Unload : Unload texture from GPU memory (VRAM)
+func (texture *TextureCubemap) Unload() {
+	ctexture := C.Texture2D(*texture.cptr())
+	C.UnloadTexture(ctexture)
+	removeUnloadable(texture)
+}
+
+//RenderTexture2D is a texture used for rendering
+type RenderTexture2D struct {
+	Id           uint32
+	Texture      Texture2D
+	Depth        Texture2D
+	DepthTexture bool
+}
+
+func newRenderTexture2DFromPointer(ptr unsafe.Pointer) *RenderTexture2D {
+	return (*RenderTexture2D)(ptr)
+}
+
+func (t *RenderTexture2D) cptr() *C.RenderTexture2D {
+	return (*C.RenderTexture2D)(unsafe.Pointer(t))
+}
+
+type NPatchType int32
+
+const (
+	NPT9Patch NPatchType = iota
+	NPT3PatchVertical
+	NPT3PatchHorizontal
+)
+
+//NPatchInfo is the N-Patch layout information
+type NPatchInfo struct {
+	SourceRectangle Rectangle
+	Left            int32
+	Top             int32
+	Right           int32
+	Bottom          int32
+	Type            NPatchType
+}
+
+func newNPatchInfoFromPointer(ptr unsafe.Pointer) NPatchInfo {
+	return *(*NPatchInfo)(ptr)
+}
+
+func (t *NPatchInfo) cptr() *C.NPatchInfo {
+	return (*C.NPatchInfo)(unsafe.Pointer(t))
+}
+
+type TextureWrapMode int32
+
+const (
+	WrapRepeat TextureWrapMode = iota
+	WrapClamp
+	WrapMirrorRepeat
+	WrapMirrorClamp
+)
+
+type TextureFilterMode int32
+
+const (
+	FilterPoint TextureFilterMode = iota
+	FilterBilinear
+	FilterTrilinear
+	FilterAnisotropic4x
+	FilterAnisotropic8x
+	FilterAnisotropic16x
+)

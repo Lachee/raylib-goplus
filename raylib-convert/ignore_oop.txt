@@ -1,0 +1,12 @@
+Rectangle
+Color
+Matrix
+Vector2
+Vector3
+Vector4
+Quaternion
+GuiTextBoxState
+GuiState
+GuiControl
+GuiProperty
+NPatchInfo

@@ -32,12 +32,6 @@ func newImageFromPointer(ptr unsafe.Pointer) *Image {
 	return (*Image)(ptr)
 }
 
-// NewImage Creates a new iamge
-func NewImage(data []byte, width, height, mipmaps int32, format PixelFormat) *Image {
-	d := unsafe.Pointer(&data[0])
-	return &Image{d, width, height, mipmaps, format}
-}
-
 //NewImageFromGoImage Creates a new image from a Go Image
 func NewImageFromGoImage(img image.Image) *Image {
 	size := img.Bounds().Size()
@@ -52,41 +46,6 @@ func NewImageFromGoImage(img image.Image) *Image {
 	}
 
 	return LoadImageEx(pixels, int32(size.X), int32(size.Y))
-}
-
-// LoadImage Load an image into CPU memory (RAM)
-func LoadImage(fileName string) *Image {
-	cfileName := C.CString(fileName)
-	defer C.free(unsafe.Pointer(cfileName))
-	ret := C.LoadImage(cfileName) //We call the C function as raylib uses stb_image to load images.
-	v := newImageFromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
-// LoadImageEx Load image data from Color array data (RGBA - 32bit)
-func LoadImageEx(pixels []Color, width, height int32) *Image {
-	cpixels := pixels[0].cptr()
-	cwidth := (C.int)(width)
-	cheight := (C.int)(height)
-	ret := C.LoadImageEx(cpixels, cwidth, cheight) //We call the C function as raylib uses stb_image to load images.
-	v := newImageFromPointer(unsafe.Pointer(&ret))
-	return v
-}
-
-//LoadImagePro loads raw data wtih parameters
-func LoadImagePro(pixels []byte, width, height int32, format PixelFormat) *Image {
-	data := unsafe.Pointer(&pixels[0])
-	res := C.LoadImagePro(data, C.int(width), C.int(height), C.int(format))
-	return newImageFromPointer(unsafe.Pointer(&res))
-}
-
-//LoadImageRaw loads an image from a RAW file
-func LoadImageRaw(filename string, width, height int32, format PixelFormat, headerSize int32) *Image {
-	cfile := C.CString(filename)
-	defer C.free(unsafe.Pointer(cfile))
-
-	res := C.LoadImageRaw(cfile, C.int(width), C.int(height), C.int(format), C.int(headerSize))
-	return newImageFromPointer(unsafe.Pointer(&res))
 }
 
 //void ExportImage(Image image, const char *fileName);

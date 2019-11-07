@@ -236,7 +236,8 @@ RLAPI bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Ve
 //------------------------------------------------------------------------------------
 // Texture Loading and Drawing Functions (Module: textures)
 //------------------------------------------------------------------------------------
-//conv:g:textures
+//conv:g:texture
+//conv:oop:start
 
 // Image/Texture2D data loading/unloading/saving functions
 RLAPI Image LoadImage(const char *fileName);                                                             // Load image from file into CPU memory (RAM)
@@ -308,6 +309,8 @@ RLAPI Image GenImageCellular(int width, int height, int tileSize);              
 RLAPI void GenTextureMipmaps(Texture2D *texture);                                                        // Generate GPU mipmaps for a texture
 RLAPI void SetTextureFilter(Texture2D texture, int filterMode);                                          // Set texture scaling filter mode
 RLAPI void SetTextureWrap(Texture2D texture, int wrapMode);                                              // Set texture wrapping mode
+
+//conv:oop:stop
 
 // Texture2D drawing functions
 RLAPI void DrawTexture(Texture2D texture, int posX, int posY, Color tint);                               // Draw a Texture2D
