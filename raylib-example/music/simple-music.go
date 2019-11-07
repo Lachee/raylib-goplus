@@ -28,6 +28,12 @@ func main() {
 	//Load the music
 	//Will hard crash if not init audio device.
 	music := r.LoadMusicStream("4710-midnight-tale-by-kevin-macleod.mp3")
+	pop := r.LoadSound("pop-A.ogg")
+
+	//TODO: See issue https://github.com/Lachee/raylib-goplus/issues/3
+	if !pop.IsValid() {
+		r.TraceLog(r.LogError, "Failed to load pop noise.")
+	}
 
 	//fmt.Println(music)
 	music.PlayStream()
@@ -36,6 +42,10 @@ func main() {
 	for !r.WindowShouldClose() {
 		music.UpdateStream()
 		frame++
+
+		if r.IsKeyPressed(r.KeySpace) {
+			pop.Play()
+		}
 
 		duration := float32(music.GetTimePlayed()) / float32(music.GetTimeLength())
 

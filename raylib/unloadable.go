@@ -15,11 +15,16 @@ func finalizeUnloadables(unlds *[]Unloadable) {
 	UnloadAll()
 }
 
+//addUnloadable registers an unloadable to the slice
+// This is called on Load functions
 func addUnloadable(unloadable Unloadable) {
 	TraceLog(LogTrace, "New unloadable created")
 	unloadables = append(unloadables, unloadable)
 }
 
+//removeUnloadable unregisters an unloadable to the slice
+// This is called on Unload functions
+// This does not remove from the slice if unloadingAll is true (as that will clear post)
 func removeUnloadable(unloadable Unloadable) {
 	if !unloadingAll {
 		TraceLog(LogTrace, "Remocing unloadable")

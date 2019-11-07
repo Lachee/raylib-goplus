@@ -38,6 +38,11 @@ func (s *Sound) cptr() *C.Sound {
 	return (*C.Sound)(unsafe.Pointer(s))
 }
 
+//IsValid returns true if the underlying stream has a valid buffer pointer.
+func (s *Sound) IsValid() bool {
+	return s.Stream.IsValid()
+}
+
 //AudioStream can be used to create custom audio streams.
 //Note that Buffer is an unsafe.Pointer and is a C stream.
 type AudioStream struct {
@@ -55,6 +60,11 @@ func (as *AudioStream) cptr() *C.AudioStream {
 	return (*C.AudioStream)(unsafe.Pointer(as))
 }
 
+//IsValid returns true the audio has channels
+func (as *AudioStream) IsValid() bool {
+	return as.Channels > 0
+}
+
 //Music stream type. Anything longer than ~10 seconds should be streamed.
 type Music struct {
 	CtxType     int32
@@ -70,4 +80,9 @@ func newMusicFromPointer(ptr unsafe.Pointer) *Music {
 
 func (music *Music) cptr() *C.Music {
 	return (*C.Music)(unsafe.Pointer(music))
+}
+
+//IsValid returns true if the underlying stream has a valid buffer pointer.
+func (music *Music) IsValid() bool {
+	return music.Stream.IsValid()
 }

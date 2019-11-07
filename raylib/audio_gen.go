@@ -78,6 +78,7 @@ func (wave *Wave) Unload() {
 func UnloadWave(wave *Wave) {
 	cwave := *wave.cptr()
 	C.UnloadWave(cwave)
+	removeUnloadable(wave)
 }
 
 //Unload : Unload sound
@@ -89,6 +90,7 @@ func (sound *Sound) Unload() {
 func UnloadSound(sound *Sound) {
 	csound := *sound.cptr()
 	C.UnloadSound(csound)
+	removeUnloadable(sound)
 }
 
 //Export : Export wave data to file
@@ -290,6 +292,7 @@ func (music *Music) Unload() {
 func UnloadMusicStream(music *Music) {
 	cmusic := *music.cptr()
 	C.UnloadMusicStream(cmusic)
+	removeUnloadable(music)
 }
 
 //PlayStream : Start music playing

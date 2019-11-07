@@ -7,4 +7,5 @@ func (music *Music) Unload() {
 func UnloadMusicStream(music *Music) {
 	cmusic := *music.cptr()
 	C.UnloadMusicStream(cmusic)
+	removeUnloadable(music)
 }

@@ -271,6 +271,9 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	body = body + strings.Join(bodyArgs, ", ") + ")"
 	returnFooter := ""
 	if len(returnExpre) > 0 {
+
+		//If we are enabling unloadable tracking, then we need to add the addUnloadable to the end
+		// before returning
 		if *trackUnloadables && strings.HasPrefix(prototype.name, "Load") {
 			returnFooter = "\nretval := " + returnExpre[0]
 			returnExpre[0] = "retval"
@@ -281,6 +284,11 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		} else {
 			returnFooter = "\nreturn " + strings.Join(returnExpre, ", ")
 		}
+	}
+
+	//If we are enabling unloadable tracking and this is an unload, then lets unload
+	if *trackUnloadables && strings.HasPrefix(prototype.name, "Unload") {
+		body += "\nremoveUnloadable(" + argNames[0] + ")"
 	}
 
 	//Prepare the function
