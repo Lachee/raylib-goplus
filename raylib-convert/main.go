@@ -18,6 +18,7 @@ var (
 	fileSuffix        = flag.String("suffix", "_gen", "the suffic to append to each file")
 	format            = flag.Bool("format", true, "run gofmt to the resulting output")
 	input             = flag.String("in", "headers.txt", "raylib-convert compatible header file")
+	ignoreOOPFile     = flag.String("ioop", "ignore_oop.txt", "file that contains a list of types that cannot be OOP")
 	manualDir         = flag.String("manual", "manual/", "directory that stores the manual files")
 	output            = flag.String("out", "out/", "the output directory")
 	functionalConvert = flag.Bool("use_func", true, "tells the converter to use newTypeFromPointer and cptr() functions")
@@ -25,12 +26,27 @@ var (
 	trackUnloadables  = flag.Bool("track_unloadables", true, "should unloadables track when they are being loaded and unloaded to our list. Only applicable with OOP")
 )
 
+var ignoreOOPs []string
+
 func main() {
 
 	//Parse the flags
 	flag.Parse()
 
-	//Read the file
+	//Read the ignore FileExists
+	ifile, ierr := os.Open(*ignoreOOPFile)
+	ignoreOOPs = make([]string, 0)
+	if ierr == nil {
+		defer ifile.Close()
+
+		//Read each line of the input file and generate the prototypes
+		iscanner := bufio.NewScanner(ifile)
+		for iscanner.Scan() {
+			ignoreOOPs = append(ignoreOOPs, iscanner.Text())
+		}
+	}
+
+	//Read each line of the headers now
 	file, err := os.Open(*input)
 	if err != nil {
 		log.Fatal(err)
@@ -191,7 +207,9 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 	isOOP := false
 	if len(prototype.args) >= 1 && prototype.args[0] != nil &&
-		isObject(prototype.args[0].valueType) && objectOriented && !strings.Contains(prototype.name, "Load") {
+		isObject(prototype.args[0].valueType) && objectOriented &&
+		!strings.Contains(prototype.name, "Load") &&
+		!contains(ignoreOOPs, prototype.args[0].valueType) {
 		fmt.Println("OOP: ", prototype.name)
 		isOOP = true
 	}
@@ -203,6 +221,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	bodyArgsTally := 0
 	returnHeaders := make([]string, 0)
 	returnExpre := make([]string, 0)
+	returnPointer := false
 
 	body := "C." + prototype.name + "("
 
@@ -211,6 +230,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		spacing := " "
 		if isObject(prototype.returnArg.valueType) && objectOriented {
 			spacing = " *"
+			returnPointer = true
 		}
 
 		returnHeaders = append(returnHeaders, spacing+convertType(prototype.returnArg.valueType, prototype.returnArg.unsigned))
@@ -274,7 +294,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 		//If we are enabling unloadable tracking, then we need to add the addUnloadable to the end
 		// before returning
-		if *trackUnloadables && strings.HasPrefix(prototype.name, "Load") {
+		if *trackUnloadables && (returnPointer || strings.HasPrefix(prototype.name, "Load")) {
 			returnFooter = "\nretval := " + returnExpre[0]
 			returnExpre[0] = "retval"
 
@@ -287,7 +307,8 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	}
 
 	//If we are enabling unloadable tracking and this is an unload, then lets unload
-	if *trackUnloadables && strings.HasPrefix(prototype.name, "Unload") {
+	isUnload := *trackUnloadables && strings.HasPrefix(prototype.name, "Unload")
+	if isUnload {
 		body += "\nremoveUnloadable(" + argNames[0] + ")"
 	}
 
@@ -303,6 +324,10 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		argName := prototype.args[0].valueType
 		oopName = strings.Replace(oopName, "From"+argName, "", 1)
 		oopName = strings.Replace(oopName, argName, "", 1)
+		if isUnload {
+			oopName = "Unload"
+		}
+
 		retName := prototype.args[0].name + " *" + prototype.args[0].valueType
 
 		//add the comment and the line
@@ -445,7 +470,7 @@ func convertType(t string, unsigned bool) string {
 func isObject(t string) bool {
 	switch t {
 	default:
-		return true
+		return !contains(ignoreOOPs, t)
 	case "float":
 		fallthrough
 	case "int":
@@ -550,4 +575,13 @@ func (p *argument) GetPraticalPointerDepth() int {
 		return p.pointerDepth - 1
 	}
 	return p.pointerDepth
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
