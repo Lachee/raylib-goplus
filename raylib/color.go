@@ -58,6 +58,10 @@ var (
 	Magenta = NewColor(255, 0, 255, 255) // Magenta
 	//RayWhite - Off White
 	RayWhite = NewColor(245, 245, 245, 255) // My own White (raylib logo)
+	//Aqua
+	Aqua = NewColor(0, 162, 156)
+	//Gopher Blue
+	GopherBlue = NewColor(1, 173, 216)
 )
 
 // Color type, RGBA (32bit)
@@ -73,8 +77,8 @@ func newColorFromPointer(ptr unsafe.Pointer) Color { return *(*Color)(ptr) }
 //NewColor creates a new colour
 func NewColor(r, g, b, a uint8) Color { return Color{R: r, G: g, B: b, A: a} }
 
-//NewColorHSV turns a HSV to a colour
-func NewColorHSV(hsv Vector3) Color {
+//NewColorFromHSV turns a HSV to a colour
+func NewColorFromHSV(hsv Vector3) Color {
 
 	h, s, v := float64(hsv.X), float64(hsv.Y), float64(hsv.Z)
 	var k, t, r, g, b float64
@@ -188,7 +192,16 @@ func (c Color) Fade(alpha float32) Color {
 	return Color{R: c.R, B: c.B, G: c.G, A: uint8(255 * Clamp32(alpha, 0, 1))}
 }
 
-//Lerp a vector towards another vector
+//Lerp a color towards another color
 func (c Color) Lerp(target Color, amount float32) Color {
 	return NewColorFromNormalized(c.Normalize().Lerp(target.Normalize(), amount))
+}
+
+//LerpHSV will lerp the color towards another, using their calculated HSV to do so.
+// Note it is more efficient to store the calculated HSV of each and lerp between them
+func (c Color) LerpHSV(target Color, amount float32) Color {
+	hsv1 := c.ToHSV()
+	hsv2 := target.ToHSV()
+	lerp := hsv1.Lerp(hsv2, amount)
+	return NewColorFromHSV(lerp)
 }

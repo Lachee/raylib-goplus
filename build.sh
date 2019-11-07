@@ -13,5 +13,8 @@ echo " ( this might take a while, please wait ) "
 cd ../raylib
 go build .
 
+echo "======= Reporting Lint Issues"
+golint .
+
 
 echo "======= Finished"
