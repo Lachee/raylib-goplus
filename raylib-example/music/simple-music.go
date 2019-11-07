@@ -51,6 +51,15 @@ func main() {
 		r.EndDrawing()
 	}
 
+	//UNload the Music
+	music.Unload()
+
+	//This unload is experimental. In theory, all objects with Unload() will
+	// have been generated to register themselves to a global slice. This func
+	// will go through the slice, calling Unload() on everything that is
+	// still there.
 	r.UnloadAll()
+
+	//Close the window.
 	r.CloseWindow()
 }
