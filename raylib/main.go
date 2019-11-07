@@ -65,6 +65,9 @@ const (
 	FlagVsyncHint = 64
 )
 
+var screenWidth = 0
+var screenHeight = 0
+
 func init() {
 	//We have to lock the OS Thread as raylib is sensitive to that stuff.
 	runtime.LockOSThread()
@@ -93,6 +96,9 @@ func InitWindow(width int, height int, title string) {
 	cwidth := (C.int)(width)
 	cheight := (C.int)(height)
 
+	screenWidth = width
+	screenHeight = height
+
 	ctitle := C.CString(title)
 	defer C.free(unsafe.Pointer(ctitle))
 
@@ -112,6 +118,12 @@ func EndDrawing() {
 func ClearBackground(color Color) {
 	clr := *color.cptr()
 	C.ClearBackground(clr)
+}
+
+func DrawRectangleGradientV(posX, posY, width, height int, c1, c2 Color) {
+	cc1 := *c1.cptr()
+	cc2 := *c2.cptr()
+	C.DrawRectangleGradientV(C.int(int32(posX)), C.int(int32(posY)), C.int(int32(width)), C.int(int32(height)), cc1, cc2)
 }
 
 func CloseWindow() {

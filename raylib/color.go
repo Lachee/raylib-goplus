@@ -59,9 +59,9 @@ var (
 	//RayWhite - Off White
 	RayWhite = NewColor(245, 245, 245, 255) // My own White (raylib logo)
 	//Aqua
-	Aqua = NewColor(0, 162, 156)
+	Aqua = NewColor(0, 162, 156, 255)
 	//Gopher Blue
-	GopherBlue = NewColor(1, 173, 216)
+	GopherBlue = NewColor(1, 173, 216, 255)
 )
 
 // Color type, RGBA (32bit)

@@ -22,8 +22,8 @@ func main() {
 
 	windowVisible := true
 
-	texture := r.LoadTexture("raylib_32x32.png")
-	r.GuiLoadStyle("cyber/cyber.rgs")
+	texture := r.LoadTexture("../../logo/raylib_goplus_48x48.png")
+	//r.GuiLoadStyle("cyber/cyber.rgs")
 
 	for !r.WindowShouldClose() {
 
@@ -37,10 +37,12 @@ func main() {
 		offset = (offset + 5) % 400
 		completion = 360 * (float32(offset) / 400.0)
 
-		hsv := r.NewColorHSV(r.NewVector3(completion, 1, 1))
+		hsv := r.NewColorFromHSV(r.NewVector3(completion, 1, 1))
 		text := "I LOVE RAINBOW TEXT " + strconv.FormatFloat(float64(completion), 'f', 6, 64)
 		r.BeginDrawing()
+
 		r.ClearBackground(r.RayWhite)
+
 		r.DrawText(text, 10, offset, 20, hsv)
 
 		if r.GuiButton(r.Rectangle{X: 10, Y: 30, Width: 200, Height: 20}, "Toggle Window") {
@@ -51,7 +53,7 @@ func main() {
 			windowVisible = false
 		}
 
-		if r.GuiImageButton(r.NewRectangle(400, 30, 32, 32), "Raylib Logo", texture) {
+		if r.GuiImageButton(r.NewRectangle(400, 30, 48, 48), "Raylib Logo", texture) {
 			r.OpenURL("https://www.raylib.com/")
 		}
 
