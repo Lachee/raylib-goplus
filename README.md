@@ -5,10 +5,14 @@ Raylib Go Plus is an improved [Go]([https://golang.org/](https://golang.org/)) b
 
 This library is a work in progress and still new. We are always looking for improvements and help translating the bindings. Any cross-platform testing is most welcome too.
 
+
+
+
 ### Installation
 [![GoDoc](https://godoc.org/github.com/Lachee/raylib-goplus/raylib?status.svg)](https://godoc.org/github.com/Lachee/raylib-goplus/raylib)
 
 `go get github.com/lachee/raylib-goplus/raylib`
+
 Its that simple! Once you have fetch the resource, be sure to include it and get going!
 
 ```go
