@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
@@ -63,7 +64,7 @@ func main() {
 	failed := make([]string, 0)
 	success := make([]string, 0)
 
-	defaultHeader := "#include \"raylib.h\"\n#include <stdlib.h>\n#include \"go.h\"\n"
+	defaultHeader := "//Generated " + time.Now().Format(time.RFC3339) + "\n#include \"raylib.h\"\n#include <stdlib.h>\n#include \"go.h\"\n"
 
 	fileHeader := defaultHeader
 	filenameSuccess := "main" + *fileSuffix + ".go"
