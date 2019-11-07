@@ -10,25 +10,27 @@ import "unsafe"
 
 //SetMode : Set camera mode (multiple camera modes available)
 func (camera *Camera) SetMode(mode int) {
-	SetCameraMode(camera, mode)
-}
-
-//SetCameraMode : Set camera mode (multiple camera modes available)
-func SetCameraMode(camera *Camera, mode int) {
 	ccamera := *camera.cptr()
 	C.SetCameraMode(ccamera, C.int(int32(mode)))
 }
 
-//Update : Update camera position for selected mode
-func (camera *Camera) Update() *Camera {
-	return UpdateCamera(camera)
+//SetCameraMode : Set camera mode (multiple camera modes available)
+//Recommended to use camera.SetMode(mode) instead
+func SetCameraMode(camera *Camera, mode int) {
+	camera.SetMode(mode)
 }
 
-//UpdateCamera : Update camera position for selected mode
-func UpdateCamera(camera *Camera) *Camera {
+//Update : Update camera position for selected mode
+func (camera *Camera) Update() *Camera {
 	ccamera := camera.cptr()
 	C.UpdateCamera(ccamera)
 	return newCameraFromPointer(unsafe.Pointer(ccamera))
+}
+
+//UpdateCamera : Update camera position for selected mode
+//Recommended to use camera.Update() instead
+func UpdateCamera(camera *Camera) *Camera {
+	return camera.Update()
 }
 
 //SetCameraPanControl : Set camera pan key to combine with mouse movement (free camera)

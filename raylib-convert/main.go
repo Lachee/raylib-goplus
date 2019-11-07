@@ -291,36 +291,48 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		body += "\nremoveUnloadable(" + argNames[0] + ")"
 	}
 
-	//Prepare the function
-	text := ""
+	//Finally combine the body
+	body = body + returnFooter
+	oopName := prototype.name
+
+	//The definition is what we will write, including comment at the top
+	definition := ""
 	if isOOP {
+
 		//Prepare the function name
 		argName := prototype.args[0].valueType
-		funcName := strings.Replace(prototype.name, "From"+argName, "", 1)
-		funcName = strings.Replace(funcName, argName, "", 1)
+		oopName = strings.Replace(oopName, "From"+argName, "", 1)
+		oopName = strings.Replace(oopName, argName, "", 1)
+		retName := prototype.args[0].name + " *" + prototype.args[0].valueType
 
-		//Prepare the body
-		oopBody := body + returnFooter
-		if !*oopOnly {
-			oopBody = prototype.name + "(" + strings.Join(argNames, ", ") + ")"
-			if len(returnFooter) > 0 {
-				oopBody = "return " + oopBody
-			}
-		}
-
-		//If we are tracking unloadables, lets add that.
-
-		//Prepare the function itself
-		text += "//" + funcName + " : " + prototype.comment + "\n"
-		text += "func (" + prototype.args[0].name + " *" + prototype.args[0].valueType + ") " + funcName + "(" + strings.Join(argHeaders[1:], ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + oopBody + "\n}\n"
+		//add the comment and the line
+		definition += "//" + oopName + " : " + prototype.comment + "\n"
+		definition += fmt.Sprintf("func (%s) %s(%s) (%s) {\n %s \n}\n", retName, oopName, strings.Join(argHeaders[1:], ", "), strings.Join(returnHeaders, ", "), body)
 	}
 
 	if !*oopOnly || !isOOP {
-		text += "//" + prototype.name + " : " + prototype.comment + "\n"
-		text += "func " + prototype.name + "(" + strings.Join(argHeaders, ", ") + ") (" + strings.Join(returnHeaders, ", ") + ") {\n" + body + returnFooter + "\n}"
+
+		//Add the top comment
+		definition += "//" + prototype.name + " : " + prototype.comment + "\n"
+
+		//We are just going to call the OOP function
+		if isOOP && !*oopOnly {
+
+			//Prepare the new body
+			body = fmt.Sprintf("%s.%s(%s)", prototype.args[0].name, oopName, strings.Join(argNames[1:], ", "))
+			if len(returnFooter) > 0 {
+				body = "return " + body
+			}
+
+			//Add an recommendation comments
+			definition += fmt.Sprintf("//Recommended to use %s.%s(%s) instead\n", prototype.args[0].name, oopName, strings.Join(argNames[1:], ", "))
+		}
+
+		//Add the definition
+		definition += fmt.Sprintf("func %s(%s) (%s) {\n %s \n}\n", prototype.name, strings.Join(argHeaders, ", "), strings.Join(returnHeaders, ", "), body)
 	}
 
-	return text, nil
+	return definition, nil
 }
 
 //castType creates a cast for a type, returning first the name of the variable and then the definition of the variable.
