@@ -11,8 +11,13 @@ package raylib
 import "C"
 import "unsafe"
 
-func (state *GuiTextBoxState) cptr() *C.GuiTextBoxState {
-	return (*C.GuiTextBoxState)(unsafe.Pointer(state))
+//included with gui enable because raygui.h is weird
+func newGuiTextBoxStateFromPointer(ptr unsafe.Pointer) GuiTextBoxState {
+	return *(*GuiTextBoxState)(ptr)
+}
+
+func (w *GuiTextBoxState) cptr() *C.GuiTextBoxState {
+	return (*C.GuiTextBoxState)(unsafe.Pointer(w))
 }
 
 //GuiEnable : Enable gui controls (global state)
@@ -42,13 +47,13 @@ func GuiFade(alpha float32) {
 
 //GuiSetState : Set gui state (global state)
 func GuiSetState(state int) {
-	C.GuiSetState(C.int(state))
+	C.GuiSetState(C.int(int32(state)))
 }
 
 //GuiGetState : Get gui state (global state)
 func GuiGetState() int {
 	res := C.GuiGetState()
-	return int(res)
+	return int(int32(res))
 }
 
 //GuiSetFont : Set gui custom font (global state)
@@ -111,7 +116,7 @@ func GuiScrollPanel(bounds Rectangle, content Rectangle, scroll Vector2) (Rectan
 	ccontent := *content.cptr()
 	cbounds := *bounds.cptr()
 	res := C.GuiScrollPanel(cbounds, ccontent, cscroll)
-	return newRectangleFromPointer(unsafe.Pointer(&res)), newVector2FromPointer(unsafe.Pointer(&cscroll))
+	return newRectangleFromPointer(unsafe.Pointer(&res)), newVector2FromPointer(unsafe.Pointer(cscroll))
 }
 
 //GuiLabel : Label control, shows text
@@ -175,8 +180,8 @@ func GuiToggleGroup(bounds Rectangle, text string, active int) int {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiToggleGroup(cbounds, ctext, C.int(active))
-	return int(res)
+	res := C.GuiToggleGroup(cbounds, ctext, C.int(int32(active)))
+	return int(int32(res))
 }
 
 //GuiCheckBox : Check Box control, returns true when active
@@ -193,38 +198,38 @@ func GuiComboBox(bounds Rectangle, text string, active int) int {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiComboBox(cbounds, ctext, C.int(active))
-	return int(res)
+	res := C.GuiComboBox(cbounds, ctext, C.int(int32(active)))
+	return int(int32(res))
 }
 
 //GuiDropdownBox : Dropdown Box control, returns selected item
 func GuiDropdownBox(bounds Rectangle, text string, active int, editMode bool) (bool, int) {
-	cactive := C.int(active)
+	cactive := C.int(int32(active))
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
 	res := C.GuiDropdownBox(cbounds, ctext, &cactive, C.bool(editMode))
-	return bool(res), int(cactive)
+	return bool(res), int(int32(cactive))
 }
 
 //GuiSpinner : Spinner control, returns selected value
 func GuiSpinner(bounds Rectangle, text string, value int, minValue int, maxValue int, editMode bool) (bool, int) {
-	cvalue := C.int(value)
+	cvalue := C.int(int32(value))
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiValueBox(cbounds, ctext, &cvalue, C.int(minValue), C.int(maxValue), C.bool(editMode))
-	return bool(res), int(cvalue)
+	res := C.GuiSpinner(cbounds, ctext, &cvalue, C.int(int32(minValue)), C.int(int32(maxValue)), C.bool(editMode))
+	return bool(res), int(int32(cvalue))
 }
 
 //GuiValueBox : Value Box control, updates input text with numbers
 func GuiValueBox(bounds Rectangle, text string, value int, minValue int, maxValue int, editMode bool) (bool, int) {
-	cvalue := C.int(value)
+	cvalue := C.int(int32(value))
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiValueBox(cbounds, ctext, &cvalue, C.int(minValue), C.int(maxValue), C.bool(editMode))
-	return bool(res), int(cvalue)
+	res := C.GuiValueBox(cbounds, ctext, &cvalue, C.int(int32(minValue)), C.int(int32(maxValue)), C.bool(editMode))
+	return bool(res), int(int32(cvalue))
 }
 
 //GuiTextBox : Text Box control, updates input text
@@ -232,7 +237,7 @@ func GuiTextBox(bounds Rectangle, text string, textSize int, editMode bool) (boo
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiTextBox(cbounds, ctext, C.int(textSize), C.bool(editMode))
+	res := C.GuiTextBox(cbounds, ctext, C.int(int32(textSize)), C.bool(editMode))
 	return bool(res), C.GoString(ctext)
 }
 
@@ -241,7 +246,7 @@ func GuiTextBoxMulti(bounds Rectangle, text string, textSize int, editMode bool)
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiTextBoxMulti(cbounds, ctext, C.int(textSize), C.bool(editMode))
+	res := C.GuiTextBoxMulti(cbounds, ctext, C.int(int32(textSize)), C.bool(editMode))
 	return bool(res), C.GoString(ctext)
 }
 
@@ -297,25 +302,25 @@ func GuiDummyRec(bounds Rectangle, text string) {
 //GuiScrollBar : Scroll Bar control
 func GuiScrollBar(bounds Rectangle, value int, minValue int, maxValue int) int {
 	cbounds := *bounds.cptr()
-	res := C.GuiScrollBar(cbounds, C.int(value), C.int(minValue), C.int(maxValue))
-	return int(res)
+	res := C.GuiScrollBar(cbounds, C.int(int32(value)), C.int(int32(minValue)), C.int(int32(maxValue)))
+	return int(int32(res))
 }
 
 //GuiGrid : Grid control
 func GuiGrid(bounds Rectangle, spacing float32, subdivs int) Vector2 {
 	cbounds := *bounds.cptr()
-	res := C.GuiGrid(cbounds, C.float(spacing), C.int(subdivs))
+	res := C.GuiGrid(cbounds, C.float(spacing), C.int(int32(subdivs)))
 	return newVector2FromPointer(unsafe.Pointer(&res))
 }
 
 //GuiListView : List View control, returns selected list item index
 func GuiListView(bounds Rectangle, text string, scrollIndex int, active int) (int, int) {
-	cscrollIndex := C.int(scrollIndex)
+	cscrollIndex := C.int(int32(scrollIndex))
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cbounds := *bounds.cptr()
-	res := C.GuiListView(cbounds, ctext, &cscrollIndex, C.int(active))
-	return int(res), int(cscrollIndex)
+	res := C.GuiListView(cbounds, ctext, &cscrollIndex, C.int(int32(active)))
+	return int(int32(res)), int(int32(cscrollIndex))
 }
 
 //GuiListViewEx : List View with extended parameters
@@ -346,7 +351,7 @@ func GuiMessageBox(bounds Rectangle, title string, message string, buttons strin
 	defer C.free(unsafe.Pointer(ctitle))
 	cbounds := *bounds.cptr()
 	res := C.GuiMessageBox(cbounds, ctitle, cmessage, cbuttons)
-	return int(res)
+	return int(int32(res))
 }
 
 //GuiTextInputBox : Text Input Box control, ask for text
@@ -361,7 +366,7 @@ func GuiTextInputBox(bounds Rectangle, title string, message string, buttons str
 	defer C.free(unsafe.Pointer(ctitle))
 	cbounds := *bounds.cptr()
 	res := C.GuiTextInputBox(cbounds, ctitle, cmessage, cbuttons, ctext)
-	return int(res), C.GoString(ctext)
+	return int(int32(res)), C.GoString(ctext)
 }
 
 //GuiColorPicker : Color Picker control
@@ -388,7 +393,7 @@ func GuiLoadStyleDefault() {
 func GuiIconText(iconId int, text string) string {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiIconText(C.int(iconId), ctext)
+	res := C.GuiIconText(C.int(int32(iconId)), ctext)
 	return C.GoString(res)
 }
 
@@ -406,18 +411,18 @@ func GuiTextBoxGetActive() Rectangle {
 
 //GuiTextBoxSetCursor : Set cursor position of active textbox
 func GuiTextBoxSetCursor(cursor int) {
-	C.GuiTextBoxSetCursor(C.int(cursor))
+	C.GuiTextBoxSetCursor(C.int(int32(cursor)))
 }
 
 //GuiTextBoxGetCursor : Get cursor position of active textbox
 func GuiTextBoxGetCursor() int {
 	res := C.GuiTextBoxGetCursor()
-	return int(res)
+	return int(int32(res))
 }
 
 //GuiTextBoxSetSelection : Set selection of active textbox
 func GuiTextBoxSetSelection(start int, length int) {
-	C.GuiTextBoxSetSelection(C.int(start), C.int(length))
+	C.GuiTextBoxSetSelection(C.int(int32(start)), C.int(int32(length)))
 }
 
 //GuiTextBoxGetSelection : Get selection of active textbox (x - selection start  y - selection length)
@@ -463,7 +468,7 @@ func GuiTextBoxCopy(text string) {
 func GuiTextBoxPaste(text string, textSize int) string {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.GuiTextBoxPaste(ctext, C.int(textSize))
+	C.GuiTextBoxPaste(ctext, C.int(int32(textSize)))
 	return C.GoString(ctext)
 }
 
@@ -479,14 +484,14 @@ func GuiTextBoxCut(text string) string {
 func GuiTextBoxDelete(text string, length int, before bool) (int, string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiTextBoxDelete(ctext, C.int(length), C.bool(before))
-	return int(res), C.GoString(ctext)
+	res := C.GuiTextBoxDelete(ctext, C.int(int32(length)), C.bool(before))
+	return int(int32(res)), C.GoString(ctext)
 }
 
 //GuiTextBoxGetByteIndex : Get the byte index for a character starting at position `from` with index `start` until position `to`.
 func GuiTextBoxGetByteIndex(text string, start int, from int, to int) int {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiTextBoxGetByteIndex(ctext, C.int(start), C.int(from), C.int(to))
-	return int(res)
+	res := C.GuiTextBoxGetByteIndex(ctext, C.int(int32(start)), C.int(int32(from)), C.int(int32(to)))
+	return int(int32(res))
 }

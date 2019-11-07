@@ -28,6 +28,7 @@ func main() {
 	//Load the music
 	//Will hard crash if not init audio device.
 	music := r.LoadMusicStream("4710-midnight-tale-by-kevin-macleod.mp3")
+
 	//fmt.Println(music)
 	music.PlayStream()
 
@@ -37,7 +38,6 @@ func main() {
 		frame++
 
 		duration := float32(music.GetTimePlayed()) / float32(music.GetTimeLength())
-		//duration := float32(frame%255) / 255
 
 		r.GuiProgressBar(r.NewRectangle(100, 100, 200, 25), "Start ", " End", duration, float32(0), float32(1))
 
@@ -51,5 +51,6 @@ func main() {
 		r.EndDrawing()
 	}
 
+	r.UnloadAll()
 	r.CloseWindow()
 }

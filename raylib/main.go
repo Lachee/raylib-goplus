@@ -42,6 +42,7 @@ package raylib
 import "C"
 import (
 	"runtime"
+	"time"
 	"unsafe"
 )
 
@@ -65,6 +66,13 @@ const (
 func init() {
 	//We have to lock the OS Thread as raylib is sensitive to that stuff.
 	runtime.LockOSThread()
+
+	//Setup the unloadables so they finalize
+	runtime.SetFinalizer(&unloadables, finalizeUnloadables)
+	time.Sleep(time.Second)
+	unloadables = nil
+	time.Sleep(time.Second)
+	runtime.GC()
 }
 
 // SetConfigFlags - Setup some window configuration flags

@@ -22,6 +22,7 @@ var (
 	output            = flag.String("out", "out/", "the output directory")
 	functionalConvert = flag.Bool("use_func", true, "tells the converter to use newTypeFromPointer and cptr() functions")
 	oopOnly           = flag.Bool("oop_only", false, "should only the OOP version of the function be generated?")
+	trackUnloadables  = flag.Bool("track_unloadables", true, "should unloadables track when they are being loaded and unloaded to our list. Only applicable with OOP")
 )
 
 func main() {
@@ -207,7 +208,12 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 	//Add the first item to the return headers
 	if prototype.returnArg.valueType != "void" {
-		returnHeaders = append(returnHeaders, convertType(prototype.returnArg.valueType, prototype.returnArg.unsigned))
+		spacing := " "
+		if isObject(prototype.returnArg.valueType) && objectOriented {
+			spacing = " *"
+		}
+
+		returnHeaders = append(returnHeaders, spacing+convertType(prototype.returnArg.valueType, prototype.returnArg.unsigned))
 		returnExpre = append(returnExpre, castToGo("res", prototype.returnArg.valueType, prototype.returnArg.HasPointer(), prototype.returnArg.unsigned))
 		body = "res := " + body
 	}
@@ -223,15 +229,25 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 			return "", errors.New("cannot process pointer of pointer arg types")
 		}
 
+		spacing := " "
+		if isObject(arg.valueType) && objectOriented {
+			spacing = " *"
+		}
+
 		//Update our name
 		//Append to the header
 		argNames[i] = arg.name
-		argHeaders[i] = arg.name + " " + convertType(arg.valueType, arg.unsigned)
+		argHeaders[i] = arg.name + spacing + convertType(arg.valueType, arg.unsigned)
 
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
 		if arg.GetPraticalPointerDepth() == 1 {
-			returnHeaders = append(returnHeaders, convertType(arg.valueType, arg.unsigned))
+
+			if !objectOriented {
+				spacing = ""
+			}
+
+			returnHeaders = append(returnHeaders, spacing+convertType(arg.valueType, arg.unsigned))
 			returnExpre = append(returnExpre, castToGo(bodyArgPart, arg.valueType, arg.HasPointer(), arg.unsigned))
 
 			if !pointerless {
@@ -255,7 +271,16 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	body = body + strings.Join(bodyArgs, ", ") + ")"
 	returnFooter := ""
 	if len(returnExpre) > 0 {
-		returnFooter = "\nreturn " + strings.Join(returnExpre, ", ")
+		if *trackUnloadables && strings.HasPrefix(prototype.name, "Load") {
+			returnFooter = "\nretval := " + returnExpre[0]
+			returnExpre[0] = "retval"
+
+			returnFooter += "\naddUnloadable(retval)"
+			returnFooter += "\nreturn " + strings.Join(returnExpre, ", ")
+
+		} else {
+			returnFooter = "\nreturn " + strings.Join(returnExpre, ", ")
+		}
 	}
 
 	//Prepare the function
@@ -269,11 +294,13 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		//Prepare the body
 		oopBody := body + returnFooter
 		if !*oopOnly {
-			oopBody = prototype.name + "(*" + strings.Join(argNames, ", ") + ")"
+			oopBody = prototype.name + "(" + strings.Join(argNames, ", ") + ")"
 			if len(returnFooter) > 0 {
 				oopBody = "return " + oopBody
 			}
 		}
+
+		//If we are tracking unloadables, lets add that.
 
 		//Prepare the function itself
 		text += "//" + funcName + " : " + prototype.comment + "\n"

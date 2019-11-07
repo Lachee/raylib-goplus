@@ -110,8 +110,8 @@ RLAPI void OpenURL(const char *url);                              // Open URL wi
 //------------------------------------------------------------------------------------
 // Input Handling Functions (Module: core)
 //------------------------------------------------------------------------------------
-//conv:g:core
-
+//conv:g:input
+//conv:ignore:start
 // Input-related functions: keyboard
 RLAPI bool IsKeyPressed(int key);                             // Detect if a key has been pressed once
 RLAPI bool IsKeyDown(int key);                                // Detect if a key is being pressed
@@ -119,6 +119,7 @@ RLAPI bool IsKeyReleased(int key);                            // Detect if a key
 RLAPI bool IsKeyUp(int key);                                  // Detect if a key is NOT being pressed
 RLAPI int GetKeyPressed(void);                                // Get latest key pressed
 RLAPI void SetExitKey(int key);                               // Set a custom key to exit program (default is ESC)
+//conv:ignore:stop
 
 // Input-related functions: gamepads
 RLAPI bool IsGamepadAvailable(int gamepad);                   // Detect if a gamepad is available
@@ -131,6 +132,7 @@ RLAPI bool IsGamepadButtonUp(int gamepad, int button);        // Detect if a gam
 RLAPI int GetGamepadButtonPressed(void);                      // Get the last gamepad button pressed
 RLAPI int GetGamepadAxisCount(int gamepad);                   // Return gamepad axis count for a gamepad
 RLAPI float GetGamepadAxisMovement(int gamepad, int axis);    // Return axis movement value for a gamepad axis
+
 
 // Input-related functions: mouse
 RLAPI bool IsMouseButtonPressed(int button);                  // Detect if a mouse button has been pressed once
@@ -168,6 +170,7 @@ RLAPI float GetGesturePinchAngle(void);                       // Get gesture pin
 // Camera System Functions (Module: camera)
 //------------------------------------------------------------------------------------
 //conv:g:camera
+//conv:oop:start
 RLAPI void SetCameraMode(Camera camera, int mode);                // Set camera mode (multiple camera modes available)
 RLAPI void UpdateCamera(Camera *camera);                          // Update camera position for selected mode
 
@@ -175,6 +178,7 @@ RLAPI void SetCameraPanControl(int panKey);                       // Set camera 
 RLAPI void SetCameraAltControl(int altKey);                       // Set camera alt key to combine with mouse movement (free camera)
 RLAPI void SetCameraSmoothZoomControl(int szKey);                 // Set camera smooth zoom key to combine with mouse (free camera)
 RLAPI void SetCameraMoveControls(int frontKey, int backKey, int rightKey, int leftKey, int upKey, int downKey); // Set camera move controls (1st person and 3rd person cameras)
+//conv:oop:stop
 
 //------------------------------------------------------------------------------------
 // Basic Shapes Drawing Functions (Module: shapes)

@@ -16,8 +16,8 @@ type Wave struct {
 	data        unsafe.Pointer
 }
 
-func newWaveFromPointer(ptr unsafe.Pointer) Wave {
-	return *(*Wave)(ptr)
+func newWaveFromPointer(ptr unsafe.Pointer) *Wave {
+	return (*Wave)(ptr)
 }
 
 func (w *Wave) cptr() *C.Wave {
@@ -30,8 +30,8 @@ type Sound struct {
 	Stream      AudioStream
 }
 
-func newSoundFromPointer(ptr unsafe.Pointer) Sound {
-	return *(*Sound)(ptr)
+func newSoundFromPointer(ptr unsafe.Pointer) *Sound {
+	return (*Sound)(ptr)
 }
 
 func (s *Sound) cptr() *C.Sound {
@@ -47,8 +47,8 @@ type AudioStream struct {
 	Buffer     unsafe.Pointer
 }
 
-func newAudioStreamFromPointer(ptr unsafe.Pointer) AudioStream {
-	return *(*AudioStream)(ptr)
+func newAudioStreamFromPointer(ptr unsafe.Pointer) *AudioStream {
+	return (*AudioStream)(ptr)
 }
 
 func (as *AudioStream) cptr() *C.AudioStream {
@@ -64,8 +64,8 @@ type Music struct {
 	Stream      AudioStream
 }
 
-func newMusicFromPointer(ptr unsafe.Pointer) Music {
-	return *(*Music)(ptr)
+func newMusicFromPointer(ptr unsafe.Pointer) *Music {
+	return (*Music)(ptr)
 }
 
 func (music *Music) cptr() *C.Music {

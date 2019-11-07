@@ -10,7 +10,6 @@ source: https://github.com/raysan5/raygui/blob/master/src/raygui.h
 #include <stdlib.h>
 */
 import "C"
-import "unsafe"
 
 //GuiState the state of the GUI
 type GuiState int32
@@ -27,10 +26,6 @@ type GuiTextBoxState struct {
 	Start  int32
 	Index  int32
 	Select int32
-}
-
-func newGuiTextBoxStateFromPointer(ptr unsafe.Pointer) GuiTextBoxState {
-	return *(*GuiTextBoxState)(ptr)
 }
 
 const (
