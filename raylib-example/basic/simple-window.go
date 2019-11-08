@@ -104,6 +104,10 @@ func main() {
 			r.DrawTexture(*b.texture, b.x, b.y, r.White)
 		}
 
+		if r.IsGamepadAvailable(r.GamepadPlayer1) {
+			r.DrawText("Gamepad Connected", 10, 50, 15, r.GopherBlue)
+		}
+
 		if r.IsKeyReleased(r.KeyF1) {
 			r.UnloadAll()
 		}
