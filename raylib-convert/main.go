@@ -179,7 +179,7 @@ func saveProgress(filenameFailed string, filenameSuccess string, successResults 
 
 	if *format {
 		fmt.Println("Formatting...")
-		cmd := exec.Command("gofmt")
+		cmd := exec.Command("goimports")
 		cmd.Stdin = strings.NewReader(successResults)
 		var out bytes.Buffer
 		cmd.Stdout = &out
