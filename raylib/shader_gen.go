@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-08T15:43:01+11:00
+//Generated 2019-11-08T15:51:06+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -181,7 +181,7 @@ func GetMatrixProjection() Matrix {
 }
 
 //GenTextureCubemap : Generate cubemap texture from HDR texture
-func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) Texture2D {
+func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) *Texture2D {
 	cskyHDR := *skyHDR.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTextureCubemap(cshader, cskyHDR, C.int(int32(size)))
@@ -189,7 +189,7 @@ func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) Texture2D {
 }
 
 //GenTextureIrradiance : Generate irradiance texture using cubemap data
-func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) Texture2D {
+func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) *Texture2D {
 	ccubemap := *cubemap.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTextureIrradiance(cshader, ccubemap, C.int(int32(size)))
@@ -197,7 +197,7 @@ func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) Texture2D 
 }
 
 //GenTexturePrefilter : Generate prefilter texture using cubemap data
-func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) Texture2D {
+func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) *Texture2D {
 	ccubemap := *cubemap.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTexturePrefilter(cshader, ccubemap, C.int(int32(size)))
@@ -205,7 +205,7 @@ func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) Texture2D {
 }
 
 //GenTextureBRDF : Generate BRDF texture
-func GenTextureBRDF(shader Shader, size int) Texture2D {
+func GenTextureBRDF(shader Shader, size int) *Texture2D {
 	cshader := *shader.cptr()
 	res := C.GenTextureBRDF(cshader, C.int(int32(size)))
 	return newTexture2DFromPointer(unsafe.Pointer(&res))

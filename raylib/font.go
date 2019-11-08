@@ -61,6 +61,6 @@ func (f *Font) cptr() *C.Font {
 	return (*C.Font)(unsafe.Pointer(f))
 }
 
-func newFontFromPointer(ptr unsafe.Pointer) Font {
-	return *(*Font)(ptr)
+func newFontFromPointer(ptr unsafe.Pointer) *Font {
+	return (*Font)(ptr)
 }

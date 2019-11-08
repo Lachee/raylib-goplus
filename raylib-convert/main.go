@@ -262,7 +262,8 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	//Add the first item to the return headers
 	if prototype.returnArg.valueType != "void" {
 		spacing := " "
-		if isObject(prototype.returnArg.valueType) && objectOriented {
+
+		if isObject(prototype.returnArg.valueType) {
 			spacing = " *"
 			returnPointer = true
 		}
