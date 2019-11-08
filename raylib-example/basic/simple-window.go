@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 
@@ -29,6 +30,11 @@ func (b *ball) move(maxX int, maxY int) {
 	b.y += b.vy
 }
 
+const (
+	maxSamples          = 22050
+	maxSamplesPerUpdate = 4096
+)
+
 func main() {
 
 	r.SetConfigFlags(r.FlagVsyncHint)
@@ -43,6 +49,15 @@ func main() {
 	var completion float32
 
 	windowVisible := true
+
+	stream := r.InitAudioStream(22050, 32, 1)
+
+	//// Fill audio stream with some samples (sine wave)
+	data := make([]float32, maxSamples)
+
+	for i := 0; i < maxSamples; i++ {
+		data[i] = float32(math.Sin(float64(((2 * r.PI * float32(i)) / 2) * r.Deg2Rad)))
+	}
 
 	rgp := r.LoadTexture("../../logo/raylib_goplus_48x48.png")
 	rlb := r.LoadTexture("../../logo/raylib_32x32.png")

@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-08T15:51:06+11:00
+//Generated 2019-11-08T16:49:50+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -456,14 +456,14 @@ func InitAudioStream(sampleRate uint32, sampleSize uint32, channels uint32) *Aud
 }
 
 //Update : Update audio stream buffers with data
-func (stream *AudioStream) Update(data unsafe.Pointer, samplesCount int) {
+func (stream *AudioStream) Update(data []float32, samplesCount int) {
 	cstream := *stream.cptr()
-	C.UpdateAudioStream(cstream, data, C.int(int32(samplesCount)))
+	C.UpdateAudioStream(cstream, unsafe.Pointer(&data[0]), C.int(int32(samplesCount)))
 }
 
-//UpdateAudioStream : Update audio stream buffers with data
+//UpdateSound : Update audio stream buffers with data
 //Recommended to use stream.Update(data, samplesCount) instead
-func UpdateAudioStream(stream *AudioStream, data unsafe.Pointer, samplesCount int) {
+func UpdateAudioStream(stream *AudioStream, data []float32, samplesCount int) {
 	stream.Update(data, samplesCount)
 }
 
