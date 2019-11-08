@@ -29,10 +29,16 @@ var (
 
 var ignoreOOPs []string
 var patterns []matchPattern
+var enums []matchEnum
 
 type matchPattern struct {
 	pattern *regexp.Regexp
 	replace string
+}
+
+type matchEnum struct {
+	pattern *regexp.Regexp
+	enum    string
 }
 
 func (p *matchPattern) replaceAll(s string) string {
@@ -74,6 +80,7 @@ func main() {
 	failed := make([]string, 0)
 	success := make([]string, 0)
 	patterns = make([]matchPattern, 0)
+	enums = make([]matchEnum, 0)
 
 	defaultHeader := "//Generated " + time.Now().Format(time.RFC3339) + "\n#include \"raylib.h\"\n#include <stdlib.h>\n#include \"go.h\"\n"
 
@@ -112,6 +119,7 @@ func main() {
 					failed = make([]string, 0)
 					success = make([]string, 0)
 					patterns = make([]matchPattern, 0)
+					enums = make([]matchEnum, 0)
 
 					//Prepare the new filename
 					filenameSuccess = parts[2] + *fileSuffix + ".go"
@@ -132,6 +140,13 @@ func main() {
 					patterns = append(patterns, matchPattern{
 						pattern: regexp.MustCompile(parts[2]),
 						replace: parts[3],
+					})
+
+				case "enum":
+					//conv:enum:/int gamepad/g:GamepadNumber
+					enums = append(enums, matchEnum{
+						pattern: regexp.MustCompile(parts[2]),
+						enum:    parts[3],
 					})
 				}
 
@@ -277,6 +292,10 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		//Append to the header
 		argNames[i] = arg.name
 		argHeaders[i] = arg.name + spacing + convertType(arg.valueType, arg.unsigned)
+		if arg.enumType != "" {
+			//We have an enum type, so we will update our argHeader to use that instead
+			argHeaders[i] = arg.name + spacing + arg.enumType
+		}
 
 		bodyArgPart, bodyPrefixPart, pointerless := castToC(*arg)
 
@@ -523,13 +542,14 @@ func parseLine(line string) (*prototype, error) {
 	}
 
 	//Prepare the prototype
-	p := &prototype{
+	proto := &prototype{
 		entire: matches[0][0],
 		returnArg: argument{
 			name:         "return",
 			constant:     strings.Trim(matches[0][2], " ") == "const",
 			unsigned:     strings.Trim(matches[0][2], " ") == "unsigned",
 			valueType:    matches[0][3],
+			enumType:     "",
 			pointerDepth: len(strings.Trim(matches[0][4], " ")),
 		},
 		name:    matches[0][5],
@@ -562,11 +582,22 @@ func parseLine(line string) (*prototype, error) {
 			name = "g" + name
 		}
 
+		//Prepare the enum type
+		enumLine := proto.name + "(" + p + ")"
+		enumType := ""
+		for _, et := range enums {
+			if et.pattern.MatchString(enumLine) {
+				enumType = et.enum
+				break
+			}
+		}
+
 		arguments[i] = &argument{
 			entire:       matches[0][0],
 			constant:     strings.Trim(matches[0][1], " ") == "const",
 			unsigned:     strings.Trim(matches[0][1], " ") == "unsigned",
 			valueType:    matches[0][2],
+			enumType:     enumType,
 			pointerDepth: len(strings.Trim(matches[0][3], " ")),
 			name:         name,
 		}
@@ -574,8 +605,8 @@ func parseLine(line string) (*prototype, error) {
 		i++
 	}
 
-	p.args = arguments
-	return p, nil
+	proto.args = arguments
+	return proto, nil
 }
 
 type prototype struct {
@@ -590,6 +621,7 @@ type argument struct {
 	entire       string
 	valueType    string
 	name         string
+	enumType     string
 	pointerDepth int
 	constant     bool
 	unsigned     bool
