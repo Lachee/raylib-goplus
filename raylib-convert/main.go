@@ -333,7 +333,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 		//If we are enabling unloadable tracking, then we need to add the addUnloadable to the end
 		// before returning
-		if *trackUnloadables && (returnPointer || strings.HasPrefix(prototype.name, "Load")) {
+		if objectOriented && *trackUnloadables && (returnPointer || strings.HasPrefix(prototype.name, "Load")) {
 			returnFooter = "\nretval := " + returnExpre[0]
 			returnExpre[0] = "retval"
 
@@ -347,7 +347,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 
 	//If we are enabling unloadable tracking and this is an unload, then lets unload
 	isUnload := *trackUnloadables && strings.HasPrefix(prototype.name, "Unload")
-	if isUnload {
+	if isUnload && isOOP {
 		body += "\nremoveUnloadable(" + argNames[0] + ")"
 	}
 

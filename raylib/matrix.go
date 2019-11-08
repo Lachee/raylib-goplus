@@ -1,5 +1,9 @@
 package raylib
 
+//#include "raylib.h"
+//#include <stdlib.h>
+import "C"
+import "unsafe"
 import "math"
 
 //Matrix A representation of a 4 x 4 matrix
@@ -20,6 +24,11 @@ type Matrix struct {
 	M13 float32
 	M14 float32
 	M15 float32
+}
+
+func newMatrixFromPointer(ptr unsafe.Pointer) Matrix { return *(*Matrix)(ptr) }
+func (m *Matrix) cptr() *C.Matrix {
+	return (*C.Matrix)(unsafe.Pointer(m))
 }
 
 //NewMatrixFromQuaternion creates a new rotation matrix from a quaternion

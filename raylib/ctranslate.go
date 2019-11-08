@@ -21,9 +21,6 @@ func (v *Vector3) cptr() *C.Vector3 {
 func (v *Vector4) cptr() *C.Vector4 {
 	return (*C.Vector4)(unsafe.Pointer(v))
 }
-func (m *Matrix) cptr() *C.Matrix {
-	return (*C.Matrix)(unsafe.Pointer(m))
-}
 func (q *Quaternion) cptr() *C.Quaternion {
 	return (*C.Quaternion)(unsafe.Pointer(q))
 }

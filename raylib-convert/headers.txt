@@ -471,7 +471,11 @@ RLAPI RayHitInfo GetCollisionRayGround(Ray ray, float groundHeight);            
 // Shaders System Functions (Module: rlgl)
 // NOTE: This functions are useless when using OpenGL 1.1
 //------------------------------------------------------------------------------------
-//conv:g:shaders
+//conv:g:shader
+//conv:oop:start
+//conv:enum:Shader.*int uniformType:ShaderUniformDataType
+//--conv:enum:Shader.*int uniformLoc:ShaderLocationIndex
+//conv:enum:Blend.*int mode:BlendMode
 
 // Shader loading/unloading functions
 RLAPI char *LoadText(const char *fileName);                               // Load chars array from text file
@@ -493,6 +497,8 @@ RLAPI void SetMatrixModelview(Matrix view);                               // Set
 RLAPI Matrix GetMatrixModelview(void);                                    // Get internal modelview matrix
 RLAPI Matrix GetMatrixProjection(void);                                   // Get internal projection matrix
 
+//conv:oop:stop
+
 // Texture maps generation (PBR)
 // NOTE: Required shaders should be provided
 RLAPI Texture2D GenTextureCubemap(Shader shader, Texture2D skyHDR, int size);       // Generate cubemap texture from HDR texture
@@ -506,6 +512,7 @@ RLAPI void EndShaderMode(void);                                           // End
 RLAPI void BeginBlendMode(int mode);                                      // Begin blending mode (alpha, additive, multiplied)
 RLAPI void EndBlendMode(void);                                            // End blending mode (reset to default: alpha blending)
 
+//conv:g:vr
 // VR control functions
 RLAPI void InitVrSimulator(void);                       // Init VR simulator for selected device parameters
 RLAPI void CloseVrSimulator(void);                      // Close VR simulator for current device
