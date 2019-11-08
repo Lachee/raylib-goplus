@@ -1,13 +1,12 @@
 package raylib
 
 /*
-//Generated 2019-11-08T11:32:52+11:00
+//Generated 2019-11-08T11:40:02+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
 */
 import "C"
-import "unsafe"
 
 //SetMode : Set camera mode (multiple camera modes available)
 func (camera *Camera) SetMode(mode CameraMode) {
