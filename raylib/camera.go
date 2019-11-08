@@ -14,6 +14,16 @@ const (
 	CameraTypeOrthographic
 )
 
+type CameraMode int32
+
+const (
+	CameraCustom CameraMode = iota
+	CameraFree
+	CameraOrbital
+	CameraFirstPerson
+	CameraThirdPerson
+)
+
 //Camera3D defines a camera in 3D space
 type Camera3D struct {
 	Position Vector3
