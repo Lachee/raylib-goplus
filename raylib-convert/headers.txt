@@ -116,6 +116,9 @@ RLAPI void OpenURL(const char *url);                              // Open URL wi
 //------------------------------------------------------------------------------------
 //conv:g:input
 //conv:ignore:start
+//conv:replace:int gamepad, int button:int gamepad, GamepadButton button
+//conv:replace:int gamepad:GamepadNumber gamepad
+//conv:replace:int button:MouseButton button
 // Input-related functions: keyboard
 RLAPI bool IsKeyPressed(int key);                             // Detect if a key has been pressed once
 RLAPI bool IsKeyDown(int key);                                // Detect if a key is being pressed

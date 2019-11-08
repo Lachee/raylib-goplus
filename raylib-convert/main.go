@@ -28,6 +28,16 @@ var (
 )
 
 var ignoreOOPs []string
+var patterns []matchPattern
+
+type matchPattern struct {
+	pattern *regexp.Regexp
+	replace string
+}
+
+func (p *matchPattern) replaceAll(s string) string {
+	return p.pattern.ReplaceAllString(s, p.replace)
+}
 
 func main() {
 
@@ -63,6 +73,7 @@ func main() {
 	prototypes := make([]*prototype, 0)
 	failed := make([]string, 0)
 	success := make([]string, 0)
+	patterns = make([]matchPattern, 0)
 
 	defaultHeader := "//Generated " + time.Now().Format(time.RFC3339) + "\n#include \"raylib.h\"\n#include <stdlib.h>\n#include \"go.h\"\n"
 
@@ -100,6 +111,7 @@ func main() {
 					fileHeader = defaultHeader
 					failed = make([]string, 0)
 					success = make([]string, 0)
+					patterns = make([]matchPattern, 0)
 
 					//Prepare the new filename
 					filenameSuccess = parts[2] + *fileSuffix + ".go"
@@ -115,6 +127,12 @@ func main() {
 
 				case "oop":
 					asOOP = parts[2] == "start"
+
+				case "replace":
+					patterns = append(patterns, matchPattern{
+						pattern: regexp.MustCompile(parts[2]),
+						replace: parts[3],
+					})
 				}
 
 			}
@@ -519,7 +537,13 @@ func parseLine(line string) (*prototype, error) {
 	}
 
 	//Prepare the arguments
-	parts := strings.Split(matches[0][6], ",")
+	argline := matches[0][6]
+	for _, p := range patterns {
+		argline = p.replaceAll(argline)
+	}
+
+	//Split it up
+	parts := strings.Split(argline, ",")
 	arguments := make([]*argument, len(parts))
 	i := 0
 	for _, p := range parts {
