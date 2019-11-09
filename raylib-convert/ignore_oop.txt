@@ -10,3 +10,6 @@ GuiState
 GuiControl
 GuiProperty
 NPatchInfo
+BoundingBox
+Ray
+RayHitInfo

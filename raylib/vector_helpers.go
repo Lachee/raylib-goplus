@@ -23,6 +23,12 @@ func newVector4FromPointer(ptr unsafe.Pointer) Vector4 { return *(*Vector4)(ptr)
 func (v *Vector4) cptr() *C.Vector4 {
 	return (*C.Vector4)(unsafe.Pointer(v))
 }
+
+func newTransformFromPointer(ptr unsafe.Pointer) Transform { return *(*Transform)(ptr) }
+func (v *Transform) cptr() *C.Transform {
+	return (*C.Transform)(unsafe.Pointer(v))
+}
+
 func (q *Quaternion) cptr() *C.Quaternion {
 	return (*C.Quaternion)(unsafe.Pointer(q))
 }

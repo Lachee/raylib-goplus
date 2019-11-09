@@ -24,5 +24,5 @@ func (image *Image) ExtractPalette(maxPaletteSize int) ([]Color, int) {
 //ImageExtractPalette : Extract color palette from image to maximum size (memory should be freed)
 //Recommended to use image.ExtractPalette(maxPaletteSize) instead
 func ImageExtractPalette(image *Image, maxPaletteSize int) ([]Color, int) {
-	return image.ExtractPalette(maxPaletteSize, extractCount)
+	return image.ExtractPalette(maxPaletteSize)
 }

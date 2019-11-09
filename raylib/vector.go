@@ -480,3 +480,19 @@ func (v Vector4) Max(v2 Vector4) Vector4 {
 		W: float32(math.Max(float64(v.W), float64(v2.W))),
 	}
 }
+
+//Transformation properties
+type Transform struct {
+	Translation Vector3
+	Rotation    Quaternion
+	Scale       Vector3
+}
+
+//NewTransform creates a new transform
+func NewTransform(translation Vector3, rotation Quaternion, scale Vector3) Transform {
+	return Transform{
+		Translation: translation,
+		Rotation:    rotation,
+		Scale:       scale,
+	}
+}

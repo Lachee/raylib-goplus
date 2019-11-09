@@ -381,7 +381,7 @@ RLAPI const char *CodepointToUtf8(int codepoint, int *byteLength);    // Encode 
 //------------------------------------------------------------------------------------
 // Basic 3d Shapes Drawing Functions (Module: models)
 //------------------------------------------------------------------------------------
-//conv:g:models
+//conv:g:drawing
 
 // Basic geometric 3D shapes drawing functions
 RLAPI void DrawLine3D(Vector3 startPos, Vector3 endPos, Color color);                                    // Draw a line in 3D world space
@@ -406,6 +406,8 @@ RLAPI void DrawGizmo(Vector3 position);                                         
 // Model 3d Loading and Drawing Functions (Module: models)
 //------------------------------------------------------------------------------------
 //conv:g:models
+//conv:enum:mapType:MaterialMapType
+//conv:oop:start
 
 // Model loading/unloading functions
 RLAPI Model LoadModel(const char *fileName);                                                            // Load model from files (meshes and materials)
@@ -446,6 +448,7 @@ RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                   
 RLAPI BoundingBox MeshBoundingBox(Mesh mesh);                                                           // Compute mesh bounding box limits
 RLAPI void MeshTangents(Mesh *mesh);                                                                    // Compute mesh tangents
 RLAPI void MeshBinormals(Mesh *mesh);                                                                   // Compute mesh binormals
+//conv:oop:stop
 
 // Model drawing functions
 RLAPI void DrawModel(Model model, Vector3 position, float scale, Color tint);                           // Draw a model (with texture if set)
@@ -466,6 +469,7 @@ RLAPI bool CheckCollisionRayBox(Ray ray, BoundingBox box);                      
 RLAPI RayHitInfo GetCollisionRayModel(Ray ray, Model model);                                            // Get collision info between ray and model
 RLAPI RayHitInfo GetCollisionRayTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3);                  // Get collision info between ray and triangle
 RLAPI RayHitInfo GetCollisionRayGround(Ray ray, float groundHeight);                                    // Get collision info between ray and ground plane (Y-normal plane)
+
 
 //------------------------------------------------------------------------------------
 // Shaders System Functions (Module: rlgl)

@@ -12,6 +12,7 @@ echo "Input";  cp out/input_gen.go ../raylib/input_gen.go
 echo "Shader";  cp out/shader_gen.go ../raylib/shader_gen.go
 echo "Shapes";  cp out/shapes_gen.go ../raylib/shapes_gen.go
 echo "VR";  cp out/vr_gen.go ../raylib/vr_gen.go
+echo "Models";  cp out/models_gen.go ../raylib/models_gen.go
 
 
 echo "======= Building Library"

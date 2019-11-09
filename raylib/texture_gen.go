@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-09T11:58:08+11:00
+//Generated 2019-11-09T20:05:10+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -467,7 +467,7 @@ func (image *Image) ExtractPalette(maxPaletteSize int) ([]Color, int) {
 //ImageExtractPalette : Extract color palette from image to maximum size (memory should be freed)
 //Recommended to use image.ExtractPalette(maxPaletteSize) instead
 func ImageExtractPalette(image *Image, maxPaletteSize int) ([]Color, int) {
-	return image.ExtractPalette(maxPaletteSize, extractCount)
+	return image.ExtractPalette(maxPaletteSize)
 }
 
 //ImageText : Create an image from text (default font)

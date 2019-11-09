@@ -1,5 +1,9 @@
 package raylib
 
+//#include "raylib.h"
+import "C"
+import "unsafe"
+
 /*
 Rectangle Structure
 author: Lachee
@@ -76,4 +80,31 @@ func (r Rectangle) LerpPosition(pos Vector2, amount float32) Rectangle {
 		Width:  r.Width,
 		Height: r.Height,
 	}
+}
+
+type BoundingBox struct {
+	Min Vector3
+	Max Vector3
+}
+
+// NewBoundingBox - Returns new BoundingBox
+func NewBoundingBox(min, max Vector3) BoundingBox {
+	return BoundingBox{min, max}
+}
+
+//Size gets the size of the bounding box
+func (bb BoundingBox) Size() Vector3 {
+	return bb.Max.Subtract(bb.Min)
+}
+
+//Center gets the center position of the bounding box
+func (bb BoundingBox) Center() Vector3 {
+	return bb.Min.Add(bb.Max.Subtract(bb.Min).Divide(2))
+}
+
+func newBoundingBoxFromPointer(ptr unsafe.Pointer) BoundingBox {
+	return *(*BoundingBox)(ptr)
+}
+func (r *BoundingBox) cptr() *C.BoundingBox {
+	return (*C.BoundingBox)(unsafe.Pointer(r))
 }
