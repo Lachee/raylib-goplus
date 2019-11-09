@@ -48,19 +48,14 @@ func (r Rectangle) MinPosition() Vector2 {
 	return NewVector2(r.X, r.Y)
 }
 
+//Center gets the center position of the rectangle
+func (r Rectangle) Center() Vector2 {
+	return NewVector2(r.X+r.Width/2, r.Y+r.Height/2)
+}
+
 //MaxPosition gets the maximum position within the bounds
 func (r Rectangle) MaxPosition() Vector2 {
 	return NewVector2(r.X+r.Width, r.Y+r.Height)
-}
-
-//Contains checks if the rectangle contains a point
-func (r Rectangle) Contains(point Vector2) bool {
-	return point.X >= r.X && point.X <= (r.X+r.Width) && point.Y >= r.Y && point.Y <= (r.Y+r.Height)
-}
-
-//Overlaps checks if a rectangle overlaps another.
-func (r Rectangle) Overlaps(rect Rectangle) bool {
-	return (r.X < (rect.X+rect.Width) && (r.X+r.Width) > rect.X) && (r.Y < (rect.Y+rect.Height) && (r.Y+r.Height) > rect.Y)
 }
 
 //Lerp a rectangle to a target rectangle

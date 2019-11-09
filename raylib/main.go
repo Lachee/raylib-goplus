@@ -120,12 +120,6 @@ func ClearBackground(color Color) {
 	C.ClearBackground(clr)
 }
 
-func DrawRectangleGradientV(posX, posY, width, height int, c1, c2 Color) {
-	cc1 := *c1.cptr()
-	cc2 := *c2.cptr()
-	C.DrawRectangleGradientV(C.int(int32(posX)), C.int(int32(posY)), C.int(int32(width)), C.int(int32(height)), cc1, cc2)
-}
-
 func CloseWindow() {
 	C.CloseWindow()
 }
