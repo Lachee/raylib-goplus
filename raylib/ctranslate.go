@@ -15,9 +15,11 @@ func newVector2FromPointer(ptr unsafe.Pointer) Vector2 { return *(*Vector2)(ptr)
 func (v *Vector2) cptr() *C.Vector2 {
 	return (*C.Vector2)(unsafe.Pointer(v))
 }
+func newVector3FromPointer(ptr unsafe.Pointer) Vector3 { return *(*Vector3)(ptr) }
 func (v *Vector3) cptr() *C.Vector3 {
 	return (*C.Vector3)(unsafe.Pointer(v))
 }
+func newVector4FromPointer(ptr unsafe.Pointer) Vector4 { return *(*Vector4)(ptr) }
 func (v *Vector4) cptr() *C.Vector4 {
 	return (*C.Vector4)(unsafe.Pointer(v))
 }
