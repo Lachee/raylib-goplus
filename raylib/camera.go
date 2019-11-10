@@ -33,8 +33,20 @@ type Camera3D struct {
 	Type     CameraType
 }
 
+//NewCamera creates a new camera
+func NewCamera(position, target, up Vector3, fovy float32, cameraType CameraType) Camera {
+	return Camera{position, target, up, fovy, cameraType}
+}
+
+//Creates a new empty camera
+func NewCameraIdentity() Camera { return Camera{} }
+
+func (c *Camera) ToCamera3D() *Camera3D { return (*Camera3D)(unsafe.Pointer(c)) }
+
 //Camera is a fallback, defaults to Camera3D
 type Camera Camera3D
+
+func (c *Camera3D) ToCamera() *Camera { return (*Camera)(unsafe.Pointer(c)) }
 
 func newCamera3DFromPointer(ptr unsafe.Pointer) *Camera3D {
 	return (*Camera3D)(ptr)

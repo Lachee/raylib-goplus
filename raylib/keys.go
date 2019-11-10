@@ -50,7 +50,7 @@ const (
 	KeyT              = 84
 	KeyU              = 85
 	KeyV              = 86
-	keyw              = 87
+	KeyW              = 87
 	KeyX              = 88
 	KeyY              = 89
 	KeyZ              = 90

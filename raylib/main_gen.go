@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-10T17:59:53+11:00
+//Generated 2019-11-10T19:06:35+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -229,7 +229,7 @@ func EndMode2D() {
 }
 
 //BeginMode3D : Initializes 3D mode with custom camera (3D)
-func BeginMode3D(camera Camera3D) {
+func BeginMode3D(camera Camera) {
 	ccamera := *camera.cptr()
 	C.BeginMode3D(ccamera)
 }
