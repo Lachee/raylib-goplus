@@ -281,8 +281,10 @@ RLAPI void ImageResizeCanvas(Image *image, int newWidth, int newHeight, int offs
 RLAPI void ImageMipmaps(Image *image);                                                                   // Generate all mipmap levels for a provided image
 RLAPI void ImageDither(Image *image, int rBpp, int gBpp, int bBpp, int aBpp);                            // Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
 RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)
+//conv:oop:stop
 RLAPI Image ImageText(const char *text, int fontSize, Color color);                                      // Create an image from text (default font)
 RLAPI Image ImageTextEx(Font font, const char *text, float fontSize, float spacing, Color tint);         // Create an image from text (custom sprite font)
+//conv:oop:start
 RLAPI void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint);             // Draw a source image within a destination image (tint applied to source)
 RLAPI void ImageDrawRectangle(Image *dst, Rectangle rec, Color color);                                   // Draw rectangle within an image
 RLAPI void ImageDrawRectangleLines(Image *dst, Rectangle rec, int thick, Color color);                   // Draw rectangle lines within an image
@@ -329,6 +331,7 @@ RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle
 // Font Loading and Text Drawing Functions (Module: text)
 //------------------------------------------------------------------------------------
 //conv:g:text
+//conv:oop:start
 
 // Font loading/unloading functions
 RLAPI Font GetFontDefault(void);                                                            // Get the default Font
@@ -338,14 +341,14 @@ RLAPI Font LoadFontFromImage(Image image, Color key, int firstChar);            
 RLAPI CharInfo *LoadFontData(const char *fileName, int fontSize, int *fontChars, int charsCount, int type); // Load font data for further use
 RLAPI Image GenImageFontAtlas(const CharInfo *chars, Rectangle **recs, int charsCount, int fontSize, int padding, int packMethod);  // Generate image font atlas using chars info
 RLAPI void UnloadFont(Font font);                                                           // Unload Font from GPU memory (VRAM)
+//conv:oop:stop
 
 // Text drawing functions
 RLAPI void DrawFPS(int posX, int posY);                                                     // Shows current FPS
 RLAPI void DrawText(const char *text, int posX, int posY, int fontSize, Color color);       // Draw text (using default font)
 RLAPI void DrawTextEx(Font font, const char *text, Vector2 position, float fontSize, float spacing, Color tint);                // Draw text using font and additional parameters
 RLAPI void DrawTextRec(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint);   // Draw text using font inside rectangle limits
-RLAPI void DrawTextRecEx(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint,
-                         int selectStart, int selectLength, Color selectText, Color selectBack);    // Draw text using font inside rectangle limits with support for text selection
+RLAPI void DrawTextRecEx(Font font, const char *text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint, int selectStart, int selectLength, Color selectText, Color selectBack);    // Draw text using font inside rectangle limits with support for text selection
 
 // Text misc. functions
 RLAPI int MeasureText(const char *text, int fontSize);                                      // Measure string width for default font

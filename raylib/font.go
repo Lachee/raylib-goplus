@@ -17,26 +17,6 @@ func newCharInfoFromPointer(ptr unsafe.Pointer) CharInfo {
 	return *(*CharInfo)(ptr)
 }
 
-func LoadFontData(fileName string, fontSize, charsCount int, fontType FontType) []CharInfo {
-	cfileName := C.CString(fileName)
-	defer C.free(unsafe.Pointer(cfileName))
-
-	result := C.LoadFontData(cfileName, C.int(fontSize), nil, C.int(charsCount), C.int(fontType))
-	defer C.free(unsafe.Pointer(result))
-
-	//Load into a mega slice
-	resultArray := (*[1 << 28]C.CharInfo)(unsafe.Pointer(result))[:charsCount:charsCount]
-
-	//Copy the values over
-	slice := make([]CharInfo, charsCount)
-	for i := 0; i < charsCount; i++ {
-		slice[i] = newCharInfoFromPointer(unsafe.Pointer(&resultArray[i]))
-	}
-
-	//Return the slice
-	return slice
-}
-
 type Font struct {
 	BaseSize  int32
 	CharCount int32

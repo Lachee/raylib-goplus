@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-09T20:05:10+11:00
+//Generated 2019-11-10T17:59:53+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -476,27 +476,17 @@ func ImageText(text string, fontSize int, color Color) *Image {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	res := C.ImageText(ctext, C.int(int32(fontSize)), ccolor)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
-	return retval
+	return newImageFromPointer(unsafe.Pointer(&res))
 }
 
 //ImageTextEx : Create an image from text (custom sprite font)
-func (font *Font) ImageTextEx(text string, fontSize float32, spacing float32, tint Color) *Image {
+func ImageTextEx(font Font, text string, fontSize float32, spacing float32, tint Color) *Image {
 	ctint := *tint.cptr()
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	cfont := *font.cptr()
 	res := C.ImageTextEx(cfont, ctext, C.float(fontSize), C.float(spacing), ctint)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
-	return retval
-}
-
-//ImageTextEx : Create an image from text (custom sprite font)
-//Recommended to use font.ImageTextEx(text, fontSize, spacing, tint) instead
-func ImageTextEx(font *Font, text string, fontSize float32, spacing float32, tint Color) *Image {
-	return font.ImageTextEx(text, fontSize, spacing, tint)
+	return newImageFromPointer(unsafe.Pointer(&res))
 }
 
 //Draw : Draw a source image within a destination image (tint applied to source)

@@ -41,11 +41,8 @@ package raylib
 */
 import "C"
 import (
-	"errors"
-	"os/exec"
 	"runtime"
 	"time"
-	"unsafe"
 )
 
 const (
@@ -78,88 +75,4 @@ func init() {
 	unloadables = nil
 	time.Sleep(time.Second)
 	runtime.GC()
-}
-
-// SetConfigFlags - Setup some window configuration flags
-func SetConfigFlags(flags int) {
-	cflags := (C.uint)(flags)
-	C.SetConfigFlags(cflags)
-}
-
-//WindowShouldClose Should the window clsoe
-func WindowShouldClose() bool {
-	return bool(C.WindowShouldClose())
-}
-
-// InitWindow - Initialize Window and OpenGL Graphics
-func InitWindow(width int, height int, title string) {
-	cwidth := (C.int)(width)
-	cheight := (C.int)(height)
-
-	screenWidth = width
-	screenHeight = height
-
-	ctitle := C.CString(title)
-	defer C.free(unsafe.Pointer(ctitle))
-
-	C.InitWindow(cwidth, cheight, ctitle)
-}
-
-func BeginDrawing() {
-	runtime.LockOSThread()
-	C.BeginDrawing()
-}
-
-func EndDrawing() {
-	C.EndDrawing()
-	runtime.UnlockOSThread()
-}
-
-func ClearBackground(color Color) {
-	clr := *color.cptr()
-	C.ClearBackground(clr)
-}
-
-func CloseWindow() {
-	C.CloseWindow()
-}
-
-//IsFileDropped : Check if a file has been dropped into window
-func IsFileDropped() bool {
-	res := C.IsFileDropped()
-	return bool(res)
-}
-
-//GetDroppedFiles : Get dropped files names (memory should be freed)
-func GetDroppedFiles() []string {
-	ccount := C.int(0)
-	res := C.GetDroppedFiles(&ccount)
-	count := int(ccount)
-
-	tmpslice := (*[1 << 24]*C.char)(unsafe.Pointer(res))[:count:count]
-	gostrings := make([]string, count)
-	for i, s := range tmpslice {
-		gostrings[i] = C.GoString(s)
-	}
-
-	return gostrings
-}
-
-//ClearDroppedFiles : Clear dropped files paths buffer (free memory)
-func ClearDroppedFiles() {
-	C.ClearDroppedFiles()
-}
-
-//OpenURL opens a URL in the system browser.
-func OpenURL(url string) error {
-	switch runtime.GOOS {
-	case "linux":
-		return exec.Command("xdg-open", url).Start()
-	case "windows":
-		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		return exec.Command("open", url).Start()
-	default:
-		return errors.New("unsupported platform")
-	}
 }
