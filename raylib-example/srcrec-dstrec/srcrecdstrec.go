@@ -26,10 +26,12 @@ func main() {
 			sourceRec.X += frameWidth
 		}
 
+		tint := r.ColorFromHSV(r.NewVector3(float32(frame%360), 1, 1))
+
 		r.BeginDrawing()
 		r.ClearBackground(r.RayWhite)
 
-		r.DrawTexturePro(*texture, sourceRec, destRec, origin, float32(frame), r.White)
+		r.DrawTexturePro(*texture, sourceRec, destRec, origin, float32(frame), tint)
 		r.DrawLine(int(destRec.X), 0, int(destRec.X), screenHeight, r.Gray)
 		r.DrawLine(0, int(destRec.Y), screenWidth, int(destRec.Y), r.Gray)
 		r.DrawText("Party Gopher by Egon Elbre", screenWidth-200, screenHeight-20, 10, r.Gray)
