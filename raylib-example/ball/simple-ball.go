@@ -71,8 +71,8 @@ func main() {
 	var bonkY int = 0
 	var bonkFade float32 = 1
 
-	rgp := r.LoadTexture("../../logo/raylib_goplus_48x48.png")
-	rlb := r.LoadTexture("../../logo/raylib_32x32.png")
+	rgp := r.LoadTexture("../resources/raylib_goplus_48x48.png")
+	rlb := r.LoadTexture("../resources/raylib_32x32.png")
 	balls := []*ball{
 		&ball{x: 10, y: 10, vx: rand.Intn(10) + 1, vy: rand.Intn(5) + 10, texture: rgp},
 		&ball{x: 700, y: 300, vx: rand.Intn(10) + 1, vy: rand.Intn(5) + 1, texture: rlb},

@@ -27,7 +27,7 @@ func main() {
 
 	//Load the music
 	//Will hard crash if not init audio device.
-	music := r.LoadMusicStream("4710-midnight-tale-by-kevin-macleod.mp3")
+	music := r.LoadMusicStream("../resources/4710-midnight-tale-by-kevin-macleod.mp3")
 	pop := r.LoadSound("pop-A.ogg")
 
 	//TODO: See issue https://github.com/Lachee/raylib-goplus/issues/3

@@ -50,8 +50,6 @@ func main() {
 
 	windowVisible := true
 
-	stream := r.InitAudioStream(22050, 32, 1)
-
 	//// Fill audio stream with some samples (sine wave)
 	data := make([]float32, maxSamples)
 
@@ -59,8 +57,8 @@ func main() {
 		data[i] = float32(math.Sin(float64(((2 * r.PI * float32(i)) / 2) * r.Deg2Rad)))
 	}
 
-	rgp := r.LoadTexture("../../logo/raylib_goplus_48x48.png")
-	rlb := r.LoadTexture("../../logo/raylib_32x32.png")
+	rgp := r.LoadTexture("../resources/raylib_goplus_48x48.png")
+	rlb := r.LoadTexture("../resources/raylib_32x32.png")
 	balls := [...]*ball{
 		&ball{x: 10, y: 10, vx: -rand.Intn(10), vy: rand.Intn(5), texture: rgp},
 		&ball{x: 10, y: 10, vx: -rand.Intn(10), vy: rand.Intn(5), texture: rgp},
