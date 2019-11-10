@@ -13,7 +13,10 @@ Additional thanks to the SolarLune discord and Raylib discord for helping me out
 ### Installation
 [![GoDoc](https://godoc.org/github.com/Lachee/raylib-goplus/raylib?status.svg)](https://godoc.org/github.com/Lachee/raylib-goplus/raylib)
 
+Use the `go get` command to fetch the latest version:
 `go get github.com/lachee/raylib-goplus/raylib`
+
+You are required to have all the dependencies for Raylib too. Specifically (if you are on windows), **Mingw-w64**.
 
 Its that simple! Once you have fetch the resource, be sure to include it and get going!
 
