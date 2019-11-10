@@ -11,7 +11,7 @@ func main() {
 	screenWidth := 800
 	screenHeight := 450
 
-	r.InitWindow(screenWidth, screenHeight, "raylib [models] example - geometric shapes")
+	r.InitWindow(screenWidth, screenHeight, "Raylib Go Plus - 3D Primatives")
 
 	camera = r.NewCamera(r.NewVector3(0.0, 10.0, 10.0), r.NewVector3(0.0, 0.0, 0.0), r.NewVector3(0.0, 1.0, 0.0), 45, r.CameraTypePerspective)
 	r.SetTargetFPS(60)
