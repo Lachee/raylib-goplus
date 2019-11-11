@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-10T19:06:35+11:00
+//Generated 2019-11-11T18:03:30+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -234,20 +234,52 @@ func GuiValueBox(bounds Rectangle, text string, value int, minValue int, maxValu
 }
 
 //GuiTextBox : Text Box control, updates input text
-func GuiTextBox(bounds Rectangle, text string, textSize int, editMode bool) (bool, string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
+func GuiTextBox(bounds Rectangle, text string, maxCharacters int, editMode bool) (bool, string) {
+
+	//Allocate a new chunk of memory to put the characters in.
+	// Then copy all the characters across. If there is not enough characters, fill with 0.
+	data := make([]C.char, maxCharacters)
+	for i := 0; i < maxCharacters; i++ {
+		if len(text) <= i {
+			data[i] = C.char(0)
+		} else {
+			data[i] = C.char(text[i])
+		}
+	}
+
+	//Prepare an unsafe pointer to that chunk. C will move it arround
+	ctext := (*C.char)(unsafe.Pointer(&data[0]))
 	cbounds := *bounds.cptr()
-	res := C.GuiTextBox(cbounds, ctext, C.int(int32(textSize)), C.bool(editMode))
+
+	//Create the textbox
+	res := C.GuiTextBox(cbounds, ctext, C.int(int32(maxCharacters)), C.bool(editMode))
+
+	//Return the result.
 	return bool(res), C.GoString(ctext)
 }
 
-//GuiTextBoxMulti : Text Box control with multiple lines
-func GuiTextBoxMulti(bounds Rectangle, text string, textSize int, editMode bool) (bool, string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
+//GuiTextBox : Text Box control, updates input text
+func GuiTextBoxMulti(bounds Rectangle, text string, maxCharacters int, editMode bool) (bool, string) {
+
+	//Allocate a new chunk of memory to put the characters in.
+	// Then copy all the characters across. If there is not enough characters, fill with 0.
+	data := make([]C.char, maxCharacters)
+	for i := 0; i < maxCharacters; i++ {
+		if len(text) <= i {
+			data[i] = C.char(0)
+		} else {
+			data[i] = C.char(text[i])
+		}
+	}
+
+	//Prepare an unsafe pointer to that chunk. C will move it arround
+	ctext := (*C.char)(unsafe.Pointer(&data[0]))
 	cbounds := *bounds.cptr()
-	res := C.GuiTextBoxMulti(cbounds, ctext, C.int(int32(textSize)), C.bool(editMode))
+
+	//Create the textbox
+	res := C.GuiTextBoxMulti(cbounds, ctext, C.int(int32(maxCharacters)), C.bool(editMode))
+
+	//Return the result.
 	return bool(res), C.GoString(ctext)
 }
 

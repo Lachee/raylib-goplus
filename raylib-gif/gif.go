@@ -91,7 +91,6 @@ func LoadGifFromFile(fileName string) (*GifImage, error) {
 			draw.Draw(tilesheet, dest, srcImg, image.ZP, draw.Over)                             //Copy new frame
 
 		}
-
 	}
 
 	rayimg := r.LoadTextureFromGoImage(tilesheet)
