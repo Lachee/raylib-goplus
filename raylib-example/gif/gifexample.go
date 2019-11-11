@@ -22,7 +22,7 @@ func main() {
 	r.InitWindow(screenWidth, screenHeight, "Raylib Go Plus - GIF Example")
 	r.SetTargetFPS(60)
 
-	var texture *gif.GifImage
+	var texture *rgif.GifImage
 
 	for !r.WindowShouldClose() {
 
