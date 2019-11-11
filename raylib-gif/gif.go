@@ -76,7 +76,6 @@ func (gif *GifImage) Step(timeSinceLastStep float32) {
 
 	if diff >= 0 {
 		gif.NextFrame()
-		gif.lastFrameTime = 0
 	}
 }
 
