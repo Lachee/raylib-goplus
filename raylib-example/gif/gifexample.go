@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	r "github.com/lachee/raylib-goplus/raylib"
 	gif "github.com/lachee/raylib-goplus/raylib-gif"
 )
@@ -8,6 +10,11 @@ import (
 func main() {
 	screenWidth := 800
 	screenHeight := 450
+
+	r.SetTraceLogLevel(r.LogAll)
+	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
+		fmt.Println(logType.ToString(), ": ", text)
+	})
 
 	r.InitWindow(screenWidth, screenHeight, "Raylib Go Plus - GIF Example")
 	r.SetTargetFPS(60)

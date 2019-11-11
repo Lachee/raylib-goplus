@@ -27,7 +27,9 @@ func newTexture2DFromPointer(ptr unsafe.Pointer) *Texture2D {
 
 //LoadTextureFromGoImage loads image data from image.Image. Uses NewImageFromGoImage.
 func LoadTextureFromGoImage(image image.Image) *Texture2D {
-	return LoadTextureFromImage(NewImageFromGoImage(image))
+	img := NewImageFromGoImage(image)
+	defer img.Unload()
+	return LoadTextureFromImage(img)
 }
 
 //TextureCubemap type, actuall the same as a Texture2D
