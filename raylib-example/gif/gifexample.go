@@ -29,7 +29,7 @@ func main() {
 		frame++
 
 		//======= This is the input part
-		if r.IsKeyPressed(r.KeyA) {
+		if r.IsKeyPressed(r.KeyA) || texture == nil {
 			if texture != nil {
 				texture.Unload()
 			}
