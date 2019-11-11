@@ -21,10 +21,12 @@ func main() {
 	//http://www.theimage.com/animation/pages/disposal2.html
 	r.InitWindow(screenWidth, screenHeight, "Raylib Go Plus - GIF Example")
 	r.SetTargetFPS(60)
+	frame := 0
 
 	var texture *rgif.GifImage
 
 	for !r.WindowShouldClose() {
+		frame++
 
 		//======= This is the input part
 		if r.IsKeyPressed(r.KeyA) || texture == nil {
@@ -68,7 +70,8 @@ func main() {
 			//Step the animation and then draw it
 			//===== THIS IS THE IMPORTANT PART =======
 			texture.Step(r.GetFrameTime())
-			rgif.DrawGif(texture, 100, 100, r.White)
+			rgif.DrawGif(texture, 100, 100, r.White)                                       //This draws it normally, and a nice flat gif
+			rgif.DrawGifEx(texture, r.NewVector2(500, 100), float32(frame), 0.25, r.White) //This draws is fancy, with rotations and scales.
 
 			//===== This is the debugging part =====
 			//Draw Debug about the current frame

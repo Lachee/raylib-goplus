@@ -156,9 +156,33 @@ func DrawGifFrame(gif *GifImage, x int, y int, frame int, tint r.Color) {
 	r.DrawTextureRec(*gif.TileSheet, gif.GetRectangle(frame), r.NewVector2(float32(x), float32(y)), tint)
 }
 
+//DrawGifFrameV draws a single frame of a gif at a vector position
+func DrawGifFrameV(gif *GifImage, position r.Vector2, frame int, tint r.Color) {
+	r.DrawTextureRec(*gif.TileSheet, gif.GetRectangle(frame), position, tint)
+}
+
+//DrawGifFrameEx draws a frame of a gif at a vector position, rotation and scale
+func DrawGifFrameEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, frame int, tint r.Color) {
+	w := float32(gif.Width) * scale
+	h := float32(gif.Height) * scale
+	rect := gif.GetRectangle(frame)
+	origin := r.NewVector2(w/2.0, h/2.0)
+	r.DrawTexturePro(*gif.TileSheet, rect, r.NewRectangle(position.X, position.Y, w, h), origin, rotation, tint)
+}
+
 //DrawGif draws the current frame of a gif
 func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
 	DrawGifFrame(gif, x, y, gif.currentFrame, tint)
+}
+
+//DrawGifV draws the current frame of a gif at a vector position
+func DrawGifV(gif *GifImage, position r.Vector2, tint r.Color) {
+	DrawGifFrameV(gif, position, gif.currentFrame, tint)
+}
+
+//DrawGifEx draws the current frame of a gif at a vector position, rotation and scale
+func DrawGifEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, tint r.Color) {
+	DrawGifFrameEx(gif, position, rotation, scale, gif.currentFrame, tint)
 }
 
 func getGifDimensions(gif *gif.GIF) (x, y int) {
