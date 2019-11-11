@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	r "github.com/lachee/raylib-goplus/raylib"
-	gif "github.com/lachee/raylib-goplus/raylib-gif"
+	"github.com/lachee/raylib-goplus/raylib-gif"
 )
 
 func main() {
@@ -18,52 +18,89 @@ func main() {
 		fmt.Println(logType.ToString(), ": ", text)
 	})
 
+	//http://www.theimage.com/animation/pages/disposal2.html
 	r.InitWindow(screenWidth, screenHeight, "Raylib Go Plus - GIF Example")
 	r.SetTargetFPS(60)
 
 	var texture *gif.GifImage
-	frame := 0
-	gifFrame := 0
 
 	for !r.WindowShouldClose() {
-		frame++
 
-		if frame%5 == 0 {
-			gifFrame++
-		}
-
+		//======= This is the input part
 		if r.IsKeyPressed(r.KeyA) || texture == nil {
 			if texture != nil {
 				texture.Unload()
 			}
-			texture, _ = gif.LoadGifFromFile("../resources/gopher.gif")
+			texture, _ = rgif.LoadGifFromFile("../resources/gopher.gif")
 		}
 		if r.IsKeyPressed(r.KeyS) {
 			if texture != nil {
 				texture.Unload()
 			}
-			texture, _ = gif.LoadGifFromFile("../resources/laugh.gif")
+			texture, _ = rgif.LoadGifFromFile("../resources/testgif_04.gif")
 		}
 		if r.IsKeyPressed(r.KeyD) {
 			if texture != nil {
 				texture.Unload()
 			}
-			texture, _ = gif.LoadGifFromFile("../resources/important.gif")
+			texture, _ = rgif.LoadGifFromFile("../resources/testgif_05.gif")
 		}
-
-		//tint := r.ColorFromHSV(r.NewVector3(float32(frame%360), 1, 1))
+		if r.IsKeyPressed(r.KeyF) {
+			if texture != nil {
+				texture.Unload()
+			}
+			texture, _ = rgif.LoadGifFromFile("../resources/laugh.gif")
+		}
+		if r.IsKeyPressed(r.KeyG) {
+			if texture != nil {
+				texture.Unload()
+			}
+			texture, _ = rgif.LoadGifFromFile("../resources/important.gif")
+		}
 
 		r.BeginDrawing()
 		r.ClearBackground(r.RayWhite)
 
+		pos := r.NewVector2(10, float32(screenHeight-50))
+		scale := float32(0.25)
+
 		if texture != nil {
+			//Step the animation and then draw it
+			//===== THIS IS THE IMPORTANT PART =======
 			texture.Step(r.GetFrameTime())
-			gif.DrawGif(texture, 100, 100, r.White)
+			rgif.DrawGif(texture, 100, 100, r.White)
+
+			//===== This is the debugging part =====
+			//Draw Debug about the current frame
+			r.DrawRectangleLinesEx(r.NewRectangle(100, 100, float32(texture.Width), float32(texture.Height)), 1, r.LightGray)
+			r.DrawText(fmt.Sprintf("#%d", texture.CurrentFrame()), 100, 75, 20, r.LightGray)
+			r.DrawText(fmt.Sprintf(".0%ds", texture.CurrentTiming()), 100+texture.Width-50, 75, 20, r.LightGray)
+
+			//Draw the entire sheet
+			r.DrawTextureEx(*texture.TileSheet, pos, 0, scale, r.White)
+
+			//For every frame, draw  a text on it
+			for f := 0; f < texture.Frames; f++ {
+
+				//Prepare a scaled down version of the rectangle
+				rpos := texture.GetRectangle(f).MinPosition().Scale(scale)
+				size := texture.GetRectangle(f).Size().Scale(scale)
+
+				//Select a colour for each frame
+				color := r.LightGray
+				if f == texture.CurrentFrame() {
+					color = r.Red
+				}
+
+				//Draw a rectangle around each frame with their delay
+				r.DrawRectangleLinesEx(r.NewRectangle(rpos.X+pos.X, rpos.Y+pos.Y, size.X, size.Y), 1, color)
+				r.DrawText(fmt.Sprintf("0.%ds", texture.CurrentTiming()), int(rpos.X+pos.X), int(rpos.Y+pos.Y)-15, 15, color)
+			}
 		}
 
 		r.DrawText("Party Gopher by Egon Elbre", screenWidth-200, screenHeight-20, 10, r.Gray)
-		r.DrawText("Press A, S, or D to load different GIFs", 10, screenHeight-20, 20, r.Gray)
-		r.DrawFPS(10, 10)
+		r.DrawText("Press A, S, F, or G to load different GIFs", 10, 10, 20, r.Gray)
+		r.DrawFPS(screenWidth-30, 10)
 		r.EndDrawing()
 	}
 
