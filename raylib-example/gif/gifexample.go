@@ -29,7 +29,7 @@ func main() {
 		frame++
 
 		//======= This is the input part
-		if r.IsKeyPressed(r.KeyA) || texture == nil {
+		if r.IsKeyPressed(r.KeyA) {
 			if texture != nil {
 				texture.Unload()
 			}
@@ -69,7 +69,7 @@ func main() {
 		if texture != nil {
 			//Step the animation and then draw it
 			//===== THIS IS THE IMPORTANT PART =======
-			texture.Step(r.GetFrameTime())
+			texture.Step(r.GetFrameTime() * 1)
 			rgif.DrawGif(texture, 100, 100, r.White) //This draws it normally, and a nice flat gif
 
 			//===== This is the debugging part =====
@@ -80,6 +80,7 @@ func main() {
 
 		}
 
+		r.DrawText(fmt.Sprintf("%f", float64(r.GetTime())), screenWidth-200, screenHeight-40, 10, r.Gray)
 		r.DrawText("Party Gopher by Egon Elbre", screenWidth-200, screenHeight-20, 10, r.Gray)
 		r.DrawText("Press A, S, F, or G to load different GIFs", 10, 10, 20, r.Gray)
 		r.DrawFPS(screenWidth-30, 10)

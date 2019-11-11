@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T20:13:51+11:00
+//Generated 2019-11-11T20:45:27+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -265,14 +265,15 @@ func GetScreenData() *Image {
 }
 
 //UpdateTexture : Update GPU texture with new data
-func (texture *Texture2D) UpdateTexture(pixels unsafe.Pointer) {
+func (texture *Texture2D) UpdateTexture(pixels []Color) {
 	ctexture := *texture.cptr()
-	C.UpdateTexture(ctexture, pixels)
+	cpixels := pixels[0].cptr()
+	C.UpdateTexture(ctexture, unsafe.Pointer(cpixels))
 }
 
 //UpdateTexture : Update GPU texture with new data
 //Recommended to use texture.UpdateTexture(pixels) instead
-func UpdateTexture(texture *Texture2D, pixels unsafe.Pointer) {
+func UpdateTexture(texture *Texture2D, pixels []Color) {
 	texture.UpdateTexture(pixels)
 }
 

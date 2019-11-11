@@ -1,7 +1,6 @@
 package rgif
 
 import (
-	"fmt"
 	"image/gif"
 	"os"
 
@@ -13,7 +12,7 @@ type FrameDisposal int
 const (
 	FrameDisposalNone FrameDisposal = iota
 	FrameDisposalDontDispose
-	FrameDisposalReplace
+	FrameDisposalRestoreBackground
 	FrameDisposalRestorePrevious
 )
 
@@ -21,11 +20,11 @@ const (
 type GifImage struct {
 
 	//currently loaded textures
-	textures     []*r.Texture2D
+	texture      *r.Texture2D
 	textureCount int
 
 	//cache of images
-	images []*r.Image
+	pixels [][]r.Color
 
 	//Width is the width of a single frame
 	Width int
@@ -52,12 +51,12 @@ func LoadGifFromFile(fileName string) (*GifImage, error) {
 		return nil, err
 	}
 
-	//Defer any panics
+	/*//Defer any panics
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("Error while decoding: %s", r)
 		}
-	}()
+	}()*/
 
 	//Decode teh gif
 	gif, err := gif.DecodeAll(file)
@@ -70,20 +69,68 @@ func LoadGifFromFile(fileName string) (*GifImage, error) {
 	frames := len(gif.Image)
 
 	disposals := make([]FrameDisposal, frames)
-	images := make([]*r.Image, frames)
-	textures := make([]*r.Texture2D, frames)
+
+	images := make([][]r.Color, frames, imgWidth*imgHeight)
+	clumative := make([]r.Color, imgWidth*imgHeight)
+
+	previousNonDisposed := gif.Image[0]
+
 	for i, img := range gif.Image {
 		disposals[i] = FrameDisposal(gif.Disposal[i])
-		images[i] = r.LoadImageFromGo(img)
+
+		pixels := make([]r.Color, imgWidth*imgHeight)
+		for y := 0; y < imgHeight; y++ {
+			for x := 0; x < imgWidth; x++ {
+
+				color := img.At(x, y)
+				red, green, blue, alpha := color.RGBA()
+
+				switch disposals[i] {
+				case FrameDisposalNone:
+					//Use all our pixels always
+					pixels[x+y*imgWidth] = r.NewColor(uint8(red), uint8(green), uint8(blue), uint8(alpha))
+					clumative[x+y*imgWidth] = pixels[x+y*imgWidth]
+					previousNonDisposed = img
+
+				case FrameDisposalDontDispose:
+					if alpha > 0 {
+						//Use our own pixels (clumative)
+						pixels[x+y*imgWidth] = r.NewColor(uint8(red), uint8(green), uint8(blue), uint8(alpha))
+						clumative[x+y*imgWidth] = pixels[x+y*imgWidth]
+					} else {
+						//Use the previous pixels
+						pixels[x+y*imgWidth] = clumative[x+y*imgWidth]
+					}
+					previousNonDisposed = img
+
+				case FrameDisposalRestoreBackground:
+					if disposals[0] == FrameDisposalDontDispose && alpha == 0 {
+						red, green, blue, alpha = gif.Image[0].At(x, y).RGBA()
+					}
+
+					pixels[x+y*imgWidth] = r.NewColor(uint8(red), uint8(green), uint8(blue), uint8(alpha))
+					clumative[x+y*imgWidth] = pixels[x+y*imgWidth]
+
+				case FrameDisposalRestorePrevious:
+					if alpha == 0 {
+						red, green, blue, alpha = previousNonDisposed.At(x, y).RGBA()
+					}
+					pixels[x+y*imgWidth] = r.NewColor(uint8(red), uint8(green), uint8(blue), uint8(alpha))
+					clumative[x+y*imgWidth] = pixels[x+y*imgWidth]
+				}
+			}
+		}
+
+		images[i] = pixels
 	}
 
 	//Load the first initial texture
-	textures[0] = r.LoadTextureFromImage(images[0])
+	texture := r.LoadTextureFromGo(gif.Image[0])
 
 	return &GifImage{
-		textures:     textures,
+		texture:      texture,
 		textureCount: 0,
-		images:       images,
+		pixels:       images,
 		Width:        imgWidth,
 		Height:       imgHeight,
 		Frames:       frames,
@@ -111,73 +158,18 @@ func (gif *GifImage) NextFrame() {
 		gif.lastFrameTime = 0
 	}
 
-	gif.rollingDisposal()
-}
-
-func (gif *GifImage) rollingDisposal() {
-	if gif.currentFrame == 0 {
-		gif.unloadCurrentFrames(0)
-		gif.textures[0] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
-		gif.textureCount = 0
-	} else {
-
-		switch gif.Disposal[gif.currentFrame] {
-		default:
-			fallthrough
-
-		//Replace each frame with the new one
-		case FrameDisposalReplace:
-			gif.unloadCurrentFrames(0)
-			gif.textures[0] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
-			gif.textureCount = 0
-
-		case FrameDisposalNone:
-			fallthrough
-		case FrameDisposalDontDispose:
-			if gif.textureCount < gif.currentFrame {
-				gif.textureCount++
-				gif.textures[gif.textureCount] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
-			}
-		case FrameDisposalRestorePrevious:
-			gif.unloadCurrentFrames(1)
-			gif.textureCount++
-			gif.textures[gif.textureCount] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
-		}
-	}
-}
-
-//unloadCurrentFrames unloads all the current texture frames
-func (gif *GifImage) unloadCurrentFrames(offset int) {
-	for i := offset; i < gif.textureCount+1; i++ {
-		r.UnregisteredUnloadTexture(gif.textures[i])
-		gif.textures[i] = nil
-	}
-	gif.textureCount = offset - 1
+	gif.texture.UpdateTexture(gif.pixels[gif.currentFrame])
 }
 
 //Reset clears the last frame time and resets the current frame to zero
 func (gif *GifImage) Reset() {
 	gif.currentFrame = 0
 	gif.lastFrameTime = 0
-	gif.unloadCurrentFrames(0)
 }
 
 //Unload unloads all the textures and images, making this gif unusable.
 func (gif *GifImage) Unload() {
-	for _, t := range gif.textures {
-		if t != nil {
-			r.UnregisteredUnloadTexture(t)
-		}
-	}
-
-	for _, i := range gif.images {
-		if i != nil {
-			i.Unload()
-		}
-	}
-
-	gif.textures = nil
-	gif.images = nil
+	gif.texture.Unload()
 }
 
 //CurrentFrame returns the current frame index
@@ -198,9 +190,7 @@ func (gif *GifImage) GetRectangle(frame int) r.Rectangle {
 
 //DrawGif draws a single frame of a gif
 func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
-	for i := 0; i <= gif.textureCount; i++ {
-		r.DrawTexture(*gif.textures[i], x, y, tint)
-	}
+	r.DrawTexture(*gif.texture, x, y, tint)
 }
 
 /*
