@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T18:03:30+11:00
+//Generated 2019-11-11T20:13:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -15,7 +15,7 @@ func LoadModel(fileName string) *Model {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadModel(cfileName)
 	retval := newModelFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -24,7 +24,7 @@ func LoadModelFromMesh(mesh *Mesh) *Model {
 	cmesh := *mesh.cptr()
 	res := C.LoadModelFromMesh(cmesh)
 	retval := newModelFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -32,7 +32,7 @@ func LoadModelFromMesh(mesh *Mesh) *Model {
 func (model *Model) Unload() {
 	cmodel := *model.cptr()
 	C.UnloadModel(cmodel)
-	removeUnloadable(model)
+	UnregisterUnloadable(model)
 }
 
 //UnloadModel : Unload model from memory (RAM and/or VRAM)
@@ -59,7 +59,7 @@ func ExportMesh(mesh *Mesh, fileName string) {
 func (mesh *Mesh) Unload() {
 	cmesh := *mesh.cptr()
 	C.UnloadMesh(cmesh)
-	removeUnloadable(mesh)
+	UnregisterUnloadable(mesh)
 }
 
 //UnloadMesh : Unload mesh from memory (RAM and/or VRAM)
@@ -72,7 +72,7 @@ func UnloadMesh(mesh *Mesh) {
 func LoadMaterialDefault() *Material {
 	res := C.LoadMaterialDefault()
 	retval := newMaterialFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -80,7 +80,7 @@ func LoadMaterialDefault() *Material {
 func (material *Material) Unload() {
 	cmaterial := *material.cptr()
 	C.UnloadMaterial(cmaterial)
-	removeUnloadable(material)
+	UnregisterUnloadable(material)
 }
 
 //UnloadMaterial : Unload material from GPU memory (VRAM)
@@ -150,7 +150,7 @@ func UpdateModelAnimation(model *Model, anim *ModelAnimation, frame int) {
 func (anim *ModelAnimation) Unload() {
 	canim := *anim.cptr()
 	C.UnloadModelAnimation(canim)
-	removeUnloadable(anim)
+	UnregisterUnloadable(anim)
 }
 
 //UnloadModelAnimation : Unload animation data
@@ -177,7 +177,7 @@ func IsModelAnimationValid(model *Model, anim *ModelAnimation) bool {
 func GenMeshPoly(sides int, radius float32) *Mesh {
 	res := C.GenMeshPoly(C.int(int32(sides)), C.float(radius))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -185,7 +185,7 @@ func GenMeshPoly(sides int, radius float32) *Mesh {
 func GenMeshPlane(width float32, length float32, resX int, resZ int) *Mesh {
 	res := C.GenMeshPlane(C.float(width), C.float(length), C.int(int32(resX)), C.int(int32(resZ)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -193,7 +193,7 @@ func GenMeshPlane(width float32, length float32, resX int, resZ int) *Mesh {
 func GenMeshCube(width float32, height float32, length float32) *Mesh {
 	res := C.GenMeshCube(C.float(width), C.float(height), C.float(length))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -201,7 +201,7 @@ func GenMeshCube(width float32, height float32, length float32) *Mesh {
 func GenMeshSphere(radius float32, rings int, slices int) *Mesh {
 	res := C.GenMeshSphere(C.float(radius), C.int(int32(rings)), C.int(int32(slices)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -209,7 +209,7 @@ func GenMeshSphere(radius float32, rings int, slices int) *Mesh {
 func GenMeshHemiSphere(radius float32, rings int, slices int) *Mesh {
 	res := C.GenMeshHemiSphere(C.float(radius), C.int(int32(rings)), C.int(int32(slices)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -217,7 +217,7 @@ func GenMeshHemiSphere(radius float32, rings int, slices int) *Mesh {
 func GenMeshCylinder(radius float32, height float32, slices int) *Mesh {
 	res := C.GenMeshCylinder(C.float(radius), C.float(height), C.int(int32(slices)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -225,7 +225,7 @@ func GenMeshCylinder(radius float32, height float32, slices int) *Mesh {
 func GenMeshTorus(radius float32, size float32, radSeg int, sides int) *Mesh {
 	res := C.GenMeshTorus(C.float(radius), C.float(size), C.int(int32(radSeg)), C.int(int32(sides)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -233,7 +233,7 @@ func GenMeshTorus(radius float32, size float32, radSeg int, sides int) *Mesh {
 func GenMeshKnot(radius float32, size float32, radSeg int, sides int) *Mesh {
 	res := C.GenMeshKnot(C.float(radius), C.float(size), C.int(int32(radSeg)), C.int(int32(sides)))
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -243,7 +243,7 @@ func (heightmap *Image) GenMeshHeightmap(size Vector3) *Mesh {
 	cheightmap := *heightmap.cptr()
 	res := C.GenMeshHeightmap(cheightmap, csize)
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -259,7 +259,7 @@ func (cubicmap *Image) GenMeshCubicmap(cubeSize Vector3) *Mesh {
 	ccubicmap := *cubicmap.cptr()
 	res := C.GenMeshCubicmap(ccubicmap, ccubeSize)
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 

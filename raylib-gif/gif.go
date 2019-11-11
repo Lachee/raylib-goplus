@@ -2,18 +2,31 @@ package rgif
 
 import (
 	"fmt"
-	"image"
-	"image/draw"
 	"image/gif"
 	"os"
 
 	r "github.com/lachee/raylib-goplus/raylib"
 )
 
+type FrameDisposal int
+
+const (
+	FrameDisposalNone FrameDisposal = iota
+	FrameDisposalDontDispose
+	FrameDisposalReplace
+	FrameDisposalRestorePrevious
+)
+
 //GifImage represents a gif texture
 type GifImage struct {
-	//TileSheet is the backend Texture2D tilesheet that contains the frames of the gif
-	TileSheet *r.Texture2D
+
+	//currently loaded textures
+	textures     []*r.Texture2D
+	textureCount int
+
+	//cache of images
+	images []*r.Image
+
 	//Width is the width of a single frame
 	Width int
 	//Height is the height of a single frame
@@ -21,7 +34,10 @@ type GifImage struct {
 	//Frames is the number of frames available
 	Frames int
 	//Timing is the delay (in 100ths of seconds) a frame has
-	Timing        []int
+	Timing []int
+	//Disposal is the disposal for each frame
+	Disposal []FrameDisposal
+
 	currentFrame  int
 	lastFrameTime float32
 }
@@ -53,59 +69,27 @@ func LoadGifFromFile(fileName string) (*GifImage, error) {
 	imgWidth, imgHeight := getGifDimensions(gif)
 	frames := len(gif.Image)
 
-	bounds := image.Rect(0, 0, imgWidth, imgHeight)
-	tilesheet := image.NewRGBA(image.Rect(0, 0, imgWidth*frames, imgHeight))
-
-	//Destination
-	dest := bounds
-	prev := dest
-	previousUndisposedIndex := 0
-
-	//Iterate over every frame of the gif
-	for i, srcImg := range gif.Image {
-
-		//Update the destinations
-		dest = bounds.Add(image.Point{imgWidth * i, 0})
-		prev = dest
-
-		switch gif.Disposal[i] {
-		default: //full image replacement
-			draw.Draw(tilesheet, dest, srcImg, image.ZP, draw.Over) //Copy new frame
-
-		case 0:
-			fallthrough
-		case 1: //Do not dispose
-			draw.Draw(tilesheet, dest, tilesheet, prev.Min, draw.Over) //Copy previous frame on the tilesheet
-			draw.Draw(tilesheet, dest, srcImg, image.ZP, draw.Over)    //Copy new frame
-			previousUndisposedIndex = i
-
-		case 2: //Restore to Background
-			//TODO: Get this working. Golang Decoder doesn't have transparency information so I cannot mask.
-			//bg := gif.Image[i].Palette[255-gif.BackgroundIndex]
-			//draw.Draw(tilesheet, dest, &image.Uniform{bg}, image.ZP, draw.Over)
-			draw.Draw(tilesheet, dest, srcImg, image.ZP, draw.Over) //Copy new frame
-
-		case 3: //Restore to Previous
-			//Copy the last previously undisposed frame
-			draw.Draw(tilesheet, dest, gif.Image[previousUndisposedIndex], image.ZP, draw.Over) //Copy previous frame original
-			draw.Draw(tilesheet, dest, srcImg, image.ZP, draw.Over)                             //Copy new frame
-
-		}
+	disposals := make([]FrameDisposal, frames)
+	images := make([]*r.Image, frames)
+	textures := make([]*r.Texture2D, frames)
+	for i, img := range gif.Image {
+		disposals[i] = FrameDisposal(gif.Disposal[i])
+		images[i] = r.LoadImageFromGo(img)
 	}
 
-	rayimg := r.LoadTextureFromGoImage(tilesheet)
-	return &GifImage{
-		TileSheet: rayimg,
-		Width:     imgWidth,
-		Height:    imgHeight,
-		Frames:    frames,
-		Timing:    gif.Delay,
-	}, nil
-}
+	//Load the first initial texture
+	textures[0] = r.LoadTextureFromImage(images[0])
 
-//Unload removes the current underlying texture from memory
-func (gif *GifImage) Unload() {
-	gif.TileSheet.Unload()
+	return &GifImage{
+		textures:     textures,
+		textureCount: 0,
+		images:       images,
+		Width:        imgWidth,
+		Height:       imgHeight,
+		Frames:       frames,
+		Timing:       gif.Delay,
+		Disposal:     disposals,
+	}, nil
 }
 
 //Step performs a time step.
@@ -126,12 +110,74 @@ func (gif *GifImage) NextFrame() {
 	if gif.lastFrameTime < 0 {
 		gif.lastFrameTime = 0
 	}
+
+	gif.rollingDisposal()
+}
+
+func (gif *GifImage) rollingDisposal() {
+	if gif.currentFrame == 0 {
+		gif.unloadCurrentFrames(0)
+		gif.textures[0] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
+		gif.textureCount = 0
+	} else {
+
+		switch gif.Disposal[gif.currentFrame] {
+		default:
+			fallthrough
+
+		//Replace each frame with the new one
+		case FrameDisposalReplace:
+			gif.unloadCurrentFrames(0)
+			gif.textures[0] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
+			gif.textureCount = 0
+
+		case FrameDisposalNone:
+			fallthrough
+		case FrameDisposalDontDispose:
+			if gif.textureCount < gif.currentFrame {
+				gif.textureCount++
+				gif.textures[gif.textureCount] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
+			}
+		case FrameDisposalRestorePrevious:
+			gif.unloadCurrentFrames(1)
+			gif.textureCount++
+			gif.textures[gif.textureCount] = r.UnregisteredLoadTextureFromImage(gif.images[gif.currentFrame])
+		}
+	}
+}
+
+//unloadCurrentFrames unloads all the current texture frames
+func (gif *GifImage) unloadCurrentFrames(offset int) {
+	for i := offset; i < gif.textureCount+1; i++ {
+		r.UnregisteredUnloadTexture(gif.textures[i])
+		gif.textures[i] = nil
+	}
+	gif.textureCount = offset - 1
 }
 
 //Reset clears the last frame time and resets the current frame to zero
 func (gif *GifImage) Reset() {
 	gif.currentFrame = 0
 	gif.lastFrameTime = 0
+	gif.unloadCurrentFrames(0)
+}
+
+//Unload unloads all the textures and images, making this gif unusable.
+func (gif *GifImage) Unload() {
+	for _, t := range gif.textures {
+		if t != nil {
+			r.UnregisteredUnloadTexture(t)
+		}
+	}
+
+	for _, i := range gif.images {
+		if i != nil {
+			i.Unload()
+		}
+	}
+
+	gif.textures = nil
+	gif.images = nil
 }
 
 //CurrentFrame returns the current frame index
@@ -150,6 +196,14 @@ func (gif *GifImage) GetRectangle(frame int) r.Rectangle {
 	return r.NewRectangle(float32(gif.Width*frame), 0, float32(gif.Width), float32(gif.Height))
 }
 
+//DrawGif draws a single frame of a gif
+func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
+	for i := 0; i <= gif.textureCount; i++ {
+		r.DrawTexture(*gif.textures[i], x, y, tint)
+	}
+}
+
+/*
 //DrawGifFrame draws a single frame of a gif
 func DrawGifFrame(gif *GifImage, x int, y int, frame int, tint r.Color) {
 	r.DrawTextureRec(*gif.TileSheet, gif.GetRectangle(frame), r.NewVector2(float32(x), float32(y)), tint)
@@ -183,6 +237,7 @@ func DrawGifV(gif *GifImage, position r.Vector2, tint r.Color) {
 func DrawGifEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, tint r.Color) {
 	DrawGifFrameEx(gif, position, rotation, scale, gif.currentFrame, tint)
 }
+*/
 
 func getGifDimensions(gif *gif.GIF) (x, y int) {
 	var lowestX int

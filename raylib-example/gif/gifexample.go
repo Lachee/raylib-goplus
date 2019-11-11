@@ -63,15 +63,14 @@ func main() {
 		r.BeginDrawing()
 		r.ClearBackground(r.RayWhite)
 
-		pos := r.NewVector2(10, float32(screenHeight-50))
-		scale := float32(0.25)
+		//pos := r.NewVector2(10, float32(screenHeight-50))
+		//scale := float32(0.25)
 
 		if texture != nil {
 			//Step the animation and then draw it
 			//===== THIS IS THE IMPORTANT PART =======
 			texture.Step(r.GetFrameTime())
-			rgif.DrawGif(texture, 100, 100, r.White)                                       //This draws it normally, and a nice flat gif
-			rgif.DrawGifEx(texture, r.NewVector2(500, 100), float32(frame), 0.25, r.White) //This draws is fancy, with rotations and scales.
+			rgif.DrawGif(texture, 100, 100, r.White) //This draws it normally, and a nice flat gif
 
 			//===== This is the debugging part =====
 			//Draw Debug about the current frame
@@ -79,26 +78,6 @@ func main() {
 			r.DrawText(fmt.Sprintf("#%d", texture.CurrentFrame()), 100, 75, 20, r.LightGray)
 			r.DrawText(fmt.Sprintf(".0%ds", texture.CurrentTiming()), 100+texture.Width-50, 75, 20, r.LightGray)
 
-			//Draw the entire sheet
-			r.DrawTextureEx(*texture.TileSheet, pos, 0, scale, r.White)
-
-			//For every frame, draw  a text on it
-			for f := 0; f < texture.Frames; f++ {
-
-				//Prepare a scaled down version of the rectangle
-				rpos := texture.GetRectangle(f).MinPosition().Scale(scale)
-				size := texture.GetRectangle(f).Size().Scale(scale)
-
-				//Select a colour for each frame
-				color := r.LightGray
-				if f == texture.CurrentFrame() {
-					color = r.Red
-				}
-
-				//Draw a rectangle around each frame with their delay
-				r.DrawRectangleLinesEx(r.NewRectangle(rpos.X+pos.X, rpos.Y+pos.Y, size.X, size.Y), 1, color)
-				r.DrawText(fmt.Sprintf("0.%ds", texture.CurrentTiming()), int(rpos.X+pos.X), int(rpos.Y+pos.Y)-15, 15, color)
-			}
 		}
 
 		r.DrawText("Party Gopher by Egon Elbre", screenWidth-200, screenHeight-20, 10, r.Gray)

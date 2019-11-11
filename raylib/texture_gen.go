@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T18:03:30+11:00
+//Generated 2019-11-11T20:13:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -15,7 +15,7 @@ func LoadImage(fileName string) *Image {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadImage(cfileName)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -26,7 +26,7 @@ func LoadImageEx(pixels []Color, width, height int32) *Image {
 	cheight := (C.int)(height)
 	ret := C.LoadImageEx(cpixels, cwidth, cheight) //We call the C function as raylib uses stb_image to load images.
 	v := newImageFromPointer(unsafe.Pointer(&ret))
-	addUnloadable(v)
+	RegisterUnloadable(v)
 	return v
 }
 
@@ -35,7 +35,7 @@ func LoadImagePro(pixels []byte, width, height int32, format PixelFormat) *Image
 	data := unsafe.Pointer(&pixels[0])
 	res := C.LoadImagePro(data, C.int(width), C.int(height), C.int(format))
 	v := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(v)
+	RegisterUnloadable(v)
 	return v
 }
 
@@ -45,7 +45,7 @@ func LoadImageRaw(fileName string, width int, height int, format int, headerSize
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadImageRaw(cfileName, C.int(int32(width)), C.int(int32(height)), C.int(int32(format)), C.int(int32(headerSize)))
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -83,7 +83,7 @@ func LoadTexture(fileName string) *Texture2D {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadTexture(cfileName)
 	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -92,8 +92,22 @@ func LoadTextureFromImage(image *Image) *Texture2D {
 	cimage := *image.cptr()
 	res := C.LoadTextureFromImage(cimage)
 	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
+}
+
+//UnregisteredLoadTextureFromImage : Load texture from image data without registering it to the unloadables.
+func UnregisteredLoadTextureFromImage(image *Image) *Texture2D {
+	cimage := *image.cptr()
+	res := C.LoadTextureFromImage(cimage)
+	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
+	return retval
+}
+
+//UnregisteredUnloadTexture : Unloads a texture without unregistering it from the unloadables.
+func UnregisteredUnloadTexture(texture *Texture2D) {
+	ctexture := *texture.cptr()
+	C.UnloadTexture(ctexture)
 }
 
 //LoadTextureCubemap : Load cubemap from image, multiple image cubemap layouts supported
@@ -101,7 +115,7 @@ func LoadTextureCubemap(image *Image, layoutType CubemapLayoutType) *TextureCube
 	cimage := *image.cptr()
 	res := C.LoadTextureCubemap(cimage, C.int(int32(layoutType)))
 	retval := newTextureCubemapFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -109,7 +123,7 @@ func LoadTextureCubemap(image *Image, layoutType CubemapLayoutType) *TextureCube
 func LoadRenderTexture(width int, height int) *RenderTexture2D {
 	res := C.LoadRenderTexture(C.int(int32(width)), C.int(int32(height)))
 	retval := newRenderTexture2DFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -117,7 +131,7 @@ func LoadRenderTexture(width int, height int) *RenderTexture2D {
 func (image *Image) Unload() {
 	cimage := *image.cptr()
 	C.UnloadImage(cimage)
-	removeUnloadable(image)
+	UnregisterUnloadable(image)
 }
 
 //UnloadImage : Unload image from CPU memory (RAM)
@@ -130,7 +144,7 @@ func UnloadImage(image *Image) {
 func (texture *Texture2D) Unload() {
 	ctexture := *texture.cptr()
 	C.UnloadTexture(ctexture)
-	removeUnloadable(texture)
+	UnregisterUnloadable(texture)
 }
 
 //UnloadTexture : Unload texture from GPU memory (VRAM)
@@ -143,7 +157,7 @@ func UnloadTexture(texture *Texture2D) {
 func (target *RenderTexture2D) Unload() {
 	ctarget := *target.cptr()
 	C.UnloadRenderTexture(ctarget)
-	removeUnloadable(target)
+	UnregisterUnloadable(target)
 }
 
 //UnloadRenderTexture : Unload render texture from GPU memory (VRAM)
@@ -232,7 +246,7 @@ func (texture *Texture2D) GetTextureData() *Image {
 	ctexture := *texture.cptr()
 	res := C.GetTextureData(ctexture)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -246,7 +260,7 @@ func GetTextureData(texture *Texture2D) *Image {
 func GetScreenData() *Image {
 	res := C.GetScreenData()
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -267,7 +281,7 @@ func (image *Image) Copy() *Image {
 	cimage := *image.cptr()
 	res := C.ImageCopy(cimage)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -283,7 +297,7 @@ func (image *Image) FromImage(rec Rectangle) *Image {
 	cimage := *image.cptr()
 	res := C.ImageFromImage(cimage, crec)
 	v := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(v)
+	RegisterUnloadable(v)
 	return v
 }
 
@@ -694,7 +708,7 @@ func GenImageColor(width int, height int, color Color) *Image {
 	ccolor := *color.cptr()
 	res := C.GenImageColor(C.int(int32(width)), C.int(int32(height)), ccolor)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -704,7 +718,7 @@ func GenImageGradientV(width int, height int, top Color, bottom Color) *Image {
 	ctop := *top.cptr()
 	res := C.GenImageGradientV(C.int(int32(width)), C.int(int32(height)), ctop, cbottom)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -714,7 +728,7 @@ func GenImageGradientH(width int, height int, left Color, right Color) *Image {
 	cleft := *left.cptr()
 	res := C.GenImageGradientH(C.int(int32(width)), C.int(int32(height)), cleft, cright)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -724,7 +738,7 @@ func GenImageGradientRadial(width int, height int, density float32, inner Color,
 	cinner := *inner.cptr()
 	res := C.GenImageGradientRadial(C.int(int32(width)), C.int(int32(height)), C.float(density), cinner, couter)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -734,7 +748,7 @@ func GenImageChecked(width int, height int, checksX int, checksY int, col1 Color
 	ccol1 := *col1.cptr()
 	res := C.GenImageChecked(C.int(int32(width)), C.int(int32(height)), C.int(int32(checksX)), C.int(int32(checksY)), ccol1, ccol2)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -742,7 +756,7 @@ func GenImageChecked(width int, height int, checksX int, checksY int, col1 Color
 func GenImageWhiteNoise(width int, height int, factor float32) *Image {
 	res := C.GenImageWhiteNoise(C.int(int32(width)), C.int(int32(height)), C.float(factor))
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -750,7 +764,7 @@ func GenImageWhiteNoise(width int, height int, factor float32) *Image {
 func GenImagePerlinNoise(width int, height int, offsetX int, offsetY int, scale float32) *Image {
 	res := C.GenImagePerlinNoise(C.int(int32(width)), C.int(int32(height)), C.int(int32(offsetX)), C.int(int32(offsetY)), C.float(scale))
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -758,7 +772,7 @@ func GenImagePerlinNoise(width int, height int, offsetX int, offsetY int, scale 
 func GenImageCellular(width int, height int, tileSize int) *Image {
 	res := C.GenImageCellular(C.int(int32(width)), C.int(int32(height)), C.int(int32(tileSize)))
 	retval := newImageFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 

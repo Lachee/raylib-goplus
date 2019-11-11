@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T18:03:30+11:00
+//Generated 2019-11-11T20:13:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -36,7 +36,7 @@ func LoadWave(fileName string) *Wave {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadWave(cfileName)
 	retval := newWaveFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -46,7 +46,7 @@ func LoadSound(fileName string) *Sound {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadSound(cfileName)
 	retval := newSoundFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -55,7 +55,7 @@ func LoadSoundFromWave(wave *Wave) *Sound {
 	cwave := *wave.cptr()
 	res := C.LoadSoundFromWave(cwave)
 	retval := newSoundFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -75,7 +75,7 @@ func UpdateSound(sound *Sound, data unsafe.Pointer, samplesCount int) {
 func (wave *Wave) Unload() {
 	cwave := *wave.cptr()
 	C.UnloadWave(cwave)
-	removeUnloadable(wave)
+	UnregisterUnloadable(wave)
 }
 
 //UnloadWave : Unload wave data
@@ -88,7 +88,7 @@ func UnloadWave(wave *Wave) {
 func (sound *Sound) Unload() {
 	csound := *sound.cptr()
 	C.UnloadSound(csound)
-	removeUnloadable(sound)
+	UnregisterUnloadable(sound)
 }
 
 //UnloadSound : Unload sound
@@ -250,7 +250,7 @@ func (wave *Wave) Copy() *Wave {
 	cwave := *wave.cptr()
 	res := C.WaveCopy(cwave)
 	retval := newWaveFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -296,7 +296,7 @@ func LoadMusicStream(fileName string) *Music {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadMusicStream(cfileName)
 	retval := newMusicFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -309,7 +309,7 @@ func (music *Music) Unload() {
 func UnloadMusicStream(music *Music) {
 	cmusic := *music.cptr()
 	C.UnloadMusicStream(cmusic)
-	removeUnloadable(music)
+	UnregisterUnloadable(music)
 }
 
 //PlayStream : Start music playing
@@ -451,7 +451,7 @@ func GetMusicTimePlayed(music *Music) float32 {
 func InitAudioStream(sampleRate uint32, sampleSize uint32, channels uint32) *AudioStream {
 	res := C.InitAudioStream(C.uint(sampleRate), C.uint(sampleSize), C.uint(channels))
 	retval := newAudioStreamFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 

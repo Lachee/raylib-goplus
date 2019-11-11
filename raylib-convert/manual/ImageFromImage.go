@@ -4,7 +4,7 @@ func (image *Image) FromImage(rec Rectangle) (*Image) {
 	cimage := *image.cptr()
 	res := C.ImageFromImage(cimage, crec)
 	v := newImageFromPointer(unsafe.Pointer(&res)) 
-	addUnloadable(v)
+	RegisterUnloadable(v)
 	return v
 }
 

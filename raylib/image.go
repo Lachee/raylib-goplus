@@ -32,8 +32,8 @@ func newImageFromPointer(ptr unsafe.Pointer) *Image {
 	return (*Image)(ptr)
 }
 
-//NewImageFromGoImage Creates a new image from a Go Image
-func NewImageFromGoImage(img image.Image) *Image {
+//LoadImageFromGo Creates a new image from a Go Image
+func LoadImageFromGo(img image.Image) *Image {
 	size := img.Bounds().Size()
 	pixels := make([]Color, size.X*size.Y)
 

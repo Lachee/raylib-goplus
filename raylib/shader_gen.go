@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T18:03:30+11:00
+//Generated 2019-11-11T20:13:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -24,7 +24,7 @@ func LoadShader(vsFileName string, fsFileName string) *Shader {
 	defer C.free(unsafe.Pointer(cvsFileName))
 	res := C.LoadShader(cvsFileName, cfsFileName)
 	retval := newShaderFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -36,7 +36,7 @@ func LoadShaderCode(vsCode string, fsCode string) *Shader {
 	defer C.free(unsafe.Pointer(cvsCode))
 	res := C.LoadShaderCode(cvsCode, cfsCode)
 	retval := newShaderFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -44,7 +44,7 @@ func LoadShaderCode(vsCode string, fsCode string) *Shader {
 func (shader *Shader) Unload() {
 	cshader := *shader.cptr()
 	C.UnloadShader(cshader)
-	removeUnloadable(shader)
+	UnregisterUnloadable(shader)
 }
 
 //UnloadShader : Unload shader from GPU memory (VRAM)
@@ -57,7 +57,7 @@ func UnloadShader(shader *Shader) {
 func GetShaderDefault() *Shader {
 	res := C.GetShaderDefault()
 	retval := newShaderFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -65,7 +65,7 @@ func GetShaderDefault() *Shader {
 func GetTextureDefault() *Texture2D {
 	res := C.GetTextureDefault()
 	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 

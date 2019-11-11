@@ -338,7 +338,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 			returnFooter = "\nretval := " + returnExpre[0]
 			returnExpre[0] = "retval"
 
-			returnFooter += "\naddUnloadable(retval)"
+			returnFooter += "\nRegisterUnloadable(retval)"
 			returnFooter += "\nreturn " + strings.Join(returnExpre, ", ")
 
 		} else {
@@ -349,7 +349,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	//If we are enabling unloadable tracking and this is an unload, then lets unload
 	isUnload := *trackUnloadables && strings.HasPrefix(prototype.name, "Unload")
 	if isUnload && isOOP {
-		body += "\nremoveUnloadable(" + argNames[0] + ")"
+		body += "\nUnregisterUnloadable(" + argNames[0] + ")"
 	}
 
 	//Finally combine the body

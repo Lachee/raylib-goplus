@@ -25,9 +25,9 @@ func newTexture2DFromPointer(ptr unsafe.Pointer) *Texture2D {
 	return (*Texture2D)(ptr)
 }
 
-//LoadTextureFromGoImage loads image data from image.Image. Uses NewImageFromGoImage.
-func LoadTextureFromGoImage(image image.Image) *Texture2D {
-	img := NewImageFromGoImage(image)
+//LoadTextureFromGo loads image data from image.Image. Uses NewImageFromGoImage.
+func LoadTextureFromGo(image image.Image) *Texture2D {
+	img := LoadImageFromGo(image)
 	defer img.Unload()
 	return LoadTextureFromImage(img)
 }
@@ -63,7 +63,7 @@ func newTextureCubemapFromPointer(ptr unsafe.Pointer) *TextureCubemap {
 func (texture *TextureCubemap) Unload() {
 	ctexture := C.Texture2D(*texture.cptr())
 	C.UnloadTexture(ctexture)
-	removeUnloadable(texture)
+	UnregisterUnloadable(texture)
 }
 
 //RenderTexture2D is a texture used for rendering

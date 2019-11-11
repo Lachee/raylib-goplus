@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T18:03:30+11:00
+//Generated 2019-11-11T20:13:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -13,7 +13,7 @@ import "unsafe"
 func GetFontDefault() *Font {
 	res := C.GetFontDefault()
 	retval := newFontFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -23,7 +23,7 @@ func LoadFont(fileName string) *Font {
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadFont(cfileName)
 	retval := newFontFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -34,7 +34,7 @@ func LoadFontEx(fileName string, fontSize int, fontChars int, charsCount int) (*
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadFontEx(cfileName, C.int(int32(fontSize)), &cfontChars, C.int(int32(charsCount)))
 	retval := newFontFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval, int(int32(cfontChars))
 }
 
@@ -44,7 +44,7 @@ func LoadFontFromImage(image *Image, key Color, firstChar int) *Font {
 	cimage := *image.cptr()
 	res := C.LoadFontFromImage(cimage, ckey, C.int(int32(firstChar)))
 	retval := newFontFromPointer(unsafe.Pointer(&res))
-	addUnloadable(retval)
+	RegisterUnloadable(retval)
 	return retval
 }
 
@@ -72,7 +72,7 @@ func LoadFontData(fileName string, fontSize, charsCount int, fontType FontType) 
 func (font *Font) Unload() {
 	cfont := *font.cptr()
 	C.UnloadFont(cfont)
-	removeUnloadable(font)
+	UnregisterUnloadable(font)
 }
 
 //UnloadFont : Unload Font from GPU memory (VRAM)

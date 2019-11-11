@@ -1,7 +1,6 @@
 package raylib
 
 /*
-#cgo debug CFLAGS: -O0
 #cgo CFLAGS: -w
 
 #cgo android LDFLAGS: -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lm
@@ -44,6 +43,9 @@ import (
 	"runtime"
 	"time"
 )
+
+//#cgo debug CFLAGS: -O0
+//
 
 const (
 	// Set to show raylib logo at startup
