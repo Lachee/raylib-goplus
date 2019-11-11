@@ -70,7 +70,8 @@ func main() {
 			//Step the animation and then draw it
 			//===== THIS IS THE IMPORTANT PART =======
 			texture.Step(r.GetFrameTime() * 1)
-			rgif.DrawGif(texture, 100, 100, r.White) //This draws it normally, and a nice flat gif
+			rgif.DrawGif(texture, 100, 100, r.White)                                      //This draws it normally, and a nice flat gif
+			rgif.DrawGifEx(texture, r.NewVector2(500, 100), float32(frame), 0.5, r.White) //A rotating pixel
 
 			//===== This is the debugging part =====
 			//Draw Debug about the current frame

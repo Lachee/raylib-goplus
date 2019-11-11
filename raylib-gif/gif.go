@@ -19,13 +19,8 @@ const (
 //GifImage represents a gif texture
 type GifImage struct {
 
-	//currently loaded textures
-	texture      *r.Texture2D
-	textureCount int
-
-	//cache of images
-	pixels [][]r.Color
-
+	//Texture is the current frame of the gif
+	Texture *r.Texture2D
 	//Width is the width of a single frame
 	Width int
 	//Height is the height of a single frame
@@ -37,8 +32,9 @@ type GifImage struct {
 	//Disposal is the disposal for each frame
 	Disposal []FrameDisposal
 
-	currentFrame  int
-	lastFrameTime float32
+	pixels        [][]r.Color //Cache of each frame's pixels
+	currentFrame  int         //The current frame
+	lastFrameTime float32     //Update since last frame
 }
 
 //LoadGifFromFile loads a new gif
@@ -128,14 +124,13 @@ func LoadGifFromFile(fileName string) (*GifImage, error) {
 	texture := r.LoadTextureFromGo(gif.Image[0])
 
 	return &GifImage{
-		texture:      texture,
-		textureCount: 0,
-		pixels:       images,
-		Width:        imgWidth,
-		Height:       imgHeight,
-		Frames:       frames,
-		Timing:       gif.Delay,
-		Disposal:     disposals,
+		Texture:  texture,
+		pixels:   images,
+		Width:    imgWidth,
+		Height:   imgHeight,
+		Frames:   frames,
+		Timing:   gif.Delay,
+		Disposal: disposals,
 	}, nil
 }
 
@@ -158,7 +153,7 @@ func (gif *GifImage) NextFrame() {
 		gif.lastFrameTime = 0
 	}
 
-	gif.texture.UpdateTexture(gif.pixels[gif.currentFrame])
+	gif.Texture.UpdateTexture(gif.pixels[gif.currentFrame])
 }
 
 //Reset clears the last frame time and resets the current frame to zero
@@ -169,16 +164,11 @@ func (gif *GifImage) Reset() {
 
 //Unload unloads all the textures and images, making this gif unusable.
 func (gif *GifImage) Unload() {
-	gif.texture.Unload()
+	gif.Texture.Unload()
 }
 
 //CurrentFrame returns the current frame index
 func (gif *GifImage) CurrentFrame() int { return gif.currentFrame }
-
-//CurrentRectangle gets the rectangle crop for the current frame
-func (gif *GifImage) CurrentRectangle() r.Rectangle {
-	return gif.GetRectangle(gif.currentFrame)
-}
 
 //CurrentTiming gets the current timing for the current frame
 func (gif *GifImage) CurrentTiming() int { return gif.Timing[gif.currentFrame] }
@@ -190,44 +180,13 @@ func (gif *GifImage) GetRectangle(frame int) r.Rectangle {
 
 //DrawGif draws a single frame of a gif
 func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
-	r.DrawTexture(*gif.texture, x, y, tint)
+	r.DrawTexture(*gif.Texture, x, y, tint)
 }
 
-/*
-//DrawGifFrame draws a single frame of a gif
-func DrawGifFrame(gif *GifImage, x int, y int, frame int, tint r.Color) {
-	r.DrawTextureRec(*gif.TileSheet, gif.GetRectangle(frame), r.NewVector2(float32(x), float32(y)), tint)
-}
-
-//DrawGifFrameV draws a single frame of a gif at a vector position
-func DrawGifFrameV(gif *GifImage, position r.Vector2, frame int, tint r.Color) {
-	r.DrawTextureRec(*gif.TileSheet, gif.GetRectangle(frame), position, tint)
-}
-
-//DrawGifFrameEx draws a frame of a gif at a vector position, rotation and scale
-func DrawGifFrameEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, frame int, tint r.Color) {
-	w := float32(gif.Width) * scale
-	h := float32(gif.Height) * scale
-	rect := gif.GetRectangle(frame)
-	origin := r.NewVector2(w/2.0, h/2.0)
-	r.DrawTexturePro(*gif.TileSheet, rect, r.NewRectangle(position.X, position.Y, w, h), origin, rotation, tint)
-}
-
-//DrawGif draws the current frame of a gif
-func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
-	DrawGifFrame(gif, x, y, gif.currentFrame, tint)
-}
-
-//DrawGifV draws the current frame of a gif at a vector position
-func DrawGifV(gif *GifImage, position r.Vector2, tint r.Color) {
-	DrawGifFrameV(gif, position, gif.currentFrame, tint)
-}
-
-//DrawGifEx draws the current frame of a gif at a vector position, rotation and scale
+//DrawGifEx draws a gif with rotation and scale
 func DrawGifEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, tint r.Color) {
-	DrawGifFrameEx(gif, position, rotation, scale, gif.currentFrame, tint)
+	r.DrawTextureEx(*gif.Texture, position, rotation, scale, tint)
 }
-*/
 
 func getGifDimensions(gif *gif.GIF) (x, y int) {
 	var lowestX int
