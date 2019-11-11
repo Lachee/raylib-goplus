@@ -31,7 +31,7 @@ func removeUnloadable(unloadable Unloadable) {
 		for i, u := range unloadables {
 			if u == unloadable {
 				unloadables[i] = unloadables[len(unloadables)-1]
-				unloadables[len(a)-1] = nil
+				unloadables[len(unloadables)-1] = nil
 				unloadables = unloadables[:len(unloadables)-1]
 				TraceLog(LogTrace, "[UNLOAD] ---- REMOVED")
 				break
