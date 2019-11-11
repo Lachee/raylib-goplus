@@ -11,6 +11,8 @@ func main() {
 	screenWidth := 800
 	screenHeight := 450
 
+	defer r.UnloadAll()
+
 	r.SetTraceLogLevel(r.LogAll)
 	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
 		fmt.Println(logType.ToString(), ": ", text)
@@ -65,7 +67,5 @@ func main() {
 		r.EndDrawing()
 	}
 
-	texture.Unload()
-	r.UnloadAll()
 	r.CloseWindow()
 }
