@@ -1890,7 +1890,7 @@ unsigned int rlLoadTexture(void *data, int width, int height, int format, int mi
     if (data == NULL)
     {
         TraceLog(LOG_WARNING, "Got asked to load texture from a NULL pointer!");
-        return id;
+        //return id;    //Need to disable this return because it stops render targets from generating.
     }
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
