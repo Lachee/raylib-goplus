@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T20:45:27+11:00
+//Generated 2019-11-12T14:15:54+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -90,15 +90,16 @@ func UnloadMaterial(material *Material) {
 }
 
 //SetTexture : Set texture for a material map type (MAP_DIFFUSE, MAP_SPECULAR...)
-func (material *Material) SetTexture(mapType MaterialMapType, texture *Texture2D) {
+func (material *Material) SetTexture(mapType MaterialMapType, texture Texture2D) {
 	ctexture := *texture.cptr()
 	cmaterial := material.cptr()
 	C.SetMaterialTexture(cmaterial, C.int(int32(mapType)), ctexture)
+	material.Maps[int(mapType)].Texture = texture
 }
 
 //SetMaterialTexture : Set texture for a material map type (MAP_DIFFUSE, MAP_SPECULAR...)
 //Recommended to use material.SetTexture(mapType, texture) instead
-func SetMaterialTexture(material *Material, mapType MaterialMapType, texture *Texture2D) {
+func SetMaterialTexture(material *Material, mapType MaterialMapType, texture Texture2D) {
 	material.SetTexture(mapType, texture)
 }
 

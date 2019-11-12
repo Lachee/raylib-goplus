@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-11T20:45:27+11:00
+//Generated 2019-11-12T14:15:54+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -78,7 +78,7 @@ func ExportImageAsCode(image *Image, fileName string) {
 }
 
 //LoadTexture : Load texture from file into GPU memory (VRAM)
-func LoadTexture(fileName string) *Texture2D {
+func LoadTexture(fileName string) Texture2D {
 	cfileName := C.CString(fileName)
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadTexture(cfileName)
@@ -88,26 +88,12 @@ func LoadTexture(fileName string) *Texture2D {
 }
 
 //LoadTextureFromImage : Load texture from image data
-func LoadTextureFromImage(image *Image) *Texture2D {
+func LoadTextureFromImage(image *Image) Texture2D {
 	cimage := *image.cptr()
 	res := C.LoadTextureFromImage(cimage)
 	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
-}
-
-//UnregisteredLoadTextureFromImage : Load texture from image data without registering it to the unloadables.
-func UnregisteredLoadTextureFromImage(image *Image) *Texture2D {
-	cimage := *image.cptr()
-	res := C.LoadTextureFromImage(cimage)
-	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	return retval
-}
-
-//UnregisteredUnloadTexture : Unloads a texture without unregistering it from the unloadables.
-func UnregisteredUnloadTexture(texture *Texture2D) {
-	ctexture := *texture.cptr()
-	C.UnloadTexture(ctexture)
 }
 
 //LoadTextureCubemap : Load cubemap from image, multiple image cubemap layouts supported
@@ -120,7 +106,7 @@ func LoadTextureCubemap(image *Image, layoutType CubemapLayoutType) *TextureCube
 }
 
 //LoadRenderTexture : Load texture for rendering (framebuffer)
-func LoadRenderTexture(width int, height int) *RenderTexture2D {
+func LoadRenderTexture(width int, height int) RenderTexture2D {
 	res := C.LoadRenderTexture(C.int(int32(width)), C.int(int32(height)))
 	retval := newRenderTexture2DFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
@@ -141,7 +127,7 @@ func UnloadImage(image *Image) {
 }
 
 //Unload : Unload texture from GPU memory (VRAM)
-func (texture *Texture2D) Unload() {
+func (texture Texture2D) Unload() {
 	ctexture := *texture.cptr()
 	C.UnloadTexture(ctexture)
 	UnregisterUnloadable(texture)
@@ -149,12 +135,12 @@ func (texture *Texture2D) Unload() {
 
 //UnloadTexture : Unload texture from GPU memory (VRAM)
 //Recommended to use texture.Unload() instead
-func UnloadTexture(texture *Texture2D) {
+func UnloadTexture(texture Texture2D) {
 	texture.Unload()
 }
 
 //Unload : Unload render texture from GPU memory (VRAM)
-func (target *RenderTexture2D) Unload() {
+func (target RenderTexture2D) Unload() {
 	ctarget := *target.cptr()
 	C.UnloadRenderTexture(ctarget)
 	UnregisterUnloadable(target)
@@ -162,7 +148,7 @@ func (target *RenderTexture2D) Unload() {
 
 //UnloadRenderTexture : Unload render texture from GPU memory (VRAM)
 //Recommended to use target.Unload() instead
-func UnloadRenderTexture(target *RenderTexture2D) {
+func UnloadRenderTexture(target RenderTexture2D) {
 	target.Unload()
 }
 
@@ -242,7 +228,7 @@ func GetPixelDataSize(width int, height int, format PixelFormat) int {
 }
 
 //GetTextureData : Get pixel data from GPU texture and return an Image
-func (texture *Texture2D) GetTextureData() *Image {
+func (texture Texture2D) GetTextureData() *Image {
 	ctexture := *texture.cptr()
 	res := C.GetTextureData(ctexture)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
@@ -252,7 +238,7 @@ func (texture *Texture2D) GetTextureData() *Image {
 
 //GetTextureData : Get pixel data from GPU texture and return an Image
 //Recommended to use texture.GetTextureData() instead
-func GetTextureData(texture *Texture2D) *Image {
+func GetTextureData(texture Texture2D) *Image {
 	return texture.GetTextureData()
 }
 
@@ -778,26 +764,26 @@ func GenImageCellular(width int, height int, tileSize int) *Image {
 }
 
 //GenTextureMipmaps : Generate GPU mipmaps for a texture
-func (texture *Texture2D) GenTextureMipmaps() {
+func (texture Texture2D) GenTextureMipmaps() {
 	ctexture := texture.cptr()
 	C.GenTextureMipmaps(ctexture)
 }
 
 //GenTextureMipmaps : Generate GPU mipmaps for a texture
 //Recommended to use texture.GenTextureMipmaps() instead
-func GenTextureMipmaps(texture *Texture2D) {
+func GenTextureMipmaps(texture Texture2D) {
 	texture.GenTextureMipmaps()
 }
 
 //SetTextureFilter : Set texture scaling filter mode
-func (texture *Texture2D) SetTextureFilter(filterMode int) {
+func (texture Texture2D) SetTextureFilter(filterMode int) {
 	ctexture := *texture.cptr()
 	C.SetTextureFilter(ctexture, C.int(int32(filterMode)))
 }
 
 //SetTextureFilter : Set texture scaling filter mode
 //Recommended to use texture.SetTextureFilter(filterMode) instead
-func SetTextureFilter(texture *Texture2D, filterMode int) {
+func SetTextureFilter(texture Texture2D, filterMode int) {
 	texture.SetTextureFilter(filterMode)
 }
 

@@ -34,14 +34,13 @@ package raylib
 #cgo windows,opengl11 CFLAGS: -DGRAPHICS_API_OPENGL_11
 #cgo windows,opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_21
 #cgo windows,!opengl11,!opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_33
-
 #include "raylib.h"
 #include <stdlib.h>
+#include "go.h"
 */
 import "C"
 import (
 	"runtime"
-	"time"
 )
 
 //#cgo debug CFLAGS: -O0
@@ -73,8 +72,8 @@ func init() {
 
 	//Setup the unloadables so they finalize
 	runtime.SetFinalizer(&unloadables, finalizeUnloadables)
-	time.Sleep(time.Second)
-	unloadables = nil
-	time.Sleep(time.Second)
-	runtime.GC()
+}
+
+func ReportGlErrors() {
+	C.reportGlErrors()
 }

@@ -1,13 +1,16 @@
 package raylib
 
 /*
-//Generated 2019-11-11T20:45:27+11:00
+//Generated 2019-11-12T14:15:54+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
 */
 import "C"
-import "unsafe"
+import (
+	"reflect"
+	"unsafe"
+)
 
 /*
 //The following function has been ommitted because it is only available in OpenGL 1.1 and otherwise useless
@@ -62,11 +65,9 @@ func GetShaderDefault() *Shader {
 }
 
 //GetTextureDefault : Get default texture
-func GetTextureDefault() *Texture2D {
+func GetTextureDefault() Texture2D {
 	res := C.GetTextureDefault()
-	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
+	return newTexture2DFromPointer(unsafe.Pointer(&res))
 }
 
 //GetLocation : Get shader uniform location
@@ -85,46 +86,56 @@ func GetShaderLocation(shader *Shader, uniformName string) int {
 }
 
 //SetValueFloat32 : Set shader uniform value
-func (shader *Shader) SetValueFloat32(uniformLoc int, value float32, uniformType ShaderUniformDataType) {
-	shader.SetValueFloat32V(uniformLoc, []float32{value}, uniformType)
+func (shader *Shader) SetValueFloat32(uniformLoc int, value []float32, uniformType ShaderUniformDataType) {
+	cshader := *shader.cptr()
+	cvalue := (*C.float)(unsafe.Pointer((*reflect.SliceHeader)(unsafe.Pointer(&value)).Data))
+	clen := C.int(1)
+	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(cvalue), C.int(int32(uniformType)), clen)
 }
 
 //SetShaderValueFloat32 : Set shader uniform value
 //Recommended to use shader.SetValueFloat32(uniformLoc, value, uniformType) instead
-func SetShaderValueFloat32(shader *Shader, uniformLoc int, value float32, uniformType ShaderUniformDataType) {
+func SetShaderValueFloat32(shader *Shader, uniformLoc int, value []float32, uniformType ShaderUniformDataType) {
 	shader.SetValueFloat32(uniformLoc, value, uniformType)
 }
 
 //SetValueInt32 : Set shader uniform value
-func (shader *Shader) SetValueInt32(uniformLoc int, value int32, uniformType ShaderUniformDataType) {
-	shader.SetValueInt32V(uniformLoc, []int32{value}, uniformType)
+func (shader *Shader) SetValueInt32(uniformLoc int, value []int32, uniformType ShaderUniformDataType) {
+	cshader := *shader.cptr()
+	cvalue := (*C.int)(unsafe.Pointer((*reflect.SliceHeader)(unsafe.Pointer(&value)).Data))
+	clen := C.int(1)
+	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(cvalue), C.int(int32(uniformType)), clen)
 }
 
 //SetShaderValueInt32 : Set shader uniform value
 //Recommended to use shader.SetValueInt32(uniformLoc, value, uniformType) instead
-func SetShaderValueInt32(shader *Shader, uniformLoc int, value int32, uniformType ShaderUniformDataType) {
+func SetShaderValueInt32(shader *Shader, uniformLoc int, value []int32, uniformType ShaderUniformDataType) {
 	shader.SetValueInt32(uniformLoc, value, uniformType)
 }
 
-//SetValueFloat32V : Set shader uniform value vector
+//SetValueFloat32V : Sets a vector (array) of uniform values
 func (shader *Shader) SetValueFloat32V(uniformLoc int, values []float32, uniformType ShaderUniformDataType) {
 	cshader := *shader.cptr()
-	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(&values[0]), C.int(int32(uniformType)), C.int(int32(len(values))))
+	cvalue := (*C.float)(unsafe.Pointer((*reflect.SliceHeader)(unsafe.Pointer(&values)).Data))
+	clen := C.int(int32(len(values)))
+	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(cvalue), C.int(int32(uniformType)), clen)
 }
 
-//SetShaderValueFloat32V : Set shader uniform value vector
+//SetShaderValueFloat32V : Sets a float vector (array) of uniform values
 //Recommended to use shader.SetValueFloat32V(uniformLoc, value, uniformType) instead
 func SetShaderValueFloat32V(shader *Shader, uniformLoc int, values []float32, uniformType ShaderUniformDataType) {
 	shader.SetValueFloat32V(uniformLoc, values, uniformType)
 }
 
-//SetValueInt32V : Set shader uniform value vector
+//SetValueInt32V : Sets a integer vector (array) of uniform values
 func (shader *Shader) SetValueInt32V(uniformLoc int, values []int32, uniformType ShaderUniformDataType) {
 	cshader := *shader.cptr()
-	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(&values[0]), C.int(int32(uniformType)), C.int(int32(len(values))))
+	cvalue := (*C.int)(unsafe.Pointer((*reflect.SliceHeader)(unsafe.Pointer(&values)).Data))
+	clen := C.int(int32(len(values)))
+	C.SetShaderValueV(cshader, C.int(int32(uniformLoc)), unsafe.Pointer(cvalue), C.int(int32(uniformType)), clen)
 }
 
-//SetShaderValueInt32V : Set shader uniform value vector
+//SetShaderValueInt32V : Sets a vector (array) of uniform values
 //Recommended to use shader.SetValueInt32V(uniformLoc, value, uniformType) instead
 func SetShaderValueInt32V(shader *Shader, uniformLoc int, values []int32, uniformType ShaderUniformDataType) {
 	shader.SetValueInt32V(uniformLoc, values, uniformType)
@@ -144,7 +155,7 @@ func SetShaderValueMatrix(shader *Shader, uniformLoc int, mat Matrix) {
 }
 
 //SetValueTexture : Set shader uniform value for texture
-func (shader *Shader) SetValueTexture(uniformLoc int, texture *Texture2D) {
+func (shader *Shader) SetValueTexture(uniformLoc int, texture Texture2D) {
 	ctexture := *texture.cptr()
 	cshader := *shader.cptr()
 	C.SetShaderValueTexture(cshader, C.int(int32(uniformLoc)), ctexture)
@@ -152,7 +163,7 @@ func (shader *Shader) SetValueTexture(uniformLoc int, texture *Texture2D) {
 
 //SetShaderValueTexture : Set shader uniform value for texture
 //Recommended to use shader.SetValueTexture(uniformLoc, texture) instead
-func SetShaderValueTexture(shader *Shader, uniformLoc int, texture *Texture2D) {
+func SetShaderValueTexture(shader *Shader, uniformLoc int, texture Texture2D) {
 	shader.SetValueTexture(uniformLoc, texture)
 }
 
@@ -181,7 +192,7 @@ func GetMatrixProjection() Matrix {
 }
 
 //GenTextureCubemap : Generate cubemap texture from HDR texture
-func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) *Texture2D {
+func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) Texture2D {
 	cskyHDR := *skyHDR.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTextureCubemap(cshader, cskyHDR, C.int(int32(size)))
@@ -189,7 +200,7 @@ func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) *Texture2D {
 }
 
 //GenTextureIrradiance : Generate irradiance texture using cubemap data
-func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) *Texture2D {
+func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) Texture2D {
 	ccubemap := *cubemap.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTextureIrradiance(cshader, ccubemap, C.int(int32(size)))
@@ -197,7 +208,7 @@ func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) *Texture2D
 }
 
 //GenTexturePrefilter : Generate prefilter texture using cubemap data
-func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) *Texture2D {
+func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) Texture2D {
 	ccubemap := *cubemap.cptr()
 	cshader := *shader.cptr()
 	res := C.GenTexturePrefilter(cshader, ccubemap, C.int(int32(size)))
@@ -205,7 +216,7 @@ func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) *Texture2D 
 }
 
 //GenTextureBRDF : Generate BRDF texture
-func GenTextureBRDF(shader Shader, size int) *Texture2D {
+func GenTextureBRDF(shader Shader, size int) Texture2D {
 	cshader := *shader.cptr()
 	res := C.GenTextureBRDF(cshader, C.int(int32(size)))
 	return newTexture2DFromPointer(unsafe.Pointer(&res))

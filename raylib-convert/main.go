@@ -263,7 +263,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 	if prototype.returnArg.valueType != "void" {
 		spacing := " "
 
-		if isObject(prototype.returnArg.valueType) {
+		if isReferencedObject(prototype.returnArg.valueType) {
 			spacing = " *"
 			returnPointer = true
 		}
@@ -285,7 +285,7 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 		}
 
 		spacing := " "
-		if isObject(arg.valueType) && objectOriented {
+		if isReferencedObject(arg.valueType) && objectOriented {
 			spacing = " *"
 		}
 
@@ -368,7 +368,12 @@ func translatePrototype(prototype *prototype, objectOriented bool) (string, erro
 			oopName = "Unload"
 		}
 
-		retName := prototype.args[0].name + " *" + prototype.args[0].valueType
+		spacing := " *"
+		if !isReferencedObject(prototype.args[0].valueType) {
+			spacing = " "
+		}
+
+		retName := prototype.args[0].name + spacing + prototype.args[0].valueType
 
 		//add the comment and the line
 		definition += "//" + oopName + " : " + prototype.comment + "\n"
@@ -505,6 +510,14 @@ func convertType(t string, unsigned bool) string {
 		}
 		return "int"
 	}
+}
+
+func isReferencedObject(t string) bool {
+	if !isObject(t) || t == "Texture2D" || t == "RenderTexture2D" {
+		return false
+	}
+
+	return true
 }
 
 func isObject(t string) bool {

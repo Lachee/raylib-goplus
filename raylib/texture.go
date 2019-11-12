@@ -21,12 +21,12 @@ func (t *Texture2D) cptr() *C.Texture2D {
 	return (*C.Texture2D)(unsafe.Pointer(t))
 }
 
-func newTexture2DFromPointer(ptr unsafe.Pointer) *Texture2D {
-	return (*Texture2D)(ptr)
+func newTexture2DFromPointer(ptr unsafe.Pointer) Texture2D {
+	return *(*Texture2D)(ptr)
 }
 
 //LoadTextureFromGo loads image data from image.Image. Uses NewImageFromGoImage.
-func LoadTextureFromGo(image image.Image) *Texture2D {
+func LoadTextureFromGo(image image.Image) Texture2D {
 	img := LoadImageFromGo(image)
 	defer img.Unload()
 	return LoadTextureFromImage(img)
@@ -74,8 +74,8 @@ type RenderTexture2D struct {
 	DepthTexture bool
 }
 
-func newRenderTexture2DFromPointer(ptr unsafe.Pointer) *RenderTexture2D {
-	return (*RenderTexture2D)(ptr)
+func newRenderTexture2DFromPointer(ptr unsafe.Pointer) RenderTexture2D {
+	return *(*RenderTexture2D)(ptr)
 }
 
 func (t *RenderTexture2D) cptr() *C.RenderTexture2D {
