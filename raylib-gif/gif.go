@@ -20,7 +20,7 @@ const (
 type GifImage struct {
 
 	//Texture is the current frame of the gif
-	Texture *r.Texture2D
+	Texture r.Texture2D
 	//Width is the width of a single frame
 	Width int
 	//Height is the height of a single frame
@@ -180,12 +180,12 @@ func (gif *GifImage) GetRectangle(frame int) r.Rectangle {
 
 //DrawGif draws a single frame of a gif
 func DrawGif(gif *GifImage, x int, y int, tint r.Color) {
-	r.DrawTexture(*gif.Texture, x, y, tint)
+	r.DrawTexture(gif.Texture, x, y, tint)
 }
 
 //DrawGifEx draws a gif with rotation and scale
 func DrawGifEx(gif *GifImage, position r.Vector2, rotation float32, scale float32, tint r.Color) {
-	r.DrawTextureEx(*gif.Texture, position, rotation, scale, tint)
+	r.DrawTextureEx(gif.Texture, position, rotation, scale, tint)
 }
 
 func getGifDimensions(gif *gif.GIF) (x, y int) {

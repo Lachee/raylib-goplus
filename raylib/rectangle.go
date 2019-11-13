@@ -37,14 +37,24 @@ func (r Rectangle) ToVector4() Vector4 {
 	return NewVector4(r.X, r.Y, r.Width, r.Height)
 }
 
-//Position gets the position of the rectangle
+//Position gets the position of the rectangle. Alias of MinPosition().
 func (r Rectangle) Position() Vector2 {
 	return NewVector2(r.X, r.Y)
+}
+
+//SetPosition sets the position of the rectangle
+func (r Rectangle) SetPosition(v Vector2) Rectangle {
+	return NewRectangle(v.X, v.Y, r.Width, r.Height)
 }
 
 //Size gets the size of the rectangle
 func (r Rectangle) Size() Vector2 {
 	return NewVector2(r.Width, r.Height)
+}
+
+//SetSize sets the size of the rectangle
+func (r Rectangle) SetSize(v Vector2) Rectangle {
+	return NewRectangle(r.X, r.Y, v.X, v.Y)
 }
 
 //MinPosition gets the smallest position the rectangle can be. Alias of Position().
@@ -60,6 +70,21 @@ func (r Rectangle) Center() Vector2 {
 //MaxPosition gets the maximum position within the bounds
 func (r Rectangle) MaxPosition() Vector2 {
 	return NewVector2(r.X+r.Width, r.Y+r.Height)
+}
+
+//Move shifts the rectangle by a vector
+func (r Rectangle) Move(v Vector2) Rectangle {
+	return NewRectangle(r.X+v.X, r.Y+v.Y, r.Width, r.Height)
+}
+
+//Grow adds the vector to the width and height of the rectangle.
+func (r Rectangle) Grow(v Vector2) Rectangle {
+	return NewRectangle(r.X, r.Y, v.X+r.Width, v.Y+r.Height)
+}
+
+//Scale the width and height of the rectangle
+func (r Rectangle) Scale(scale float32) Rectangle {
+	return NewRectangle(r.X, r.Y, r.Width*scale, r.Height*scale)
 }
 
 //Lerp a rectangle to a target rectangle
