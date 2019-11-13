@@ -53,5 +53,8 @@ Please note that this is an experimental feature, and not all Loadables maybe ad
 
 Anything that is loaded using a `LoadXXXX` should be in OOP mode of the converter. The converter will add Unload methods. In cases where they are named Close instead (ie AudioStream), please make the OOP method Unload, and the functional method the original Close.
 
+### RayGUI & RayMath
+Both raygui and raymath are implemented by default in the raylib package. The reasoning behind not seperating raygui was because of a technical limitation with `cgo` (the interface used to link the c files into go) not being able to support links outside the package directory (I would have to include the entire raylib.h again into a raygui package).
+
 ### License
 This project is still a work in progress, but the license will be `zlib/libpng` to keep it inline with Raylib license.
