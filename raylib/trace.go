@@ -32,7 +32,6 @@ void Go_DisableCustomCallback() {
 import "C"
 import (
 	"fmt"
-	"os"
 	"unsafe"
 )
 
@@ -76,14 +75,9 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 		}
 
 		//We have a custom tracer, so lets just use that and avoid the C end entirely.
-		traceCallback(logType, "-"+line)
-
-		//If the log is greater than the exit log, then we need to exit too.
-		// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
-		if logType >= logLevelExit {
-			os.Exit(1)
-		}
-
+		//Note that since we are avoiding the C calls, we have to tracePanicCheck again.
+		traceCallback(logType, line)
+		tracePanicCheck(logType, line)
 	} else {
 
 		//We dont have a custom tracer yet, so we will just execute our wrapper over it.
@@ -92,7 +86,16 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 		defer C.free(unsafe.Pointer(cline))
 		C.Go_TraceLogWrapper(C.int(logType), cline)
 	}
+}
 
+//tracePanicCheck will panic if the logType is set to exit.
+func tracePanicCheck(logType TraceLogType, message string) {
+	//If the log is greater than the exit log, then we need to exit too.
+	// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
+	if logType >= logLevelExit {
+		panic(message)
+		//os.Exit(1)
+	}
 }
 
 type TraceLogType int32
