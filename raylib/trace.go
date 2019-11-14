@@ -35,6 +35,55 @@ import (
 	"unsafe"
 )
 
+var logLevelType TraceLogType = LogInfo
+var traceCallback func(logType TraceLogType, text string)
+
+//SetTraceLogLevel : Set the current threshold (minimum) log level
+func SetTraceLogLevel(logType TraceLogType) {
+	logLevelType = logType
+	C.SetTraceLogLevel(C.int(logType))
+}
+
+//SetTraceLogExit : Set the exit threshold (minimum) log level
+func SetTraceLogExit(logType TraceLogType) {
+	C.SetTraceLogExit(C.int(logType))
+}
+
+//SetTraceLogCallback : Set the callback for custom logging.
+func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
+	traceCallback = callback
+	if traceCallback != nil {
+		C.Go_EnableCustomCallback()
+	} else {
+		C.Go_DisableCustomCallback()
+	}
+}
+
+//TraceLog creates a new log with a particular type. If a custom callback for logs
+// is set, then it will directly invoke it, avoiding the raylib function.
+func TraceLog(logType TraceLogType, a ...interface{}) {
+	line := fmt.Sprint(a...)
+	if traceCallback != nil {
+
+		//Make sure we are the correct level. Since we are doing this ourselves,
+		// we need to keep track of this
+		if logType < logLevelType {
+			return
+		}
+
+		//We have a custom tracer, so lets just use that and avoid the C end entirely.
+		traceCallback(logType, "-"+line)
+
+	} else {
+
+		//We dont have a custom tracer yet, so we will just execute our wrapper over it.
+		// We have a wrapper because cgo doesn't support variable length arguments.
+		cline := C.CString(line)
+		defer C.free(unsafe.Pointer(cline))
+		C.Go_TraceLogWrapper(C.int(logType), cline)
+	}
+}
+
 type TraceLogType int32
 
 const (
@@ -94,54 +143,5 @@ func (v TraceLogType) ToUniformedString() string {
 		return "FATAL"
 	case LogNone:
 		return "NONE"
-	}
-}
-
-var logLevelType TraceLogType = LogInfo
-var traceCallback func(logType TraceLogType, text string)
-
-//SetTraceLogLevel : Set the current threshold (minimum) log level
-func SetTraceLogLevel(logType TraceLogType) {
-	logLevelType = logType
-	C.SetTraceLogLevel(C.int(logType))
-}
-
-//SetTraceLogExit : Set the exit threshold (minimum) log level
-func SetTraceLogExit(logType TraceLogType) {
-	C.SetTraceLogExit(C.int(logType))
-}
-
-//SetTraceLogCallback : Set the callback for custom logging.
-func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
-	traceCallback = callback
-	if traceCallback != nil {
-		C.Go_EnableCustomCallback()
-	} else {
-		C.Go_DisableCustomCallback()
-	}
-}
-
-//TraceLog creates a new log with a particular type. If a custom callback for logs
-// is set, then it will directly invoke it, avoiding the raylib function.
-func TraceLog(logType TraceLogType, a ...interface{}) {
-	line := fmt.Sprint(a...)
-	if traceCallback != nil {
-
-		//Make sure we are the correct level. Since we are doing this ourselves,
-		// we need to keep track of this
-		if logType < logLevelType {
-			return
-		}
-
-		//We have a custom tracer, so lets just use that and avoid the C end entirely.
-		traceCallback(logType, line)
-
-	} else {
-
-		//We dont have a custom tracer yet, so we will just execute our wrapper over it.
-		// We have a wrapper because cgo doesn't support variable length arguments.
-		cline := C.CString(line)
-		defer C.free(unsafe.Pointer(cline))
-		C.Go_TraceLogWrapper(C.int(logType), cline)
 	}
 }

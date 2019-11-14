@@ -34,6 +34,7 @@ package raylib
 #cgo windows,opengl11 CFLAGS: -DGRAPHICS_API_OPENGL_11
 #cgo windows,opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_21
 #cgo windows,!opengl11,!opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_33
+#define SUPPORT_TRACELOG
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"

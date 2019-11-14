@@ -8,10 +8,6 @@ import (
 
 func main() {
 
-	//Prepare the window
-	r.InitWindow(800, 450, "Raylib Go Plus - Hellow World")
-	r.SetTargetFPS(60)
-
 	/*
 		Set up the target log level. In this case we want ALL, but there is numerous to choose.
 		All Options:
@@ -28,6 +24,10 @@ func main() {
 
 	//Set up a custom callback to the log function.
 	//Raylib will automatically filter our logs for us and prepend them appropriately.
+	//
+	//NOTE:
+	//	It is important that we set this callback up BEFORE the init,
+	//	otherwise we will miss the init logs.
 	r.SetTraceLogCallback(func(logType r.TraceLogType, text string) {
 
 		//For simplicity, we will just log it using fmt. But you can easily add a file
@@ -36,6 +36,11 @@ func main() {
 		// but in this case, we are using ToUniformedString that converts it to a 5 letter code.
 		fmt.Println(logType.ToUniformedString(), ":\t", text)
 	})
+
+	//Prepare the window. This should be done after the SetTraceLogCallback so we dont
+	// miss anything.
+	r.InitWindow(800, 450, "Raylib Go Plus - Hellow World")
+	r.SetTargetFPS(60)
 
 	//Draw every frame
 	for !r.WindowShouldClose() {
