@@ -49,26 +49,51 @@ const (
 )
 
 //ToString converts the TraceLogType to a string. This can be useful for custom loggers.
+//seealso: ToUniformedString for a uniformed formatting.
 func (v TraceLogType) ToString() string {
 	switch v {
 	default:
 		return fmt.Sprint(v)
 	case LogAll:
-		return "all"
+		return "All"
+	case LogTrace:
+		return "Trace"
+	case LogDebug:
+		return "Debug"
+	case LogInfo:
+		return "Info"
+	case LogWarning:
+		return "Warning"
+	case LogError:
+		return "Error"
+	case LogFatal:
+		return "Fatal"
+	case LogNone:
+		return "None"
+	}
+}
+
+//ToUniformedString converts the trace log type to a string of fixed length (5) and all captials.
+func (v TraceLogType) ToUniformedString() string {
+	switch v {
+	default:
+		return fmt.Sprint(v)
+	case LogAll:
+		return "ALL  "
 	case LogTrace:
 		return "TRACE"
 	case LogDebug:
 		return "DEBUG"
 	case LogInfo:
-		return "INFO"
+		return "INFO "
 	case LogWarning:
-		return "WARNING"
+		return "WARN "
 	case LogError:
 		return "ERROR"
 	case LogFatal:
 		return "FATAL"
 	case LogNone:
-		return "none"
+		return "NONE"
 	}
 }
 
