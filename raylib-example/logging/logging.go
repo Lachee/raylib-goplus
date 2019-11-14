@@ -22,6 +22,9 @@ func main() {
 	*/
 	r.SetTraceLogLevel(r.LogAll)
 
+	//We don't want our logs to throw a panic
+	r.SetTraceLogExit(r.LogNone)
+
 	//Set up a custom callback to the log function.
 	//Raylib will automatically filter our logs for us and prepend them appropriately.
 	//
@@ -34,7 +37,7 @@ func main() {
 		// logger or some other tracking.
 		//Note that r.TraceLogType has a function ToString that will convert its number
 		// but in this case, we are using ToUniformedString that converts it to a 5 letter code.
-		fmt.Println(logType.ToUniformedString(), ":\t", text)
+		fmt.Println("[" + logType.ToUniformedString() + "] " + text)
 	})
 
 	//Prepare the window. This should be done after the SetTraceLogCallback so we dont
