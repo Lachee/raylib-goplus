@@ -32,10 +32,12 @@ void Go_DisableCustomCallback() {
 import "C"
 import (
 	"fmt"
+	"os"
 	"unsafe"
 )
 
 var logLevelType TraceLogType = LogInfo
+var logLevelExit TraceLogType = LogError
 var traceCallback func(logType TraceLogType, text string)
 
 //SetTraceLogLevel : Set the current threshold (minimum) log level
@@ -45,7 +47,9 @@ func SetTraceLogLevel(logType TraceLogType) {
 }
 
 //SetTraceLogExit : Set the exit threshold (minimum) log level
+// Set to NONE to disable this. (none is above all log levels).
 func SetTraceLogExit(logType TraceLogType) {
+	logLevelExit = logType
 	C.SetTraceLogExit(C.int(logType))
 }
 
@@ -74,6 +78,12 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 		//We have a custom tracer, so lets just use that and avoid the C end entirely.
 		traceCallback(logType, "-"+line)
 
+		//If the log is greater than the exit log, then we need to exit too.
+		// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
+		if logType >= logLevelExit {
+			os.Exit(1)
+		}
+
 	} else {
 
 		//We dont have a custom tracer yet, so we will just execute our wrapper over it.
@@ -82,6 +92,7 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 		defer C.free(unsafe.Pointer(cline))
 		C.Go_TraceLogWrapper(C.int(logType), cline)
 	}
+
 }
 
 type TraceLogType int32
