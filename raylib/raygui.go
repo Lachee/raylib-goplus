@@ -60,3 +60,16 @@ const (
 	GuiPropertyTextColorNormal
 	GuiPropertyBorderColorFocused
 )
+
+var guiEnabled bool
+var guiLocked bool
+
+//GuiEnabled returns if the gui is currently enabled.
+func GuiEnabled() bool {
+	return guiEnabled
+}
+
+//GuiLocked returns if the gui is currently locked.
+func GuiLocked() bool {
+	return guiLocked
+}

@@ -10,4 +10,5 @@ func (w *GuiTextBoxState) cptr() *C.GuiTextBoxState {
 //GuiEnable : Enable gui controls (global state)
 func GuiEnable() {
 	C.GuiEnable()
+	guiEnabled = true
 }

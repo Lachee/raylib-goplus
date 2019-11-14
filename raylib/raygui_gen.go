@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-12T18:07:27+11:00
+//Generated 2019-11-14T20:24:51+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -24,21 +24,25 @@ func (w *GuiTextBoxState) cptr() *C.GuiTextBoxState {
 //GuiEnable : Enable gui controls (global state)
 func GuiEnable() {
 	C.GuiEnable()
+	guiEnabled = true
 }
 
 //GuiDisable : Disable gui controls (global state)
 func GuiDisable() {
 	C.GuiDisable()
+	guiEnabled = false
 }
 
 //GuiLock : Lock gui controls (global state)
 func GuiLock() {
 	C.GuiLock()
+	guiLocked = true
 }
 
 //GuiUnlock : Unlock gui controls (global state)
 func GuiUnlock() {
 	C.GuiUnlock()
+	guiLocked = false
 }
 
 //GuiFade : Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
