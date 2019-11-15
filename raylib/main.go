@@ -73,6 +73,9 @@ func init() {
 
 	//Setup the unloadables so they finalize
 	runtime.SetFinalizer(&unloadables, finalizeUnloadables)
+
+	//Reset the scale, this seems to be broken on mac?
+	SetMouseScale(1, 1)
 }
 
 func ReportGlErrors() {
