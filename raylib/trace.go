@@ -88,6 +88,31 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 	}
 }
 
+//Trace creates a trace log
+func Trace(a ...interface{}) {
+	TraceLog(LogTrace, a...)
+}
+
+//TraceInfo creates a info log
+func TraceInfo(a ...interface{}) {
+	TraceLog(LogInfo, a...)
+}
+
+//TraceWarning creates a warning log
+func TraceWarning(a ...interface{}) {
+	TraceLog(LogWarning, a...)
+}
+
+//TraceError creates an error log
+func TraceError(a ...interface{}) {
+	TraceLog(LogError, a...)
+}
+
+//TraceFatal creates an error log
+func TraceFatal(a ...interface{}) {
+	TraceLog(LogFatal, a...)
+}
+
 //tracePanicCheck will panic if the logType is set to exit.
 func tracePanicCheck(logType TraceLogType, message string) {
 	//If the log is greater than the exit log, then we need to exit too.
