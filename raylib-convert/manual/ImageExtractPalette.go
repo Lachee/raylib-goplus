@@ -9,12 +9,13 @@ func (image *Image) ExtractPalette(maxPaletteSize int) ([]Color, int) {
 	samples := maxPaletteSize
 	
 	//Get the slice
-	tmpslice := (*[1 << 24]*C.Color)(unsafe.Pointer(res))[:maxPaletteSize:maxPaletteSize]
+	tmpslice := (*[1 << 24]Color)(unsafe.Pointer(res))[0:maxPaletteSize]	
 
 	//Convert to a Color array
 	goslice := make([]Color, samples)
-	for i, s := range tmpslice {
-		goslice[i] = newColorFromPointer(unsafe.Pointer(s))
+	for i, _ := range tmpslice {
+		//goslice[i] = newColorFromPointer(unsafe.Pointer(s))
+		goslice[i] = Color{tmpslice[i].R, tmpslice[i].G, tmpslice[i].B, tmpslice[i].A }
 	}
 
 	

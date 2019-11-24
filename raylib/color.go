@@ -62,6 +62,8 @@ var (
 	Aqua = NewColor(0, 162, 156, 255)
 	//Gopher Blue
 	GopherBlue = NewColor(1, 173, 216, 255)
+	//Transparent
+	Transparent = NewColor(0, 0, 0, 0)
 )
 
 // Color type, RGBA (32bit)

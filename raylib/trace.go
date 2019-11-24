@@ -92,7 +92,7 @@ func TraceLog(logType TraceLogType, a ...interface{}) {
 func tracePanicCheck(logType TraceLogType, message string) {
 	//If the log is greater than the exit log, then we need to exit too.
 	// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
-	if logType >= logLevelExit {
+	if logType >= logLevelExit && logLevelExit != LogNone {
 		panic(message)
 		//os.Exit(1)
 	}

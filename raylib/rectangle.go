@@ -72,14 +72,24 @@ func (r Rectangle) MaxPosition() Vector2 {
 	return NewVector2(r.X+r.Width, r.Y+r.Height)
 }
 
-//Move shifts the rectangle by a vector
-func (r Rectangle) Move(v Vector2) Rectangle {
+//MoveV shifts the rectangle by a vector
+func (r Rectangle) MoveV(v Vector2) Rectangle {
 	return NewRectangle(r.X+v.X, r.Y+v.Y, r.Width, r.Height)
 }
 
-//Grow adds the vector to the width and height of the rectangle.
-func (r Rectangle) Grow(v Vector2) Rectangle {
+//Move shifts the rectangle by a value
+func (r Rectangle) Move(x, y float32) Rectangle {
+	return NewRectangle(r.X+x, r.Y+y, r.Width, r.Height)
+}
+
+//GrowV adds the vector to the width and height of the rectangle.
+func (r Rectangle) GrowV(v Vector2) Rectangle {
 	return NewRectangle(r.X, r.Y, v.X+r.Width, v.Y+r.Height)
+}
+
+//Grow adds the vector to the width and height of the rectangle.
+func (r Rectangle) Grow(x, y float32) Rectangle {
+	return NewRectangle(r.X, r.Y, x+r.Width, y+r.Height)
 }
 
 //Scale the width and height of the rectangle
