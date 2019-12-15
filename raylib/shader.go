@@ -82,9 +82,9 @@ type Material struct {
 	Maps   [MaxMaterialMaps]MaterialMap
 
 	//Padding. Apparently required according to https://github.com/gen2brain/raylib-go/blob/02424e2e10eab68b875539f0532a3d51516c4c95/raylib/raylib.go
-	_ [4]byte
+	//_ [4]byte
 
-	Params *[]float32
+	Params []float32
 }
 
 func newMaterialFromPointer(ptr unsafe.Pointer) *Material {

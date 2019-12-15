@@ -9,28 +9,35 @@ import "unsafe"
 type Mesh struct {
 	// Number of vertices stored in arrays
 	VertexCount int32
+
 	// Number of triangles stored (indexed or not)
 	TriangleCount int32
-	// Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
-	Vertices *[]Vector3
-	// Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
-	Texcoords *[]Vector2
-	// Vertex second texture coordinates (useful for lightmaps) (shader-location = 5)
-	Texcoords2 *[]Vector2
-	// Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
-	Normals *[]Vector4
-	// Vertex tangents (XYZ - 3 components per vertex) (shader-location = 4)
-	Tangents *[]float32
-	// Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
-	Colors *[]Color
 
-	AnimVertices *[]Vector3
-	AnimNormals  *[]Vector4
-	BoneIds      *[]int32
-	BoneWeights  *[]float32
+	// Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
+	Vertices *[1 << 28]Vector3
+
+	// Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
+	Texcoords *[1 << 28]Vector2
+
+	// Vertex second texture coordinates (useful for lightmaps) (shader-location = 5)
+	Texcoords2 *[1 << 28]Vector2
+
+	// Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
+	Normals *[1 << 28]Vector3
+
+	// Vertex tangents (XYZ - 3 components per vertex) (shader-location = 4)
+	Tangents *[1 << 28]Vector3
+
+	// Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
+	Colors *[1 << 28]Color
 
 	// Vertex indices (in case vertex data comes indexed)
-	Indices *[]uint16
+	Indices *[1 << 2]uint16
+
+	AnimVertices *[1 << 28]Vector3
+	AnimNormals  *[1 << 28]Vector3
+	BoneIds      *[1 << 2]int32
+	BoneWeights  *[1 << 2]float32
 
 	// OpenGL Vertex Array Object id
 	VaoID uint32
@@ -53,14 +60,17 @@ type BoneInfo struct {
 }
 
 type Model struct {
-	Transform     Matrix
-	MeshCount     int32
-	Meshes        *[]Mesh
+	Transform Matrix
+	MeshCount int32
+	Meshes    *[1 << 28]Mesh
+
 	MaterialCount int32
-	Materials     []Material
-	BoneCount     int32
-	Bones         *[]BoneInfo
-	BindPos       *[]Transform
+	Materials     *[1 << 8]Material
+	MeshMaterial  *int32
+
+	BoneCount int32
+	Bones     *[1 << 8]BoneInfo
+	BindPos   *[1 << 8]Transform
 }
 
 type ModelAnimation struct {
