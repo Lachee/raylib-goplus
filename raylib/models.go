@@ -32,12 +32,12 @@ type Mesh struct {
 	Colors *[1 << 28]Color
 
 	// Vertex indices (in case vertex data comes indexed)
-	Indices *[1 << 2]uint16
+	Indices *[1 << 28]uint16
 
 	AnimVertices *[1 << 28]Vector3
 	AnimNormals  *[1 << 28]Vector3
-	BoneIds      *[1 << 2]int32
-	BoneWeights  *[1 << 2]float32
+	BoneIds      *[1 << 28]int32
+	BoneWeights  *[1 << 28]float32
 
 	// OpenGL Vertex Array Object id
 	VaoID uint32
@@ -65,12 +65,12 @@ type Model struct {
 	Meshes    *[1 << 28]Mesh
 
 	MaterialCount int32
-	Materials     *[1 << 8]Material
+	Materials     *[1 << 28]Material
 	MeshMaterial  *int32
 
 	BoneCount int32
-	Bones     *[1 << 8]BoneInfo
-	BindPos   *[1 << 8]Transform
+	Bones     *[1 << 28]BoneInfo
+	BindPos   *[1 << 28]Transform
 }
 
 type ModelAnimation struct {
