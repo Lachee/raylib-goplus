@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-11-23T14:33:30+11:00
+//Generated 2019-12-17T17:11:45+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -794,14 +794,14 @@ func GenTextureMipmaps(texture Texture2D) {
 }
 
 //SetTextureFilter : Set texture scaling filter mode
-func (texture Texture2D) SetTextureFilter(filterMode int) {
+func (texture Texture2D) SetTextureFilter(filterMode TextureFilterMode) {
 	ctexture := *texture.cptr()
 	C.SetTextureFilter(ctexture, C.int(int32(filterMode)))
 }
 
 //SetTextureFilter : Set texture scaling filter mode
 //Recommended to use texture.SetTextureFilter(filterMode) instead
-func SetTextureFilter(texture Texture2D, filterMode int) {
+func SetTextureFilter(texture Texture2D, filterMode TextureFilterMode) {
 	texture.SetTextureFilter(filterMode)
 }
 

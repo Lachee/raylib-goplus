@@ -23,6 +23,13 @@ func main() {
 	r.InitWindow(screenWidth, screenHeight, "raylib [shaders] example - custom uniform variable")
 	defer r.UnloadAll()
 
+	shaderFilePath := "../resources/glsl330/swirl.fs"
+	hotShader := hotload.LoadShader("", shaderFilePath)
+	shader := hotShader.Shader
+
+	hotTexture := hotload.LoadTexture2D("../resources/dwarf_diffuse.png")
+	texture := hotTexture.ToTexture2D()
+
 	camera := r.Camera{}
 	camera.Position = r.NewVector3(3.0, 3.0, 3.0)
 	camera.Target = r.NewVector3(0.0, 1.5, 0.0)
@@ -31,16 +38,13 @@ func main() {
 
 	dwarf := r.LoadModel("../resources/dwarf.obj") // Load OBJ model
 	//texture := r.LoadTexture("../resources/dwarf_diffuse.png") // Load model texture
-	texture := hotload.LoadTexture("../resources/dwarf_diffuse.png")
+	//texture := hotload.LoadTexture("../resources/dwarf_diffuse.png")
 
 	//dwarf.Materials.Maps[r.MapDiffuse].Texture = texture // Set dwarf model diffuse texture
 	mat := dwarf.Materials[0]
-	mat.SetTexture(r.MapAlbedo, *texture)
+	mat.SetTexture(r.MapAlbedo, texture)
 
 	position := r.NewVector3(0.0, 0.0, 0.0) // Set model position
-
-	shaderFilePath := "../resources/glsl330/swirl.fs"
-	shader := hotload.LoadShader("", shaderFilePath)
 
 	// Get variable (uniform) location on the shader to connect with the program
 	// NOTE: If uniform variable could not be found in the shader, function returns -1

@@ -243,6 +243,8 @@ RLAPI bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Ve
 // Texture Loading and Drawing Functions (Module: textures)
 //------------------------------------------------------------------------------------
 //conv:g:texture
+//conv:enum:TextureFilter.*int filterMode:TextureFilterMode
+//conv:enum:TextureFilter.*int wrapMode:TextureWrapMode
 //conv:oop:start
 
 // Image/Texture2D data loading/unloading/saving functions

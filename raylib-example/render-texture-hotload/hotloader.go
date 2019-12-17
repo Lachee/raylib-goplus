@@ -1,44 +1,37 @@
 package main
 
+//ATTENTION: This example is a work in progress and there is no garuantee that it will work.
+
 import (
 	"errors"
 	"fmt"
 	"path/filepath"
 	"time"
+	"unsafe"
 
 	r "github.com/lachee/raylib-goplus/raylib"
 	"github.com/radovskyb/watcher"
 )
 
-type lShader struct {
-	shader     *r.Shader
-	fsFileName string
-	vsFileName string
-}
-
-func (ls *lShader) hotload() {
-	if ls.shader != nil {
-		r.TraceLog(r.LogTrace, "Reloading Shader", ls.shader)
-		ls.shader.Unload()
-		*ls.shader = *r.LoadShader(ls.vsFileName, ls.fsFileName)
-	}
+//HotLoadable can be dynamically reloaded
+type HotLoadable interface {
+	HotLoad(absoluteFilePath string) error
 }
 
 //HotLoader manages hot loading of files
 type HotLoader struct {
-	watcher  *watcher.Watcher
-	shaders  map[string]*lShader
-	textures map[string]*r.Texture2D
+	watcher   *watcher.Watcher
+	loadables map[string]HotLoadable
 }
 
 //NewHotLoader creates a new hot loader
 func NewHotLoader(pollrate time.Duration) *HotLoader {
 	loader := &HotLoader{
-		watcher:  watcher.New(),
-		shaders:  make(map[string]*lShader),
-		textures: make(map[string]*r.Texture2D),
+		watcher:   watcher.New(),
+		loadables: make(map[string]HotLoadable),
 	}
 
+	loader.watcher.SetMaxEvents(1)
 	loader.watcher.FilterOps(watcher.Write)
 
 	go func() {
@@ -57,38 +50,29 @@ func (hl *HotLoader) Unload() {
 	hl.watcher.Close()
 }
 
-//LoadShader loads a new shader to the hot loader
-func (hl *HotLoader) LoadShader(vsFileName string, fsFileName string) *r.Shader {
-	shader := r.LoadShader(vsFileName, fsFileName)
-	lshader := &lShader{
-		shader:     shader,
-		vsFileName: vsFileName,
-		fsFileName: fsFileName,
+//Load adds teh hot loadable to the map at the specifed file path and then calls HotLoad.
+// Returns the absolute path
+func (hl *HotLoader) Load(filePath string, hotLoadable HotLoadable) (string, error) {
+	if hotLoadable == nil {
+		return "", errors.New("hot loadable cannot be nil")
 	}
 
-	hl.watcher.Add(fsFileName)
-
-	if absolute, err := filepath.Abs(vsFileName); err == nil {
-		hl.watcher.Add(absolute)
-		hl.shaders[absolute] = lshader
+	if filePath == "" {
+		return "", errors.New("filepath cannot be empty")
 	}
 
-	if absolute, err := filepath.Abs(fsFileName); err == nil {
-		hl.watcher.Add(absolute)
-		hl.shaders[absolute] = lshader
+	fp, err := filepath.Abs(filePath)
+	if err != nil {
+		return fp, err
 	}
 
-	return shader
-}
-
-//LoadTexture loads a texture
-func (hl *HotLoader) LoadTexture(fileName string) *r.Texture2D {
-	texture := r.LoadTexture(fileName)
-	if absolute, err := filepath.Abs(fileName); err == nil {
-		hl.watcher.Add(absolute)
-		hl.textures[absolute] = &texture
+	if hl.loadables[fp] != nil {
+		return fp, errors.New("filepath already exists")
 	}
-	return &texture
+
+	hl.loadables[fp] = hotLoadable
+	hl.watcher.Add(fp)
+	return fp, hotLoadable.HotLoad(fp)
 }
 
 //Update the hot loader and reload any sources.
@@ -96,20 +80,15 @@ func (hl *HotLoader) Update() error {
 	select {
 	//We have an event, so lets handle the update
 	case event := <-hl.watcher.Event:
-		r.TraceLog(r.LogTrace, "Hot Loading", event.Path)
+		r.Trace("Hot Loading", event.Path)
 
 		//Check for shaders. If we have a shader then reload it.
-		if shader := hl.shaders[event.Path]; shader != nil {
-			r.TraceLog(r.LogInfo, "Hot Loading Shader", event.Path)
-			shader.hotload()
+		if ld := hl.loadables[event.Path]; ld != nil {
+			r.Trace("Hot Loading ", event.Path)
+			if err := ld.HotLoad(event.Path); err != nil {
+				r.TraceError("Hot Loading Exception", err)
+			}
 		}
-
-		//Check for textures. If we have a texture then reload it.
-		if texture := hl.textures[event.Path]; texture != nil {
-			r.TraceLog(r.LogInfo, "Hot Loading Texture", event.Path)
-			updateTextureFromFile(*texture, event.Path)
-		}
-
 	//Check if the watcher errors
 	case err := <-hl.watcher.Error:
 		return err
@@ -132,4 +111,83 @@ func updateTextureFromFile(texture r.Texture2D, fileName string) {
 	pixels := img.GetPixelsNormalized()
 	fmt.Println(pixels)
 	//texture.UpdateTexture(pixels)
+}
+
+//HotShader is a hot loadable shader
+type HotShader struct {
+	Shader     *r.Shader
+	FsFileName string
+	VsFileName string
+}
+
+//HotLoad reloads the shader
+func (hs *HotShader) HotLoad(afp string) error {
+	if hs.Shader == nil {
+		return errors.New("Shader not yet initialized")
+	}
+
+	r.Trace("Reloading Shader ", hs.Shader)
+	hs.Shader.Unload()
+	*hs.Shader = *r.LoadShader(hs.VsFileName, hs.FsFileName)
+	if hs.Shader == nil {
+		return errors.New("Failed to load the shader")
+	}
+
+	return nil
+}
+
+//LoadShader loads a new shader
+func (hl *HotLoader) LoadShader(vsFileName string, fsFileName string) *HotShader {
+	hs := &HotShader{
+		VsFileName: vsFileName,
+		FsFileName: fsFileName,
+	}
+
+	//Prepare the VS link
+	if vsFileName != "" {
+		hl.Load(vsFileName, hs)
+	}
+
+	//Prepare the FS link
+	if fsFileName != "" {
+		hl.Load(fsFileName, hs)
+	}
+
+	//Load the actual shader
+	shader := r.LoadShader(vsFileName, fsFileName)
+	hs.Shader = shader
+
+	return hs
+}
+
+//HotTexture is a texture that can be hotloaded. The texture is updated with the new pixels of the image.
+type HotTexture r.Texture2D
+
+//HotLoad reloads the texture
+func (ht HotTexture) HotLoad(afp string) error {
+	if ht.Id == 0 {
+		return errors.New("hot texture isn't loaded")
+	}
+
+	//Load the image
+	img := r.LoadImage(afp)
+	defer img.Unload()
+
+	//Get the image pixels and apply it to the texture
+	pixels := img.GetPixels()
+	r.UpdateTexture((*r.Texture2D)(unsafe.Pointer(&ht)), pixels)
+	return nil
+}
+
+//LoadTexture2D hot loads a new texture
+func (hl *HotLoader) LoadTexture2D(fileName string) HotTexture {
+	t := r.LoadTexture(fileName)
+	ht := *(*HotTexture)(unsafe.Pointer(&t))
+	hl.Load(fileName, ht)
+	return ht
+}
+
+//ToTexture2D converts the HotTexture to a Texture2D
+func (ht HotTexture) ToTexture2D() r.Texture2D {
+	return *(*r.Texture2D)(unsafe.Pointer(&ht))
 }
