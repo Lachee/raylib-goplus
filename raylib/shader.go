@@ -7,10 +7,11 @@ import "unsafe"
 
 const MaxShaderLocations = 32
 const MaxMaterialMaps = 12
+const MaxMaterialParams = 1 << 28
 
 type Shader struct {
 	Id   uint32
-	Locs [MaxShaderLocations]int32
+	Locs *[MaxShaderLocations]int32
 }
 
 func newShaderFromPointer(ptr unsafe.Pointer) *Shader {
@@ -79,12 +80,12 @@ const (
 
 type Material struct {
 	Shader Shader
-	Maps   [MaxMaterialMaps]MaterialMap
+	Maps   *[MaxMaterialMaps]MaterialMap
 
 	//Padding. Apparently required according to https://github.com/gen2brain/raylib-go/blob/02424e2e10eab68b875539f0532a3d51516c4c95/raylib/raylib.go
 	//_ [4]byte
 
-	Params []float32
+	Params *[MaxMaterialParams]float32
 }
 
 func newMaterialFromPointer(ptr unsafe.Pointer) *Material {

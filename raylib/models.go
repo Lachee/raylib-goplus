@@ -4,6 +4,14 @@ package raylib
 import "C"
 import "unsafe"
 
+const (
+	MaxMeshVertices         = 1 << 28
+	MaxMeshIndices          = 1 << 28
+	MaxMeshTexCoords        = 1 << 28
+	MaxMeshAnimatedVertices = 1 << 28
+	MaxMeshBones            = 1 << 28
+)
+
 //Mesh is vertex data that is stored in CPU and GPU memory.
 // Note that the values are pointing to C memory
 type Mesh struct {
@@ -14,30 +22,30 @@ type Mesh struct {
 	TriangleCount int32
 
 	// Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
-	Vertices *[1 << 28]Vector3
+	Vertices *[MaxMeshVertices]Vector3
 
 	// Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
-	Texcoords *[1 << 28]Vector2
+	Texcoords *[MaxMeshTexCoords]Vector2
 
 	// Vertex second texture coordinates (useful for lightmaps) (shader-location = 5)
-	Texcoords2 *[1 << 28]Vector2
+	Texcoords2 *[MaxMeshTexCoords]Vector2
 
 	// Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
-	Normals *[1 << 28]Vector3
+	Normals *[MaxMeshVertices]Vector3
 
 	// Vertex tangents (XYZ - 3 components per vertex) (shader-location = 4)
-	Tangents *[1 << 28]Vector3
+	Tangents *[MaxMeshVertices]Vector3
 
 	// Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
-	Colors *[1 << 28]Color
+	Colors *[MaxMeshVertices]Color
 
 	// Vertex indices (in case vertex data comes indexed)
-	Indices *[1 << 28]uint16
+	Indices *[MaxMeshIndices]uint16
 
-	AnimVertices *[1 << 28]Vector3
-	AnimNormals  *[1 << 28]Vector3
-	BoneIds      *[1 << 28]int32
-	BoneWeights  *[1 << 28]float32
+	AnimVertices *[MaxMeshAnimatedVertices]Vector3
+	AnimNormals  *[MaxMeshAnimatedVertices]Vector3
+	BoneIds      *[MaxMeshBones]int32
+	BoneWeights  *[MaxMeshBones]float32
 
 	// OpenGL Vertex Array Object id
 	VaoID uint32
@@ -59,18 +67,25 @@ type BoneInfo struct {
 	Parent int32
 }
 
+const (
+	MaxModelMeshes    = 1 << 28
+	MaxModelMaterials = 1 << 28
+	MaxModelBones     = 1 << 28
+	MaxModelBinds     = 1 << 28
+)
+
 type Model struct {
 	Transform Matrix
 	MeshCount int32
-	Meshes    *[1 << 28]Mesh
+	Meshes    *[MaxModelMeshes]Mesh
 
 	MaterialCount int32
-	Materials     *[1 << 28]Material
+	Materials     *[MaxModelMaterials]Material
 	MeshMaterial  *int32
 
 	BoneCount int32
-	Bones     *[1 << 28]BoneInfo
-	BindPos   *[1 << 28]Transform
+	Bones     *[MaxModelBones]BoneInfo
+	BindPos   *[MaxModelBinds]Transform
 }
 
 type ModelAnimation struct {
