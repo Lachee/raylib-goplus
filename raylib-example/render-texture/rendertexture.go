@@ -91,7 +91,7 @@ func main() {
 		//  Note that  because we are setting 1 value, we use SetValueFloat32,
 		//  and NOT the SetValueFloat32V.
 		shader.SetValueFloat32(swirlCenterLoc, swirlCenter.Decompose(), r.UniformVec2)
-		r.BeginShaderMode(*shader)
+		r.BeginShaderMode(shader)
 
 		// NOTE: Render texture must be y-flipped due to default OpenGL coordinates (left-bottom)
 		r.DrawTextureRec(target.Texture, r.NewRectangle(0, 0, float32(target.Texture.Width), float32(-target.Texture.Height)), r.NewVector2(0, 0), r.White)

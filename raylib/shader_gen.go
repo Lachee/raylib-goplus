@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2019-12-17T17:11:45+11:00
+//Generated 2020-01-06T20:20:47+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -20,7 +20,7 @@ import (
 func LoadText(fileName string) string { return "" }
 */
 //LoadShader : Load shader from files and bind default locations
-func LoadShader(vsFileName string, fsFileName string) *Shader {
+func LoadShader(vsFileName string, fsFileName string) Shader {
 	cfsFileName := C.CString(fsFileName)
 	defer C.free(unsafe.Pointer(cfsFileName))
 	cvsFileName := C.CString(vsFileName)
@@ -32,7 +32,7 @@ func LoadShader(vsFileName string, fsFileName string) *Shader {
 }
 
 //LoadShaderCode : Load shader from code strings and bind default locations
-func LoadShaderCode(vsCode string, fsCode string) *Shader {
+func LoadShaderCode(vsCode string, fsCode string) Shader {
 	cfsCode := C.CString(fsCode)
 	defer C.free(unsafe.Pointer(cfsCode))
 	cvsCode := C.CString(vsCode)
@@ -44,7 +44,7 @@ func LoadShaderCode(vsCode string, fsCode string) *Shader {
 }
 
 //Unload : Unload shader from GPU memory (VRAM)
-func (shader *Shader) Unload() {
+func (shader Shader) Unload() {
 	cshader := *shader.cptr()
 	C.UnloadShader(cshader)
 	UnregisterUnloadable(shader)
@@ -52,16 +52,14 @@ func (shader *Shader) Unload() {
 
 //UnloadShader : Unload shader from GPU memory (VRAM)
 //Recommended to use shader.Unload() instead
-func UnloadShader(shader *Shader) {
+func UnloadShader(shader Shader) {
 	shader.Unload()
 }
 
 //GetShaderDefault : Get default shader
-func GetShaderDefault() *Shader {
+func GetShaderDefault() Shader {
 	res := C.GetShaderDefault()
-	retval := newShaderFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
+	return newShaderFromPointer(unsafe.Pointer(&res))
 }
 
 //GetTextureDefault : Get default texture
@@ -71,7 +69,7 @@ func GetTextureDefault() Texture2D {
 }
 
 //GetLocation : Get shader uniform location
-func (shader *Shader) GetLocation(uniformName string) int {
+func (shader Shader) GetLocation(uniformName string) int {
 	cuniformName := C.CString(uniformName)
 	defer C.free(unsafe.Pointer(cuniformName))
 	cshader := *shader.cptr()
@@ -81,7 +79,7 @@ func (shader *Shader) GetLocation(uniformName string) int {
 
 //GetShaderLocation : Get shader uniform location
 //Recommended to use shader.GetLocation(uniformName) instead
-func GetShaderLocation(shader *Shader, uniformName string) int {
+func GetShaderLocation(shader Shader, uniformName string) int {
 	return shader.GetLocation(uniformName)
 }
 
@@ -142,7 +140,7 @@ func SetShaderValueInt32V(shader *Shader, uniformLoc int, values []int32, unifor
 }
 
 //SetValueMatrix : Set shader uniform value (matrix 4x4)
-func (shader *Shader) SetValueMatrix(uniformLoc int, mat Matrix) {
+func (shader Shader) SetValueMatrix(uniformLoc int, mat Matrix) {
 	cmat := *mat.cptr()
 	cshader := *shader.cptr()
 	C.SetShaderValueMatrix(cshader, C.int(int32(uniformLoc)), cmat)
@@ -150,12 +148,12 @@ func (shader *Shader) SetValueMatrix(uniformLoc int, mat Matrix) {
 
 //SetShaderValueMatrix : Set shader uniform value (matrix 4x4)
 //Recommended to use shader.SetValueMatrix(uniformLoc, mat) instead
-func SetShaderValueMatrix(shader *Shader, uniformLoc int, mat Matrix) {
+func SetShaderValueMatrix(shader Shader, uniformLoc int, mat Matrix) {
 	shader.SetValueMatrix(uniformLoc, mat)
 }
 
 //SetValueTexture : Set shader uniform value for texture
-func (shader *Shader) SetValueTexture(uniformLoc int, texture Texture2D) {
+func (shader Shader) SetValueTexture(uniformLoc int, texture Texture2D) {
 	ctexture := *texture.cptr()
 	cshader := *shader.cptr()
 	C.SetShaderValueTexture(cshader, C.int(int32(uniformLoc)), ctexture)
@@ -163,7 +161,7 @@ func (shader *Shader) SetValueTexture(uniformLoc int, texture Texture2D) {
 
 //SetShaderValueTexture : Set shader uniform value for texture
 //Recommended to use shader.SetValueTexture(uniformLoc, texture) instead
-func SetShaderValueTexture(shader *Shader, uniformLoc int, texture Texture2D) {
+func SetShaderValueTexture(shader Shader, uniformLoc int, texture Texture2D) {
 	shader.SetValueTexture(uniformLoc, texture)
 }
 

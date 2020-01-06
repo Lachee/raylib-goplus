@@ -14,8 +14,8 @@ type Shader struct {
 	Locs *[MaxShaderLocations]int32
 }
 
-func newShaderFromPointer(ptr unsafe.Pointer) *Shader {
-	return (*Shader)(ptr)
+func newShaderFromPointer(ptr unsafe.Pointer) Shader {
+	return *(*Shader)(ptr)
 }
 
 func (s *Shader) cptr() *C.Shader {

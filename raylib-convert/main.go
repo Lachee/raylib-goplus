@@ -513,7 +513,7 @@ func convertType(t string, unsigned bool) string {
 }
 
 func isReferencedObject(t string) bool {
-	if !isObject(t) || t == "Texture2D" || t == "RenderTexture2D" {
+	if !isObject(t) || t == "Texture2D" || t == "RenderTexture2D" || t == "Shader" {
 		return false
 	}
 
