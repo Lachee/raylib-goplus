@@ -47,6 +47,10 @@ func (p *matchPattern) replaceAll(s string) string {
 
 func main() {
 
+	if _, err := os.Stat(*output); os.IsNotExist(err) {
+		os.Mkdir(*output, os.ModePerm)
+	}
+
 	//Parse the flags
 	flag.Parse()
 
