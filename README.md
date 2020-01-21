@@ -37,7 +37,7 @@ func main() {
 
 ### Building / Updating Raylib / Contribution
 If you wish to build and update raylib, the project comes with a useful converter.
-To run the converter, you need the `goimports` tool. It can be installed by running the command `go get golang.org/x/tools/cmd/goimports`
+To run the converter, you need the `goimports` tool. It can be installed by running the command `go get golang.org/x/tools/cmd/goimports`.
 Make sure you update the source files in `raylib/` and update the `raylib-convert/headings.txt` headings (this tells the converter what to export). Once that is done, simply run `./build.sh`.
 
 You can run the converter on Windows by using Git Bash (included with [Git for Windows](https://gitforwindows.org/)).
