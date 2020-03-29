@@ -59,6 +59,7 @@ const (
 	GuiPropertyBaseColorNormal
 	GuiPropertyTextColorNormal
 	GuiPropertyBorderColorFocused
+  GuiPropertyTextSize = 16
 )
 
 var guiEnabled bool
