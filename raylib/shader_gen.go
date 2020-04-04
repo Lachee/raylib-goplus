@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-04-04T13:59:26+11:00
+//Generated 2020-04-04T14:13:19+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -87,18 +87,12 @@ func SetShapesTexture(texture Texture2D, source Rectangle) {
 }
 
 //GetLocation : Get shader uniform location
-func (shader Shader) GetLocation(uniformName string) int {
+func (shader Shader) GetLocation(uniformName string) int32 {
 	cuniformName := C.CString(uniformName)
 	defer C.free(unsafe.Pointer(cuniformName))
 	cshader := *shader.cptr()
 	res := C.GetShaderLocation(cshader, cuniformName)
-	return int(int32(res))
-}
-
-//GetShaderLocation : Get shader uniform location
-//Recommended to use shader.GetLocation(uniformName) instead
-func GetShaderLocation(shader Shader, uniformName string) int {
-	return shader.GetLocation(uniformName)
+	return int32(res)
 }
 
 //SetValueFloat32 : Set shader uniform value
