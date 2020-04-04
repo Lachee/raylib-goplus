@@ -18,8 +18,8 @@ import (
 var (
 	fileSuffix        = flag.String("suffix", "_gen", "the suffic to append to each file")
 	format            = flag.Bool("format", true, "run gofmt to the resulting output")
-	input             = flag.String("in", "headers.txt", "raylib-convert compatible header file")
-	ignoreOOPFile     = flag.String("ioop", "ignore_oop.txt", "file that contains a list of types that cannot be OOP")
+	input             = flag.String("in", "HeaderList.h", "raylib-convert compatible header file")
+	ignoreOOPFile     = flag.String("ioop", "StructList.txt", "file that contains a list of types that cannot be OOP")
 	manualDir         = flag.String("manual", "manual/", "directory that stores the manual files")
 	output            = flag.String("out", "out/", "the output directory")
 	functionalConvert = flag.Bool("use_func", true, "tells the converter to use newTypeFromPointer and cptr() functions")
@@ -103,15 +103,15 @@ func main() {
 		line := strings.Trim(scanner.Text(), " ")
 
 		//We are special instructions
-		if strings.HasPrefix(line, "//conv:") {
+		if strings.HasPrefix(line, "#convert_") {
 			fmt.Println("Processing Command")
-			parts := strings.Split(line, ":")
+			parts := strings.Split(line, "_")
 			if len(parts) > 0 {
 				switch parts[1] {
 				default:
 
 					//A file group
-				case "g":
+				case "group":
 
 					//Write the old filename and recrate the values
 					failedResults := strings.Join(failed, "\n")
@@ -135,10 +135,10 @@ func main() {
 					fmt.Println("Header: " + fileHeader)
 
 				case "ignore":
-					ignoring = parts[2] == "start"
+					ignoring = parts[2] == "begin"
 
 				case "oop":
-					asOOP = parts[2] == "start"
+					asOOP = parts[2] == "begin"
 
 				case "replace":
 					patterns = append(patterns, matchPattern{
@@ -547,7 +547,7 @@ func isObject(t string) bool {
 func parseLine(line string) (*prototype, error) {
 	//Trim the line and validate it
 	line = strings.Trim(line, " ")
-	if len(line) < 4 || strings.HasPrefix(line, "//") {
+	if len(line) < 4 || strings.HasPrefix(line, "//") || strings.HasPrefix(line, "#") {
 		return nil, nil
 	}
 

@@ -93,6 +93,12 @@ typedef struct ObjPool {
 } ObjPool;
 
 
+// Double-Ended Stack aka Deque
+typedef struct BiStack {
+    uint8_t *mem, *front, *back;
+    size_t size;
+} BiStack;
+
 #if defined(__cplusplus)
 extern "C" {            // Prevents name mangling of functions
 #endif
@@ -108,6 +114,7 @@ RMEMAPI void *MemPoolAlloc(MemPool *mempool, size_t bytes);
 RMEMAPI void *MemPoolRealloc(MemPool *mempool, void *ptr, size_t bytes);
 RMEMAPI void MemPoolFree(MemPool *mempool, void *ptr);
 RMEMAPI void MemPoolCleanUp(MemPool *mempool, void **ptrref);
+RMEMAPI void MemPoolReset(MemPool *mempool);
 RMEMAPI bool MemPoolDefrag(MemPool *mempool);
 
 RMEMAPI size_t GetMemPoolFreeMemory(const MemPool mempool);
@@ -124,6 +131,21 @@ RMEMAPI void *ObjPoolAlloc(ObjPool *objpool);
 RMEMAPI void ObjPoolFree(ObjPool *objpool, void *ptr);
 RMEMAPI void ObjPoolCleanUp(ObjPool *objpool, void **ptrref);
 
+//------------------------------------------------------------------------------------
+// Functions Declaration - Double-Ended Stack
+//------------------------------------------------------------------------------------
+RMEMAPI BiStack CreateBiStack(size_t len);
+RMEMAPI BiStack CreateBiStackFromBuffer(void *buf, size_t len);
+RMEMAPI void DestroyBiStack(BiStack *destack);
+
+RMEMAPI void *BiStackAllocFront(BiStack *destack, size_t len);
+RMEMAPI void *BiStackAllocBack(BiStack *destack, size_t len);
+
+RMEMAPI void BiStackResetFront(BiStack *destack);
+RMEMAPI void BiStackResetBack(BiStack *destack);
+RMEMAPI void BiStackResetAll(BiStack *destack);
+
+RMEMAPI intptr_t BiStackMargins(BiStack destack);
 
 #ifdef __cplusplus
 }
@@ -139,9 +161,7 @@ RMEMAPI void ObjPoolCleanUp(ObjPool *objpool, void **ptrref);
 
 #if defined(RMEM_IMPLEMENTATION)
 
-#include <stdio.h>          // Required for:
-#include <stdlib.h>         // Required for:
-#include <string.h>         // Required for:
+#include <stdio.h>          // Required for: malloc(), calloc(), free()
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -183,7 +203,7 @@ MemPool CreateMemPool(const size_t size)
         mempool.stack.size = size;
         mempool.stack.mem = malloc(mempool.stack.size*sizeof *mempool.stack.mem);
 
-        if (mempool.stack.mem==NULL)
+        if (mempool.stack.mem == NULL)
         {
             mempool.stack.size = 0UL;
             return mempool;
@@ -230,7 +250,9 @@ void *MemPoolAlloc(MemPool *const mempool, const size_t size)
         const size_t BUCKET_INDEX = (ALLOC_SIZE >> MEMPOOL_BUCKET_BITS) - 1;
 
         // If the size is small enough, let's check if our buckets has a fitting memory block.
-        if (BUCKET_INDEX < MEMPOOL_BUCKET_SIZE && mempool->buckets[BUCKET_INDEX] != NULL && mempool->buckets[BUCKET_INDEX]->size >= ALLOC_SIZE)
+        if ((BUCKET_INDEX < MEMPOOL_BUCKET_SIZE) && 
+            (mempool->buckets[BUCKET_INDEX] != NULL) && 
+            (mempool->buckets[BUCKET_INDEX]->size >= ALLOC_SIZE))
         {
             new_mem = mempool->buckets[BUCKET_INDEX];
             mempool->buckets[BUCKET_INDEX] = mempool->buckets[BUCKET_INDEX]->next;
@@ -298,8 +320,7 @@ void *MemPoolAlloc(MemPool *const mempool, const size_t size)
         // --------------
         new_mem->next = new_mem->prev = NULL;
         uint8_t *const final_mem = (uint8_t *)new_mem + sizeof *new_mem;
-        memset(final_mem, 0, new_mem->size - sizeof *new_mem);
-        return final_mem;
+        return memset(final_mem, 0, new_mem->size - sizeof *new_mem);
     }
 }
 
@@ -403,11 +424,20 @@ size_t GetMemPoolFreeMemory(const MemPool mempool)
 {
     size_t total_remaining = (uintptr_t)mempool.stack.base - (uintptr_t)mempool.stack.mem;
 
-    for (MemNode *n=mempool.freeList.head; n != NULL; n = n->next) total_remaining += n->size;
+    for (MemNode *n = mempool.freeList.head; n != NULL; n = n->next) total_remaining += n->size;
 
-    for (size_t i=0; i<MEMPOOL_BUCKET_SIZE; i++) for (MemNode *n = mempool.buckets[i]; n != NULL; n = n->next) total_remaining += n->size;
+    for (int i = 0; i < MEMPOOL_BUCKET_SIZE; i++) for (MemNode *n = mempool.buckets[i]; n != NULL; n = n->next) total_remaining += n->size;
 
     return total_remaining;
+}
+
+void MemPoolReset(MemPool *const mempool)
+{
+    if (mempool == NULL) return;
+    mempool->freeList.head = mempool->freeList.tail = NULL;
+    mempool->freeList.len = 0;
+    for (int i = 0; i < MEMPOOL_BUCKET_SIZE; i++) mempool->buckets[i] = NULL;
+    mempool->stack.base = mempool->stack.mem + mempool->stack.size;
 }
 
 bool MemPoolDefrag(MemPool *const mempool)
@@ -418,15 +448,12 @@ bool MemPoolDefrag(MemPool *const mempool)
         // If the memory pool has been entirely released, fully defrag it.
         if (mempool->stack.size == GetMemPoolFreeMemory(*mempool))
         {
-            mempool->freeList.head = mempool->freeList.tail = NULL;
-            mempool->freeList.len = 0;
-            for (size_t i = 0; i < MEMPOOL_BUCKET_SIZE; i++) mempool->buckets[i] = NULL;
-            mempool->stack.base = mempool->stack.mem + mempool->stack.size;
+            MemPoolReset(mempool);
             return true;
         }
         else
         {
-            for (size_t i=0; i<MEMPOOL_BUCKET_SIZE; i++)
+            for (int i = 0; i < MEMPOOL_BUCKET_SIZE; i++)
             {
                 while (mempool->buckets[i] != NULL)
                 {
@@ -566,7 +593,7 @@ ObjPool CreateObjPool(const size_t objsize, const size_t len)
         }
         else
         {
-            for (size_t i=0; i<objpool.freeBlocks; i++)
+            for (int i = 0; i < objpool.freeBlocks; i++)
             {
                 union ObjInfo block = { .byte = &objpool.stack.mem[i*objpool.objSize] };
                 *block.index = i + 1;
@@ -590,7 +617,7 @@ ObjPool CreateObjPoolFromBuffer(void *const buf, const size_t objsize, const siz
         objpool.stack.size = objpool.freeBlocks = len;
         objpool.stack.mem = buf;
 
-        for (size_t i=0; i<objpool.freeBlocks; i++)
+        for (int i = 0; i < objpool.freeBlocks; i++)
         {
             union ObjInfo block = { .byte = &objpool.stack.mem[i*objpool.objSize] };
             *block.index = i + 1;
@@ -628,6 +655,7 @@ void *ObjPoolAlloc(ObjPool *const objpool)
             // Head = &pool[*Head * pool.objsize];
             objpool->stack.base = (objpool->freeBlocks != 0UL)? objpool->stack.mem + (*ret.index*objpool->objSize) : NULL;
             memset(ret.byte, 0, objpool->objSize);
+
             return ret.byte;
         }
         else return NULL;
@@ -657,6 +685,91 @@ void ObjPoolCleanUp(ObjPool *const restrict objpool, void **ptrref)
         ObjPoolFree(objpool, *ptrref);
         *ptrref = NULL;
     }
+}
+
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Double-Ended Stack
+//----------------------------------------------------------------------------------
+BiStack CreateBiStack(const size_t len)
+{
+    BiStack destack = { 0 };
+    if (len == 0UL) return destack;
+
+    destack.size = len;
+    destack.mem = malloc(len*sizeof *destack.mem);
+    if (destack.mem==NULL) destack.size = 0UL;
+    else
+    {
+        destack.front = destack.mem;
+        destack.back = destack.mem + len;
+    }
+    return destack;
+}
+
+BiStack CreateBiStackFromBuffer(void *const buf, const size_t len)
+{
+    BiStack destack = { 0 };
+    if (len == 0UL || buf == NULL) return destack;
+    destack.size = len;
+    destack.mem = destack.front = buf;
+    destack.back = destack.mem + len;
+    return destack;
+}
+
+void DestroyBiStack(BiStack *const destack)
+{
+    if ((destack == NULL) || (destack->mem == NULL)) return;
+    free(destack->mem);
+    *destack = (BiStack){0};
+}
+
+void *BiStackAllocFront(BiStack *const destack, const size_t len)
+{
+    if ((destack == NULL) || (destack->mem == NULL)) return NULL;
+
+    const size_t ALIGNED_LEN = __AlignSize(len, sizeof(uintptr_t));
+    // front end stack is too high!
+    if (destack->front + ALIGNED_LEN >= destack->back) return NULL;
+
+    uint8_t *ptr = destack->front;
+    destack->front += ALIGNED_LEN;
+    return ptr;
+}
+
+void *BiStackAllocBack(BiStack *const destack, const size_t len)
+{
+    if ((destack == NULL) || (destack->mem == NULL)) return NULL;
+
+    const size_t ALIGNED_LEN = __AlignSize(len, sizeof(uintptr_t));
+    // back end stack is too low
+    if (destack->back - ALIGNED_LEN <= destack->front) return NULL;
+
+    destack->back -= ALIGNED_LEN;
+    return destack->back;
+}
+
+void BiStackResetFront(BiStack *const destack)
+{
+    if ((destack == NULL) || (destack->mem == NULL)) return;
+    destack->front = destack->mem;
+}
+
+void BiStackResetBack(BiStack *const destack)
+{
+    if ((destack == NULL) || (destack->mem == NULL)) return;
+    destack->back = destack->mem + destack->size;
+}
+
+void BiStackResetAll(BiStack *const destack)
+{
+    BiStackResetBack(destack);
+    BiStackResetFront(destack);
+}
+
+intptr_t BiStackMargins(const BiStack destack)
+{
+    return destack.back - destack.front;
 }
 
 #endif  // RMEM_IMPLEMENTATION

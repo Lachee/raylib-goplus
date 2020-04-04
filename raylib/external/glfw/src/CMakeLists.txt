@@ -97,9 +97,21 @@ add_library(glfw $<TARGET_OBJECTS:glfw_objlib>)
 set_target_properties(glfw_objlib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 set_target_properties(glfw PROPERTIES
                       OUTPUT_NAME ${GLFW_LIB_NAME}
-                      VERSION ${GLFW_VERSION}
+                      VERSION ${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}
                       SOVERSION ${GLFW_VERSION_MAJOR}
                       FOLDER "GLFW3")
+
+if (${CMAKE_VERSION} VERSION_EQUAL "3.1.0" OR
+    ${CMAKE_VERSION} VERSION_GREATER "3.1.0")
+
+    set_target_properties(glfw_objlib PROPERTIES C_STANDARD 99)
+else()
+    # Remove this fallback when removing support for CMake version less than 3.1
+    target_compile_options(glfw_objlib PRIVATE
+                           "$<$<C_COMPILER_ID:AppleClang>:-std=c99>"
+                           "$<$<C_COMPILER_ID:Clang>:-std=c99>"
+                           "$<$<C_COMPILER_ID:GNU>:-std=c99>")
+endif()
 
 target_compile_definitions(glfw_objlib PRIVATE _GLFW_USE_CONFIG_H)
 target_include_directories(glfw_objlib PUBLIC
@@ -129,6 +141,10 @@ target_compile_options(glfw_objlib PRIVATE
 if (BUILD_SHARED_LIBS)
     if (WIN32)
         if (MINGW)
+            # Remove the dependency on the shared version of libgcc
+            # NOTE: MinGW-w64 has the correct default but MinGW needs this
+            target_link_options(glfw PRIVATE "-static-libgcc")
+
             # Remove the lib prefix on the DLL (but not the import library)
             set_target_properties(glfw PROPERTIES PREFIX "")
 
@@ -138,18 +154,21 @@ if (BUILD_SHARED_LIBS)
             # Add a suffix to the import library to avoid naming conflicts
             set_target_properties(glfw PROPERTIES IMPORT_SUFFIX "dll.lib")
         endif()
+
+        target_compile_definitions(glfw_objlib INTERFACE GLFW_DLL)
     elseif (APPLE)
         # Add -fno-common to work around a bug in Apple's GCC
         target_compile_options(glfw_objlib PRIVATE "-fno-common")
 
         set_target_properties(glfw PROPERTIES
                               INSTALL_NAME_DIR "${CMAKE_INSTALL_LIBDIR}")
-    elseif (UNIX)
+    endif()
+
+    if (UNIX)
         # Hide symbols not explicitly tagged for export from the shared library
         target_compile_options(glfw_objlib PRIVATE "-fvisibility=hidden")
     endif()
 
-    target_compile_definitions(glfw_objlib INTERFACE GLFW_DLL)
     target_link_libraries(glfw PRIVATE ${glfw_LIBRARIES})
 else()
     target_link_libraries(glfw INTERFACE ${glfw_LIBRARIES})
