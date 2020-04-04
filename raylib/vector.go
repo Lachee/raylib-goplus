@@ -159,7 +159,7 @@ type Vector3 struct {
 func NewVector3(x, y, z float32) Vector3 { return Vector3{X: x, Y: y, Z: z} }
 
 //NewVector3d creates a new vector with double precesion float (float64)
-func NewVector3d(x, y, z float64) Vector3 { return Vector2{X: float32(x), Y: float32(y), Z: float32(z)} }
+func NewVector3d(x, y, z float64) Vector3 { return Vector3{X: float32(x), Y: float32(y), Z: float32(z)} }
 
 //NewVector3Zero creates a vector with all components equaling 0
 func NewVector3Zero() Vector3 { return Vector3{X: 0, Y: 0, Z: 0} }
@@ -386,7 +386,7 @@ func NewVector4(x, y, z, w float32) Vector4 { return Vector4{X: x, Y: y, Z: z, W
 
 //NewVector4d creates a new vector with double precesion float (float64)
 func NewVector4d(x, y, z, w float64) Vector4 {
-	return Vector2{X: float32(x), Y: float32(y), Z: float32(z), W: float32(w)}
+	return Vector4{X: float32(x), Y: float32(y), Z: float32(z), W: float32(w)}
 }
 
 //NewVector4Zero creates a vector with all components equaling 0
