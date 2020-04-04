@@ -16,6 +16,9 @@ type Vector2 struct {
 //NewVector2 creates a new vector with defined components
 func NewVector2(x, y float32) Vector2 { return Vector2{X: x, Y: y} }
 
+//NewVector2d creates a new vector with double precesion float (float64)
+func NewVector2d(x, y float64) Vector3 { return Vector3{X: (float32)x, Y: (float32)y } }
+
 //NewVector2Zero creates a vector with all components equaling 0
 func NewVector2Zero() Vector2 { return Vector2{X: 0, Y: 0} }
 
@@ -154,6 +157,9 @@ type Vector3 struct {
 
 //NewVector3 creates a new vector with defined components
 func NewVector3(x, y, z float32) Vector3 { return Vector3{X: x, Y: y, Z: z} }
+
+//NewVector3d creates a new vector with double precesion float (float64)
+func NewVector3d(x, y, z float64) Vector3 { return Vector3{X: (float32)x, Y: (float32)y, Z: (float32)z} }
 
 //NewVector3Zero creates a vector with all components equaling 0
 func NewVector3Zero() Vector3 { return Vector3{X: 0, Y: 0, Z: 0} }
@@ -377,6 +383,9 @@ type Vector4 struct {
 
 //NewVector4 creates a new vector with defined components
 func NewVector4(x, y, z, w float32) Vector4 { return Vector4{X: x, Y: y, Z: z, W: w} }
+
+//NewVector4d creates a new vector with double precesion float (float64)
+func NewVector4d(x, y, z, w float64) Vector3 { return Vector3{X: (float32)x, Y: (float32)y, Z: (float32)z, W: (float32)w } }
 
 //NewVector4Zero creates a vector with all components equaling 0
 func NewVector4Zero() Vector4 { return Vector4{X: 0, Y: 0, Z: 0, W: 0} }
