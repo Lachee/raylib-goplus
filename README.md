@@ -1,7 +1,7 @@
 
 <img align="left" src="https://github.com/Lachee/raylib-goplus/raw/master/logo/raylib_goplus_256x256.png" width=256>
 
-Raylib Go Plus is an improved [Go]([https://golang.org/](https://golang.org/)) bindings for the video game library [Raylib](https://raylib.com/)
+Raylib Go Plus is an improved [Go]([https://golang.org/](https://golang.org/)) bindings for the video game library [Raylib](https://www.raylib.com/)
 
 This library is a work in progress and still new. We are always looking for improvements and help translating the bindings. Any cross-platform testing is most welcome too.
 
