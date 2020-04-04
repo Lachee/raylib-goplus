@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"

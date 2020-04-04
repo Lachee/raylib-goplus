@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -575,4 +575,9 @@ func (stream *AudioStream) SetPitch(pitch float32) {
 //Recommended to use stream.SetPitch(pitch) instead
 func SetAudioStreamPitch(stream *AudioStream, pitch float32) {
 	stream.SetPitch(pitch)
+}
+
+//SetAudioStreamBufferSizeDefault : Default size for new audio streams
+func SetAudioStreamBufferSizeDefault(size int) {
+	C.SetAudioStreamBufferSizeDefault(C.int(int32(size)))
 }

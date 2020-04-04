@@ -103,9 +103,9 @@ func main() {
 		line := strings.Trim(scanner.Text(), " ")
 
 		//We are special instructions
-		if strings.HasPrefix(line, "#convert_") {
+		if strings.HasPrefix(line, "#convert:") {
 			fmt.Println("Processing Command")
-			parts := strings.Split(line, "_")
+			parts := strings.Split(line, ":")
 			if len(parts) > 0 {
 				switch parts[1] {
 				default:
@@ -122,8 +122,8 @@ func main() {
 					fileHeader = defaultHeader
 					failed = make([]string, 0)
 					success = make([]string, 0)
-					patterns = make([]matchPattern, 0)
-					enums = make([]matchEnum, 0)
+					//patterns = make([]matchPattern, 0)
+					//enums = make([]matchEnum, 0)
 
 					//Prepare the new filename
 					filenameSuccess = parts[2] + *fileSuffix + ".go"

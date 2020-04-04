@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -12,13 +12,6 @@ import (
 	"unsafe"
 )
 
-/*
-//The following function has been ommitted because it is only available in OpenGL 1.1 and otherwise useless
-// It was not worth the effort to write functionality as raylib-convert is unable to parse this function (pointer return)
-
-//LoadText load chars array from text file
-func LoadText(fileName string) string { return "" }
-*/
 //LoadShader : Load shader from files and bind default locations
 func LoadShader(vsFileName string, fsFileName string) Shader {
 	cfsFileName := C.CString(fsFileName)
@@ -66,6 +59,31 @@ func GetShaderDefault() Shader {
 func GetTextureDefault() Texture2D {
 	res := C.GetTextureDefault()
 	return newTexture2DFromPointer(unsafe.Pointer(&res))
+}
+
+//GetShapesTexture : Get texture to draw shapes
+func GetShapesTexture() Texture2D {
+	res := C.GetShapesTexture()
+	return newTexture2DFromPointer(unsafe.Pointer(&res))
+}
+
+//GetShapesTextureRec : Get texture rectangle to draw shapes
+func GetShapesTextureRec() Rectangle {
+	res := C.GetShapesTextureRec()
+	return newRectangleFromPointer(unsafe.Pointer(&res))
+}
+
+//SetShapesTexture : Define default texture used to draw shapes
+func (texture Texture2D) SetShapesTexture(source Rectangle) {
+	csource := *source.cptr()
+	ctexture := *texture.cptr()
+	C.SetShapesTexture(ctexture, csource)
+}
+
+//SetShapesTexture : Define default texture used to draw shapes
+//Recommended to use texture.SetShapesTexture(source) instead
+func SetShapesTexture(texture Texture2D, source Rectangle) {
+	texture.SetShapesTexture(source)
 }
 
 //GetLocation : Get shader uniform location
@@ -189,27 +207,27 @@ func GetMatrixProjection() Matrix {
 	return newMatrixFromPointer(unsafe.Pointer(&res))
 }
 
-//GenTextureCubemap : Generate cubemap texture from HDR texture
-func GenTextureCubemap(shader Shader, skyHDR Texture2D, size int) Texture2D {
-	cskyHDR := *skyHDR.cptr()
+//GenTextureCubemap : Generate cubemap texture from 2D texture
+func GenTextureCubemap(shader Shader, amap Texture2D, size int) Texture2D {
+	camap := *amap.cptr()
 	cshader := *shader.cptr()
-	res := C.GenTextureCubemap(cshader, cskyHDR, C.int(int32(size)))
+	res := C.GenTextureCubemap(cshader, camap, C.int(int32(size)))
 	return newTexture2DFromPointer(unsafe.Pointer(&res))
 }
 
 //GenTextureIrradiance : Generate irradiance texture using cubemap data
-func GenTextureIrradiance(shader Shader, cubemap Texture2D, size int) Texture2D {
-	ccubemap := *cubemap.cptr()
+func GenTextureIrradiance(shader Shader, cubeamap Texture2D, size int) Texture2D {
+	ccubeamap := *cubeamap.cptr()
 	cshader := *shader.cptr()
-	res := C.GenTextureIrradiance(cshader, ccubemap, C.int(int32(size)))
+	res := C.GenTextureIrradiance(cshader, ccubeamap, C.int(int32(size)))
 	return newTexture2DFromPointer(unsafe.Pointer(&res))
 }
 
 //GenTexturePrefilter : Generate prefilter texture using cubemap data
-func GenTexturePrefilter(shader Shader, cubemap Texture2D, size int) Texture2D {
-	ccubemap := *cubemap.cptr()
+func GenTexturePrefilter(shader Shader, cubeamap Texture2D, size int) Texture2D {
+	ccubeamap := *cubeamap.cptr()
 	cshader := *shader.cptr()
-	res := C.GenTexturePrefilter(cshader, ccubemap, C.int(int32(size)))
+	res := C.GenTexturePrefilter(cshader, ccubeamap, C.int(int32(size)))
 	return newTexture2DFromPointer(unsafe.Pointer(&res))
 }
 

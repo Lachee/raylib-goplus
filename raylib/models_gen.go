@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -239,35 +239,35 @@ func GenMeshKnot(radius float32, size float32, radSeg int, sides int) *Mesh {
 }
 
 //GenMeshHeightmap : Generate heightmap mesh from image data
-func (heightmap *Image) GenMeshHeightmap(size Vector3) *Mesh {
+func (heightamap *Image) GenMeshHeightmap(size Vector3) *Mesh {
 	csize := *size.cptr()
-	cheightmap := *heightmap.cptr()
-	res := C.GenMeshHeightmap(cheightmap, csize)
+	cheightamap := *heightamap.cptr()
+	res := C.GenMeshHeightmap(cheightamap, csize)
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
 }
 
 //GenMeshHeightmap : Generate heightmap mesh from image data
-//Recommended to use heightmap.GenMeshHeightmap(size) instead
-func GenMeshHeightmap(heightmap *Image, size Vector3) *Mesh {
-	return heightmap.GenMeshHeightmap(size)
+//Recommended to use heightamap.GenMeshHeightmap(size) instead
+func GenMeshHeightmap(heightamap *Image, size Vector3) *Mesh {
+	return heightamap.GenMeshHeightmap(size)
 }
 
 //GenMeshCubicmap : Generate cubes-based map mesh from image data
-func (cubicmap *Image) GenMeshCubicmap(cubeSize Vector3) *Mesh {
+func (cubicamap *Image) GenMeshCubicmap(cubeSize Vector3) *Mesh {
 	ccubeSize := *cubeSize.cptr()
-	ccubicmap := *cubicmap.cptr()
-	res := C.GenMeshCubicmap(ccubicmap, ccubeSize)
+	ccubicamap := *cubicamap.cptr()
+	res := C.GenMeshCubicmap(ccubicamap, ccubeSize)
 	retval := newMeshFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
 }
 
 //GenMeshCubicmap : Generate cubes-based map mesh from image data
-//Recommended to use cubicmap.GenMeshCubicmap(cubeSize) instead
-func GenMeshCubicmap(cubicmap *Image, cubeSize Vector3) *Mesh {
-	return cubicmap.GenMeshCubicmap(cubeSize)
+//Recommended to use cubicamap.GenMeshCubicmap(cubeSize) instead
+func GenMeshCubicmap(cubicamap *Image, cubeSize Vector3) *Mesh {
+	return cubicamap.GenMeshCubicmap(cubeSize)
 }
 
 //BoundingBox : Compute mesh bounding box limits

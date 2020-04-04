@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -49,6 +49,19 @@ func LoadImageRaw(fileName string, width int, height int, format int, headerSize
 	return retval
 }
 
+//Unload : Unload image from CPU memory (RAM)
+func (image *Image) Unload() {
+	cimage := *image.cptr()
+	C.UnloadImage(cimage)
+	UnregisterUnloadable(image)
+}
+
+//UnloadImage : Unload image from CPU memory (RAM)
+//Recommended to use image.Unload() instead
+func UnloadImage(image *Image) {
+	image.Unload()
+}
+
 //Export : Export image data to file
 func (image *Image) Export(fileName string) {
 	cfileName := C.CString(fileName)
@@ -75,81 +88,6 @@ func (image *Image) ExportAsCode(fileName string) {
 //Recommended to use image.ExportAsCode(fileName) instead
 func ExportImageAsCode(image *Image, fileName string) {
 	image.ExportAsCode(fileName)
-}
-
-//LoadTexture : Load texture from file into GPU memory (VRAM)
-func LoadTexture(fileName string) Texture2D {
-	cfileName := C.CString(fileName)
-	defer C.free(unsafe.Pointer(cfileName))
-	res := C.LoadTexture(cfileName)
-	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//LoadTextureFromImage : Load texture from image data
-func LoadTextureFromImage(image *Image) Texture2D {
-	cimage := *image.cptr()
-	res := C.LoadTextureFromImage(cimage)
-	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//LoadTextureCubemap : Load cubemap from image, multiple image cubemap layouts supported
-func LoadTextureCubemap(image *Image, layoutType CubemapLayoutType) *TextureCubemap {
-	cimage := *image.cptr()
-	res := C.LoadTextureCubemap(cimage, C.int(int32(layoutType)))
-	retval := newTextureCubemapFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//LoadRenderTexture : Load texture for rendering (framebuffer)
-func LoadRenderTexture(width int, height int) RenderTexture2D {
-	res := C.LoadRenderTexture(C.int(int32(width)), C.int(int32(height)))
-	retval := newRenderTexture2DFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//Unload : Unload image from CPU memory (RAM)
-func (image *Image) Unload() {
-	cimage := *image.cptr()
-	C.UnloadImage(cimage)
-	UnregisterUnloadable(image)
-}
-
-//UnloadImage : Unload image from CPU memory (RAM)
-//Recommended to use image.Unload() instead
-func UnloadImage(image *Image) {
-	image.Unload()
-}
-
-//Unload : Unload texture from GPU memory (VRAM)
-func (texture Texture2D) Unload() {
-	ctexture := *texture.cptr()
-	C.UnloadTexture(ctexture)
-	UnregisterUnloadable(texture)
-}
-
-//UnloadTexture : Unload texture from GPU memory (VRAM)
-//Recommended to use texture.Unload() instead
-func UnloadTexture(texture Texture2D) {
-	texture.Unload()
-}
-
-//Unload : Unload render texture from GPU memory (VRAM)
-func (target RenderTexture2D) Unload() {
-	ctarget := *target.cptr()
-	C.UnloadRenderTexture(ctarget)
-	UnregisterUnloadable(target)
-}
-
-//UnloadRenderTexture : Unload render texture from GPU memory (VRAM)
-//Recommended to use target.Unload() instead
-func UnloadRenderTexture(target RenderTexture2D) {
-	target.Unload()
 }
 
 // GetImageData : Get pixel data from image as a Color slice
@@ -225,59 +163,77 @@ func (image *Image) GetPixelsNormalized() []Vector4 {
 	return goslice
 }
 
-//GetAlphaBorder : Get image alpha border rectangle
-func (image *Image) GetAlphaBorder(threshold float32) Rectangle {
-	cimage := *image.cptr()
-	res := C.GetImageAlphaBorder(cimage, C.float(threshold))
-	return newRectangleFromPointer(unsafe.Pointer(&res))
-}
-
-//GetImageAlphaBorder : Get image alpha border rectangle
-//Recommended to use image.GetAlphaBorder(threshold) instead
-func GetImageAlphaBorder(image *Image, threshold float32) Rectangle {
-	return image.GetAlphaBorder(threshold)
-}
-
-//GetPixelDataSize : Get pixel data size in bytes (image or texture)
-func GetPixelDataSize(width int, height int, format PixelFormat) int {
-	res := C.GetPixelDataSize(C.int(int32(width)), C.int(int32(height)), C.int(format))
-	return int(int32(res))
-}
-
-//GetTextureData : Get pixel data from GPU texture and return an Image
-func (texture Texture2D) GetTextureData() *Image {
-	ctexture := *texture.cptr()
-	res := C.GetTextureData(ctexture)
+//GenImageColor : Generate image: plain color
+func GenImageColor(width int, height int, color Color) *Image {
+	ccolor := *color.cptr()
+	res := C.GenImageColor(C.int(int32(width)), C.int(int32(height)), ccolor)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
 }
 
-//GetTextureData : Get pixel data from GPU texture and return an Image
-//Recommended to use texture.GetTextureData() instead
-func GetTextureData(texture Texture2D) *Image {
-	return texture.GetTextureData()
-}
-
-//GetScreenData : Get pixel data from screen buffer and return an Image (screenshot)
-func GetScreenData() *Image {
-	res := C.GetScreenData()
+//GenImageGradientV : Generate image: vertical gradient
+func GenImageGradientV(width int, height int, top Color, bottom Color) *Image {
+	cbottom := *bottom.cptr()
+	ctop := *top.cptr()
+	res := C.GenImageGradientV(C.int(int32(width)), C.int(int32(height)), ctop, cbottom)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
 }
 
-//UpdateTexture : Update GPU texture with new data
-func (texture *Texture2D) UpdateTexture(pixels []Color) {
-	ctexture := *texture.cptr()
-	cpixels := pixels[0].cptr()
-	C.UpdateTexture(ctexture, unsafe.Pointer(cpixels))
+//GenImageGradientH : Generate image: horizontal gradient
+func GenImageGradientH(width int, height int, left Color, right Color) *Image {
+	cright := *right.cptr()
+	cleft := *left.cptr()
+	res := C.GenImageGradientH(C.int(int32(width)), C.int(int32(height)), cleft, cright)
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
 }
 
-//UpdateTexture : Update GPU texture with new data
-//Recommended to use texture.UpdateTexture(pixels) instead
-func UpdateTexture(texture *Texture2D, pixels []Color) {
-	texture.UpdateTexture(pixels)
+//GenImageGradientRadial : Generate image: radial gradient
+func GenImageGradientRadial(width int, height int, density float32, inner Color, outer Color) *Image {
+	couter := *outer.cptr()
+	cinner := *inner.cptr()
+	res := C.GenImageGradientRadial(C.int(int32(width)), C.int(int32(height)), C.float(density), cinner, couter)
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//GenImageChecked : Generate image: checked
+func GenImageChecked(width int, height int, checksX int, checksY int, col1 Color, col2 Color) *Image {
+	ccol2 := *col2.cptr()
+	ccol1 := *col1.cptr()
+	res := C.GenImageChecked(C.int(int32(width)), C.int(int32(height)), C.int(int32(checksX)), C.int(int32(checksY)), ccol1, ccol2)
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//GenImageWhiteNoise : Generate image: white noise
+func GenImageWhiteNoise(width int, height int, factor float32) *Image {
+	res := C.GenImageWhiteNoise(C.int(int32(width)), C.int(int32(height)), C.float(factor))
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//GenImagePerlinNoise : Generate image: perlin noise
+func GenImagePerlinNoise(width int, height int, offsetX int, offsetY int, scale float32) *Image {
+	res := C.GenImagePerlinNoise(C.int(int32(width)), C.int(int32(height)), C.int(int32(offsetX)), C.int(int32(offsetY)), C.float(scale))
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//GenImageCellular : Generate image: cellular algorithm. Bigger tileSize means bigger cells
+func GenImageCellular(width int, height int, tileSize int) *Image {
+	res := C.GenImageCellular(C.int(int32(width)), C.int(int32(height)), C.int(int32(tileSize)))
+	retval := newImageFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
 }
 
 //Copy : Create an image duplicate (useful for transformations)
@@ -309,6 +265,25 @@ func (image *Image) FromImage(rec Rectangle) *Image {
 //Recommended to use image.(rec) instead
 func ImageFromImage(image *Image, rec Rectangle) *Image {
 	return image.FromImage(rec)
+}
+
+//ImageText : Create an image from text (default font)
+func ImageText(text string, fontSize int, color Color) *Image {
+	ccolor := *color.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	res := C.ImageText(ctext, C.int(int32(fontSize)), ccolor)
+	return newImageFromPointer(unsafe.Pointer(&res))
+}
+
+//ImageTextEx : Create an image from text (custom sprite font)
+func ImageTextEx(font Font, text string, fontSize float32, spacing float32, tint Color) *Image {
+	ctint := *tint.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	cfont := *font.cptr()
+	res := C.ImageTextEx(cfont, ctext, C.float(fontSize), C.float(spacing), ctint)
+	return newImageFromPointer(unsafe.Pointer(&res))
 }
 
 //ToPOT : Convert image to POT (power-of-two)
@@ -460,131 +435,6 @@ func ImageDither(image *Image, rBpp int, gBpp int, bBpp int, aBpp int) {
 	image.Dither(rBpp, gBpp, bBpp, aBpp)
 }
 
-//ExtractPalette : Extract color palette from image to maximum size
-func (image *Image) ExtractPalette(maxPaletteSize int) ([]Color, int) {
-	cextractCount := C.int(0)
-	cimage := *image.cptr()
-	res := C.ImageExtractPalette(cimage, C.int(int32(maxPaletteSize)), &cextractCount)
-	defer C.free(unsafe.Pointer(res))
-
-	//Calculate the samples
-	samples := maxPaletteSize
-
-	//Get the slice
-	tmpslice := (*[1 << 24]Color)(unsafe.Pointer(res))[0:maxPaletteSize]
-
-	//Convert to a Color array
-	goslice := make([]Color, samples)
-	for i, _ := range tmpslice {
-		//goslice[i] = newColorFromPointer(unsafe.Pointer(s))
-		goslice[i] = Color{tmpslice[i].R, tmpslice[i].G, tmpslice[i].B, tmpslice[i].A}
-	}
-
-	return goslice, int(int32(cextractCount))
-}
-
-//ImageExtractPalette : Extract color palette from image to maximum size (memory should be freed)
-//Recommended to use image.ExtractPalette(maxPaletteSize) instead
-func ImageExtractPalette(image *Image, maxPaletteSize int) ([]Color, int) {
-	return image.ExtractPalette(maxPaletteSize)
-}
-
-//ImageText : Create an image from text (default font)
-func ImageText(text string, fontSize int, color Color) *Image {
-	ccolor := *color.cptr()
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	res := C.ImageText(ctext, C.int(int32(fontSize)), ccolor)
-	return newImageFromPointer(unsafe.Pointer(&res))
-}
-
-//ImageTextEx : Create an image from text (custom sprite font)
-func ImageTextEx(font Font, text string, fontSize float32, spacing float32, tint Color) *Image {
-	ctint := *tint.cptr()
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	cfont := *font.cptr()
-	res := C.ImageTextEx(cfont, ctext, C.float(fontSize), C.float(spacing), ctint)
-	return newImageFromPointer(unsafe.Pointer(&res))
-}
-
-//Draw : Draw a source image within a destination image (tint applied to source)
-func (dst *Image) Draw(src *Image, srcRec Rectangle, dstRec Rectangle, tint Color) {
-	ctint := *tint.cptr()
-	cdstRec := *dstRec.cptr()
-	csrcRec := *srcRec.cptr()
-	csrc := *src.cptr()
-	cdst := dst.cptr()
-	C.ImageDraw(cdst, csrc, csrcRec, cdstRec, ctint)
-}
-
-//ImageDraw : Draw a source image within a destination image (tint applied to source)
-//Recommended to use dst.Draw(src, srcRec, dstRec, tint) instead
-func ImageDraw(dst *Image, src *Image, srcRec Rectangle, dstRec Rectangle, tint Color) {
-	dst.Draw(src, srcRec, dstRec, tint)
-}
-
-//DrawRectangle : Draw rectangle within an image
-func (dst *Image) DrawRectangle(rec Rectangle, color Color) {
-	ccolor := *color.cptr()
-	crec := *rec.cptr()
-	cdst := dst.cptr()
-	C.ImageDrawRectangle(cdst, crec, ccolor)
-}
-
-//ImageDrawRectangle : Draw rectangle within an image
-//Recommended to use dst.DrawRectangle(rec, color) instead
-func ImageDrawRectangle(dst *Image, rec Rectangle, color Color) {
-	dst.DrawRectangle(rec, color)
-}
-
-//DrawRectangleLines : Draw rectangle lines within an image
-func (dst *Image) DrawRectangleLines(rec Rectangle, thick int, color Color) {
-	ccolor := *color.cptr()
-	crec := *rec.cptr()
-	cdst := dst.cptr()
-	C.ImageDrawRectangleLines(cdst, crec, C.int(int32(thick)), ccolor)
-}
-
-//ImageDrawRectangleLines : Draw rectangle lines within an image
-//Recommended to use dst.DrawRectangleLines(rec, thick, color) instead
-func ImageDrawRectangleLines(dst *Image, rec Rectangle, thick int, color Color) {
-	dst.DrawRectangleLines(rec, thick, color)
-}
-
-//DrawText : Draw text (default font) within an image (destination)
-func (dst *Image) DrawText(position Vector2, text string, fontSize int, color Color) {
-	ccolor := *color.cptr()
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	cposition := *position.cptr()
-	cdst := dst.cptr()
-	C.ImageDrawText(cdst, cposition, ctext, C.int(int32(fontSize)), ccolor)
-}
-
-//ImageDrawText : Draw text (default font) within an image (destination)
-//Recommended to use dst.DrawText(position, text, fontSize, color) instead
-func ImageDrawText(dst *Image, position Vector2, text string, fontSize int, color Color) {
-	dst.DrawText(position, text, fontSize, color)
-}
-
-//DrawTextEx : Draw text (custom sprite font) within an image (destination)
-func (dst *Image) DrawTextEx(position Vector2, font *Font, text string, fontSize float32, spacing float32, color Color) {
-	ccolor := *color.cptr()
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	cfont := *font.cptr()
-	cposition := *position.cptr()
-	cdst := dst.cptr()
-	C.ImageDrawTextEx(cdst, cposition, cfont, ctext, C.float(fontSize), C.float(spacing), ccolor)
-}
-
-//ImageDrawTextEx : Draw text (custom sprite font) within an image (destination)
-//Recommended to use dst.DrawTextEx(position, font, text, fontSize, spacing, color) instead
-func ImageDrawTextEx(dst *Image, position Vector2, font *Font, text string, fontSize float32, spacing float32, color Color) {
-	dst.DrawTextEx(position, font, text, fontSize, spacing, color)
-}
-
 //FlipVertical : Flip image vertically
 func (image *Image) FlipVertical() {
 	cimage := image.cptr()
@@ -708,74 +558,341 @@ func ImageColorReplace(image *Image, color Color, replace Color) {
 	image.ColorReplace(color, replace)
 }
 
-//GenImageColor : Generate image: plain color
-func GenImageColor(width int, height int, color Color) *Image {
+//ExtractPalette : Extract color palette from image to maximum size
+func (image *Image) ExtractPalette(maxPaletteSize int) ([]Color, int) {
+	cextractCount := C.int(0)
+	cimage := *image.cptr()
+	res := C.ImageExtractPalette(cimage, C.int(int32(maxPaletteSize)), &cextractCount)
+	defer C.free(unsafe.Pointer(res))
+
+	//Calculate the samples
+	samples := maxPaletteSize
+
+	//Get the slice
+	tmpslice := (*[1 << 24]Color)(unsafe.Pointer(res))[0:maxPaletteSize]
+
+	//Convert to a Color array
+	goslice := make([]Color, samples)
+	for i, _ := range tmpslice {
+		//goslice[i] = newColorFromPointer(unsafe.Pointer(s))
+		goslice[i] = Color{tmpslice[i].R, tmpslice[i].G, tmpslice[i].B, tmpslice[i].A}
+	}
+
+	return goslice, int(int32(cextractCount))
+}
+
+//ImageExtractPalette : Extract color palette from image to maximum size (memory should be freed)
+//Recommended to use image.ExtractPalette(maxPaletteSize) instead
+func ImageExtractPalette(image *Image, maxPaletteSize int) ([]Color, int) {
+	return image.ExtractPalette(maxPaletteSize)
+}
+
+//GetAlphaBorder : Get image alpha border rectangle
+func (image *Image) GetAlphaBorder(threshold float32) Rectangle {
+	cimage := *image.cptr()
+	res := C.GetImageAlphaBorder(cimage, C.float(threshold))
+	return newRectangleFromPointer(unsafe.Pointer(&res))
+}
+
+//GetImageAlphaBorder : Get image alpha border rectangle
+//Recommended to use image.GetAlphaBorder(threshold) instead
+func GetImageAlphaBorder(image *Image, threshold float32) Rectangle {
+	return image.GetAlphaBorder(threshold)
+}
+
+//ClearBackground : Clear image background with given color
+func (dst *Image) ClearBackground(color Color) {
 	ccolor := *color.cptr()
-	res := C.GenImageColor(C.int(int32(width)), C.int(int32(height)), ccolor)
+	cdst := dst.cptr()
+	C.ImageClearBackground(cdst, ccolor)
+}
+
+//ImageClearBackground : Clear image background with given color
+//Recommended to use dst.ClearBackground(color) instead
+func ImageClearBackground(dst *Image, color Color) {
+	dst.ClearBackground(color)
+}
+
+//DrawPixel : Draw pixel within an image
+func (dst *Image) DrawPixel(posX int, posY int, color Color) {
+	ccolor := *color.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawPixel(cdst, C.int(int32(posX)), C.int(int32(posY)), ccolor)
+}
+
+//ImageDrawPixel : Draw pixel within an image
+//Recommended to use dst.DrawPixel(posX, posY, color) instead
+func ImageDrawPixel(dst *Image, posX int, posY int, color Color) {
+	dst.DrawPixel(posX, posY, color)
+}
+
+//DrawPixelV : Draw pixel within an image (Vector version)
+func (dst *Image) DrawPixelV(position Vector2, color Color) {
+	ccolor := *color.cptr()
+	cposition := *position.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawPixelV(cdst, cposition, ccolor)
+}
+
+//ImageDrawPixelV : Draw pixel within an image (Vector version)
+//Recommended to use dst.DrawPixelV(position, color) instead
+func ImageDrawPixelV(dst *Image, position Vector2, color Color) {
+	dst.DrawPixelV(position, color)
+}
+
+//DrawLine : Draw line within an image
+func (dst *Image) DrawLine(startPosX int, startPosY int, endPosX int, endPosY int, color Color) {
+	ccolor := *color.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawLine(cdst, C.int(int32(startPosX)), C.int(int32(startPosY)), C.int(int32(endPosX)), C.int(int32(endPosY)), ccolor)
+}
+
+//ImageDrawLine : Draw line within an image
+//Recommended to use dst.DrawLine(startPosX, startPosY, endPosX, endPosY, color) instead
+func ImageDrawLine(dst *Image, startPosX int, startPosY int, endPosX int, endPosY int, color Color) {
+	dst.DrawLine(startPosX, startPosY, endPosX, endPosY, color)
+}
+
+//DrawLineV : Draw line within an image (Vector version)
+func (dst *Image) DrawLineV(start Vector2, end Vector2, color Color) {
+	ccolor := *color.cptr()
+	cend := *end.cptr()
+	cstart := *start.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawLineV(cdst, cstart, cend, ccolor)
+}
+
+//ImageDrawLineV : Draw line within an image (Vector version)
+//Recommended to use dst.DrawLineV(start, end, color) instead
+func ImageDrawLineV(dst *Image, start Vector2, end Vector2, color Color) {
+	dst.DrawLineV(start, end, color)
+}
+
+//DrawCircle : Draw circle within an image
+func (dst *Image) DrawCircle(centerX int, centerY int, radius int, color Color) {
+	ccolor := *color.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawCircle(cdst, C.int(int32(centerX)), C.int(int32(centerY)), C.int(int32(radius)), ccolor)
+}
+
+//ImageDrawCircle : Draw circle within an image
+//Recommended to use dst.DrawCircle(centerX, centerY, radius, color) instead
+func ImageDrawCircle(dst *Image, centerX int, centerY int, radius int, color Color) {
+	dst.DrawCircle(centerX, centerY, radius, color)
+}
+
+//DrawCircleV : Draw circle within an image (Vector version)
+func (dst *Image) DrawCircleV(center Vector2, radius int, color Color) {
+	ccolor := *color.cptr()
+	ccenter := *center.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawCircleV(cdst, ccenter, C.int(int32(radius)), ccolor)
+}
+
+//ImageDrawCircleV : Draw circle within an image (Vector version)
+//Recommended to use dst.DrawCircleV(center, radius, color) instead
+func ImageDrawCircleV(dst *Image, center Vector2, radius int, color Color) {
+	dst.DrawCircleV(center, radius, color)
+}
+
+//DrawRectangle : Draw rectangle within an image
+func (dst *Image) DrawRectangle(posX int, posY int, width int, height int, color Color) {
+	ccolor := *color.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawRectangle(cdst, C.int(int32(posX)), C.int(int32(posY)), C.int(int32(width)), C.int(int32(height)), ccolor)
+}
+
+//ImageDrawRectangle : Draw rectangle within an image
+//Recommended to use dst.DrawRectangle(posX, posY, width, height, color) instead
+func ImageDrawRectangle(dst *Image, posX int, posY int, width int, height int, color Color) {
+	dst.DrawRectangle(posX, posY, width, height, color)
+}
+
+//DrawRectangleV : Draw rectangle within an image (Vector version)
+func (dst *Image) DrawRectangleV(position Vector2, size Vector2, color Color) {
+	ccolor := *color.cptr()
+	csize := *size.cptr()
+	cposition := *position.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawRectangleV(cdst, cposition, csize, ccolor)
+}
+
+//ImageDrawRectangleV : Draw rectangle within an image (Vector version)
+//Recommended to use dst.DrawRectangleV(position, size, color) instead
+func ImageDrawRectangleV(dst *Image, position Vector2, size Vector2, color Color) {
+	dst.DrawRectangleV(position, size, color)
+}
+
+//DrawRectangleRec : Draw rectangle within an image
+func (dst *Image) DrawRectangleRec(rec Rectangle, color Color) {
+	ccolor := *color.cptr()
+	crec := *rec.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawRectangleRec(cdst, crec, ccolor)
+}
+
+//ImageDrawRectangleRec : Draw rectangle within an image
+//Recommended to use dst.DrawRectangleRec(rec, color) instead
+func ImageDrawRectangleRec(dst *Image, rec Rectangle, color Color) {
+	dst.DrawRectangleRec(rec, color)
+}
+
+//DrawRectangleLines : Draw rectangle lines within an image
+func (dst *Image) DrawRectangleLines(rec Rectangle, thick int, color Color) {
+	ccolor := *color.cptr()
+	crec := *rec.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawRectangleLines(cdst, crec, C.int(int32(thick)), ccolor)
+}
+
+//ImageDrawRectangleLines : Draw rectangle lines within an image
+//Recommended to use dst.DrawRectangleLines(rec, thick, color) instead
+func ImageDrawRectangleLines(dst *Image, rec Rectangle, thick int, color Color) {
+	dst.DrawRectangleLines(rec, thick, color)
+}
+
+//Draw : Draw a source image within a destination image (tint applied to source)
+func (dst *Image) Draw(src *Image, srcRec Rectangle, dstRec Rectangle, tint Color) {
+	ctint := *tint.cptr()
+	cdstRec := *dstRec.cptr()
+	csrcRec := *srcRec.cptr()
+	csrc := *src.cptr()
+	cdst := dst.cptr()
+	C.ImageDraw(cdst, csrc, csrcRec, cdstRec, ctint)
+}
+
+//ImageDraw : Draw a source image within a destination image (tint applied to source)
+//Recommended to use dst.Draw(src, srcRec, dstRec, tint) instead
+func ImageDraw(dst *Image, src *Image, srcRec Rectangle, dstRec Rectangle, tint Color) {
+	dst.Draw(src, srcRec, dstRec, tint)
+}
+
+//DrawText : Draw text (default font) within an image (destination)
+func (dst *Image) DrawText(position Vector2, text string, fontSize int, color Color) {
+	ccolor := *color.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	cposition := *position.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawText(cdst, cposition, ctext, C.int(int32(fontSize)), ccolor)
+}
+
+//ImageDrawText : Draw text (default font) within an image (destination)
+//Recommended to use dst.DrawText(position, text, fontSize, color) instead
+func ImageDrawText(dst *Image, position Vector2, text string, fontSize int, color Color) {
+	dst.DrawText(position, text, fontSize, color)
+}
+
+//DrawTextEx : Draw text (custom sprite font) within an image (destination)
+func (dst *Image) DrawTextEx(position Vector2, font *Font, text string, fontSize float32, spacing float32, color Color) {
+	ccolor := *color.cptr()
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	cfont := *font.cptr()
+	cposition := *position.cptr()
+	cdst := dst.cptr()
+	C.ImageDrawTextEx(cdst, cposition, cfont, ctext, C.float(fontSize), C.float(spacing), ccolor)
+}
+
+//ImageDrawTextEx : Draw text (custom sprite font) within an image (destination)
+//Recommended to use dst.DrawTextEx(position, font, text, fontSize, spacing, color) instead
+func ImageDrawTextEx(dst *Image, position Vector2, font *Font, text string, fontSize float32, spacing float32, color Color) {
+	dst.DrawTextEx(position, font, text, fontSize, spacing, color)
+}
+
+//LoadTexture : Load texture from file into GPU memory (VRAM)
+func LoadTexture(fileName string) Texture2D {
+	cfileName := C.CString(fileName)
+	defer C.free(unsafe.Pointer(cfileName))
+	res := C.LoadTexture(cfileName)
+	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//LoadTextureFromImage : Load texture from image data
+func LoadTextureFromImage(image *Image) Texture2D {
+	cimage := *image.cptr()
+	res := C.LoadTextureFromImage(cimage)
+	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//LoadTextureCubemap : Load cubemap from image, multiple image cubemap layouts supported
+func LoadTextureCubemap(image *Image, layoutType CubemapLayoutType) *TextureCubemap {
+	cimage := *image.cptr()
+	res := C.LoadTextureCubemap(cimage, C.int(int32(layoutType)))
+	retval := newTextureCubemapFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//LoadRenderTexture : Load texture for rendering (framebuffer)
+func LoadRenderTexture(width int, height int) RenderTexture2D {
+	res := C.LoadRenderTexture(C.int(int32(width)), C.int(int32(height)))
+	retval := newRenderTexture2DFromPointer(unsafe.Pointer(&res))
+	RegisterUnloadable(retval)
+	return retval
+}
+
+//Unload : Unload texture from GPU memory (VRAM)
+func (texture Texture2D) Unload() {
+	ctexture := *texture.cptr()
+	C.UnloadTexture(ctexture)
+	UnregisterUnloadable(texture)
+}
+
+//UnloadTexture : Unload texture from GPU memory (VRAM)
+//Recommended to use texture.Unload() instead
+func UnloadTexture(texture Texture2D) {
+	texture.Unload()
+}
+
+//Unload : Unload render texture from GPU memory (VRAM)
+func (target RenderTexture2D) Unload() {
+	ctarget := *target.cptr()
+	C.UnloadRenderTexture(ctarget)
+	UnregisterUnloadable(target)
+}
+
+//UnloadRenderTexture : Unload render texture from GPU memory (VRAM)
+//Recommended to use target.Unload() instead
+func UnloadRenderTexture(target RenderTexture2D) {
+	target.Unload()
+}
+
+//UpdateTexture : Update GPU texture with new data
+func (texture *Texture2D) UpdateTexture(pixels []Color) {
+	ctexture := *texture.cptr()
+	cpixels := pixels[0].cptr()
+	C.UpdateTexture(ctexture, unsafe.Pointer(cpixels))
+}
+
+//UpdateTexture : Update GPU texture with new data
+//Recommended to use texture.UpdateTexture(pixels) instead
+func UpdateTexture(texture *Texture2D, pixels []Color) {
+	texture.UpdateTexture(pixels)
+}
+
+//GetTextureData : Get pixel data from GPU texture and return an Image
+func (texture Texture2D) GetTextureData() *Image {
+	ctexture := *texture.cptr()
+	res := C.GetTextureData(ctexture)
 	retval := newImageFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
 }
 
-//GenImageGradientV : Generate image: vertical gradient
-func GenImageGradientV(width int, height int, top Color, bottom Color) *Image {
-	cbottom := *bottom.cptr()
-	ctop := *top.cptr()
-	res := C.GenImageGradientV(C.int(int32(width)), C.int(int32(height)), ctop, cbottom)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
+//GetTextureData : Get pixel data from GPU texture and return an Image
+//Recommended to use texture.GetTextureData() instead
+func GetTextureData(texture Texture2D) *Image {
+	return texture.GetTextureData()
 }
 
-//GenImageGradientH : Generate image: horizontal gradient
-func GenImageGradientH(width int, height int, left Color, right Color) *Image {
-	cright := *right.cptr()
-	cleft := *left.cptr()
-	res := C.GenImageGradientH(C.int(int32(width)), C.int(int32(height)), cleft, cright)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//GenImageGradientRadial : Generate image: radial gradient
-func GenImageGradientRadial(width int, height int, density float32, inner Color, outer Color) *Image {
-	couter := *outer.cptr()
-	cinner := *inner.cptr()
-	res := C.GenImageGradientRadial(C.int(int32(width)), C.int(int32(height)), C.float(density), cinner, couter)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//GenImageChecked : Generate image: checked
-func GenImageChecked(width int, height int, checksX int, checksY int, col1 Color, col2 Color) *Image {
-	ccol2 := *col2.cptr()
-	ccol1 := *col1.cptr()
-	res := C.GenImageChecked(C.int(int32(width)), C.int(int32(height)), C.int(int32(checksX)), C.int(int32(checksY)), ccol1, ccol2)
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//GenImageWhiteNoise : Generate image: white noise
-func GenImageWhiteNoise(width int, height int, factor float32) *Image {
-	res := C.GenImageWhiteNoise(C.int(int32(width)), C.int(int32(height)), C.float(factor))
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//GenImagePerlinNoise : Generate image: perlin noise
-func GenImagePerlinNoise(width int, height int, offsetX int, offsetY int, scale float32) *Image {
-	res := C.GenImagePerlinNoise(C.int(int32(width)), C.int(int32(height)), C.int(int32(offsetX)), C.int(int32(offsetY)), C.float(scale))
-	retval := newImageFromPointer(unsafe.Pointer(&res))
-	RegisterUnloadable(retval)
-	return retval
-}
-
-//GenImageCellular : Generate image: cellular algorithm. Bigger tileSize means bigger cells
-func GenImageCellular(width int, height int, tileSize int) *Image {
-	res := C.GenImageCellular(C.int(int32(width)), C.int(int32(height)), C.int(int32(tileSize)))
+//GetScreenData : Get pixel data from screen buffer and return an Image (screenshot)
+func GetScreenData() *Image {
+	res := C.GetScreenData()
 	retval := newImageFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
 	return retval
@@ -877,4 +994,10 @@ func DrawTextureNPatch(texture Texture2D, nPatchInfo NPatchInfo, destRec Rectang
 	cnPatchInfo := *nPatchInfo.cptr()
 	ctexture := *texture.cptr()
 	C.DrawTextureNPatch(ctexture, cnPatchInfo, cdestRec, corigin, C.float(rotation), ctint)
+}
+
+//GetPixelDataSize : Get pixel data size in bytes (image or texture)
+func GetPixelDataSize(width int, height int, format PixelFormat) int {
+	res := C.GetPixelDataSize(C.int(int32(width)), C.int(int32(height)), C.int(format))
+	return int(int32(res))
 }

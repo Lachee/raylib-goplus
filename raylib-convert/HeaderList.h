@@ -2,6 +2,7 @@
 // Custom format for converting c-like function headers into go objects.
 // with some preprocessing.
 #convert:replace:Camera3D:Camera
+#convert:replace:map:amap
 
 // Window-related functions
 RLAPI void InitWindow(int width, int height, const char *title);  // Initialize window and OpenGL context
@@ -129,6 +130,7 @@ RLAPI void OpenURL(const char *url);                              // Open URL wi
 #convert:enum:Gamepad.*int gamepad:GamepadNumber
 #convert:enum:GamepadAxis.*int axis:GamepadAxis
 #convert:enum:Mouse.*int button:MouseButton
+#convert:ignore:begin
 // Input-related functions: keyboard
 RLAPI bool IsKeyPressed(int key);                             // Detect if a key has been pressed once
 RLAPI bool IsKeyDown(int key);                                // Detect if a key is being pressed
@@ -136,6 +138,7 @@ RLAPI bool IsKeyReleased(int key);                            // Detect if a key
 RLAPI bool IsKeyUp(int key);                                  // Detect if a key is NOT being pressed
 RLAPI void SetExitKey(int key);                               // Set a custom key to exit program (default is ESC)
 RLAPI int GetKeyPressed(void);                                // Get key pressed, call it multiple times for chars queued
+#convert:ignore:end
 
 // Input-related functions: gamepads
 RLAPI bool IsGamepadAvailable(int gamepad);                   // Detect if a gamepad is available
@@ -384,7 +387,7 @@ RLAPI int GetGlyphIndex(Font font, int codepoint);                              
 
 // Text strings management functions (no utf8 strings, only byte chars)
 // NOTE: Some strings allocate memory internally for returned strings, just be careful!
-#convert:oop:begin
+#convert:ignore:begin
 RLAPI int TextCopy(char *dst, const char *src);                                             // Copy one string to another, returns bytes copied
 RLAPI bool TextIsEqual(const char *text1, const char *text2);                               // Check if two text string are equal
 RLAPI unsigned int TextLength(const char *text);                                            // Get text length, checks for '\0' ending
@@ -407,7 +410,7 @@ RLAPI int *GetCodepoints(const char *text, int *count);               // Get all
 RLAPI int GetCodepointsCount(const char *text);                       // Get total number of characters (codepoints) in a UTF8 encoded string
 RLAPI int GetNextCodepoint(const char *text, int *bytesProcessed);    // Returns next codepoint in a UTF8 encoded string; 0x3f('?') is returned on failure
 RLAPI const char *CodepointToUtf8(int codepoint, int *byteLength);    // Encode codepoint into utf8 text (char array length returned as parameter)
-#convert:oop:end
+#convert:ignore:end
 
 //------------------------------------------------------------------------------------
 // Basic 3d Shapes Drawing Functions (Module: models)
@@ -562,7 +565,6 @@ RLAPI void EndVrDrawing(void);                          // End VR simulator ster
 // Audio Loading and Playing Functions (Module: audio)
 //------------------------------------------------------------------------------------
 #convert:group:audio
-#convert:oop:start
 // Audio device management functions
 RLAPI void InitAudioDevice(void);                                     // Initialize audio device and context
 RLAPI void CloseAudioDevice(void);                                    // Close the audio device and context
@@ -570,6 +572,7 @@ RLAPI bool IsAudioDeviceReady(void);                                  // Check i
 RLAPI void SetMasterVolume(float volume);                             // Set master volume (listener)
 
 // Wave/Sound loading/unloading functions
+#convert:oop:begin
 RLAPI Wave LoadWave(const char *fileName);                            // Load wave data from file
 RLAPI Sound LoadSound(const char *fileName);                          // Load sound from file
 RLAPI Sound LoadSoundFromWave(Wave wave);                             // Load sound from wave data
@@ -624,3 +627,77 @@ RLAPI void SetAudioStreamVolume(AudioStream stream, float volume);    // Set vol
 RLAPI void SetAudioStreamPitch(AudioStream stream, float pitch);      // Set pitch for audio stream (1.0 is base level)
 RLAPI void SetAudioStreamBufferSizeDefault(int size);                 // Default size for new audio streams
 #convert:oop:end
+
+//=================== RAYGUI
+#convert:group:raygui
+#convert:cgo:#define RAYGUI_IMPLEMENTATION
+#convert:cgo:#define RAYGUI_TEXTBOX_EXTENDED
+#convert:cgo:#include "raygui.h"
+#convert:cgo:#include "gui_textbox_extended.h"
+
+// State modification functions
+RAYGUIDEF void GuiEnable(void);                                         // Enable gui controls (global state)
+RAYGUIDEF void GuiDisable(void);                                        // Disable gui controls (global state)
+RAYGUIDEF void GuiLock(void);                                           // Lock gui controls (global state)
+RAYGUIDEF void GuiUnlock(void);                                         // Unlock gui controls (global state)
+RAYGUIDEF void GuiFade(float alpha);                                    // Set gui controls alpha (global state), alpha goes from 0.0f to 1.0f
+RAYGUIDEF void GuiSetState(int state);                                  // Set gui state (global state)
+RAYGUIDEF int GuiGetState(void);                                        // Get gui state (global state)
+
+// Font set/get functions
+RAYGUIDEF void GuiSetFont(Font font);                                   // Set gui custom font (global state)
+RAYGUIDEF Font GuiGetFont(void);                                        // Get gui custom font (global state)
+
+// Style set/get functions
+RAYGUIDEF void GuiSetStyle(int control, int property, int value);       // Set one style property
+RAYGUIDEF int GuiGetStyle(int control, int property);                   // Get one style property
+
+// Tooltips set functions
+RAYGUIDEF void GuiEnableTooltip(void);                                  // Enable gui tooltips
+RAYGUIDEF void GuiDisableTooltip(void);                                 // Disable gui tooltips
+RAYGUIDEF void GuiSetTooltip(const char *tooltip);                      // Set current tooltip for display
+RAYGUIDEF void GuiClearTooltip(void);                                   // Clear any tooltip registered
+
+// Container/separator controls, useful for controls organization
+RAYGUIDEF bool GuiWindowBox(Rectangle bounds, const char *title);                                       // Window Box control, shows a window that can be closed
+RAYGUIDEF void GuiGroupBox(Rectangle bounds, const char *text);                                         // Group Box control with text name
+RAYGUIDEF void GuiLine(Rectangle bounds, const char *text);                                             // Line separator control, could contain text
+RAYGUIDEF void GuiPanel(Rectangle bounds);                                                              // Panel control, useful to group controls
+RAYGUIDEF Rectangle GuiScrollPanel(Rectangle bounds, Rectangle content, Vector2 *scroll);               // Scroll Panel control
+
+// Basic controls set
+RAYGUIDEF void GuiLabel(Rectangle bounds, const char *text);                                            // Label control, shows text
+RAYGUIDEF bool GuiButton(Rectangle bounds, const char *text);                                           // Button control, returns true when clicked
+RAYGUIDEF bool GuiLabelButton(Rectangle bounds, const char *text);                                      // Label button control, show true when clicked
+RAYGUIDEF bool GuiImageButton(Rectangle bounds, const char *text, Texture2D texture);                   // Image button control, returns true when clicked
+RAYGUIDEF bool GuiImageButtonEx(Rectangle bounds, const char *text, Texture2D texture, Rectangle texSource);    // Image button extended control, returns true when clicked
+RAYGUIDEF bool GuiToggle(Rectangle bounds, const char *text, bool active);                              // Toggle Button control, returns true when active
+RAYGUIDEF int GuiToggleGroup(Rectangle bounds, const char *text, int active);                           // Toggle Group control, returns active toggle index
+RAYGUIDEF bool GuiCheckBox(Rectangle bounds, const char *text, bool checked);                           // Check Box control, returns true when active
+RAYGUIDEF int GuiComboBox(Rectangle bounds, const char *text, int active);                              // Combo Box control, returns selected item index
+RAYGUIDEF bool GuiDropdownBox(Rectangle bounds, const char *text, int *active, bool editMode);          // Dropdown Box control, returns selected item
+RAYGUIDEF bool GuiSpinner(Rectangle bounds, const char *text, int *value, int minValue, int maxValue, bool editMode);     // Spinner control, returns selected value
+RAYGUIDEF bool GuiValueBox(Rectangle bounds, const char *text, int *value, int minValue, int maxValue, bool editMode);    // Value Box control, updates input text with numbers
+RAYGUIDEF bool GuiTextBox(Rectangle bounds, char *text, int textSize, bool editMode);                   // Text Box control, updates input text
+RAYGUIDEF bool GuiTextBoxMulti(Rectangle bounds, char *text, int textSize, bool editMode);              // Text Box control with multiple lines
+RAYGUIDEF float GuiSlider(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);       // Slider control, returns selected value
+RAYGUIDEF float GuiSliderBar(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);    // Slider Bar control, returns selected value
+RAYGUIDEF float GuiProgressBar(Rectangle bounds, const char *textLeft, const char *textRight, float value, float minValue, float maxValue);  // Progress Bar control, shows current progress value
+RAYGUIDEF void GuiStatusBar(Rectangle bounds, const char *text);                                        // Status Bar control, shows info text
+RAYGUIDEF void GuiDummyRec(Rectangle bounds, const char *text);                                         // Dummy control for placeholders
+RAYGUIDEF int GuiScrollBar(Rectangle bounds, int value, int minValue, int maxValue);                    // Scroll Bar control
+RAYGUIDEF Vector2 GuiGrid(Rectangle bounds, float spacing, int subdivs);                                // Grid control
+
+// Advance controls set
+RAYGUIDEF int GuiListView(Rectangle bounds, const char *text, int *scrollIndex, int active);            // List View control, returns selected list item index
+RAYGUIDEF int GuiListViewEx(Rectangle bounds, const char **text, int count, int *focus, int *scrollIndex, int active);      // List View with extended parameters
+RAYGUIDEF int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *buttons);                 // Message Box control, displays a message
+RAYGUIDEF int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, const char *buttons, char *text);   // Text Input Box control, ask for text
+RAYGUIDEF Color GuiColorPicker(Rectangle bounds, Color color);                                          // Color Picker control (multiple color controls)
+RAYGUIDEF Color GuiColorPanel(Rectangle bounds, Color color);                                           // Color Panel control
+RAYGUIDEF float GuiColorBarAlpha(Rectangle bounds, float alpha);                                        // Color Bar Alpha control
+RAYGUIDEF float GuiColorBarHue(Rectangle bounds, float value);                                          // Color Bar Hue control
+
+// Styles loading functions
+RAYGUIDEF void GuiLoadStyle(const char *fileName);              // Load style file (.rgs)
+RAYGUIDEF void GuiLoadStyleDefault(void);                       // Load style default over global style

@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -14,6 +14,13 @@ func DrawLine3D(startPos Vector3, endPos Vector3, color Color) {
 	cendPos := *endPos.cptr()
 	cstartPos := *startPos.cptr()
 	C.DrawLine3D(cstartPos, cendPos, ccolor)
+}
+
+//DrawPoint3D : Draw a point in 3D space, actually a small line
+func DrawPoint3D(position Vector3, color Color) {
+	ccolor := *color.cptr()
+	cposition := *position.cptr()
+	C.DrawPoint3D(cposition, ccolor)
 }
 
 //DrawCircle3D : Draw a circle in 3D world space

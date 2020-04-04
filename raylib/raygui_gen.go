@@ -1,13 +1,14 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_TEXTBOX_EXTENDED
 #include "raygui.h"
+#include "gui_textbox_extended.h"
 */
 import "C"
 import "unsafe"
@@ -82,6 +83,28 @@ func GuiSetStyle(control GuiControl, property GuiProperty, value int) {
 func GuiGetStyle(control GuiControl, property GuiProperty) int {
 	res := C.GuiGetStyle(C.int(control), C.int(property))
 	return int(res)
+}
+
+//GuiEnableTooltip : Enable gui tooltips
+func GuiEnableTooltip() {
+	C.GuiEnableTooltip()
+}
+
+//GuiDisableTooltip : Disable gui tooltips
+func GuiDisableTooltip() {
+	C.GuiDisableTooltip()
+}
+
+//GuiSetTooltip : Set current tooltip for display
+func GuiSetTooltip(tooltip string) {
+	ctooltip := C.CString(tooltip)
+	defer C.free(unsafe.Pointer(ctooltip))
+	C.GuiSetTooltip(ctooltip)
+}
+
+//GuiClearTooltip : Clear any tooltip registered
+func GuiClearTooltip() {
+	C.GuiClearTooltip()
 }
 
 //GuiWindowBox : Window Box control, shows a window that can be closed
@@ -406,12 +429,34 @@ func GuiTextInputBox(bounds Rectangle, title string, message string, buttons str
 	return int(int32(res)), C.GoString(ctext)
 }
 
-//GuiColorPicker : Color Picker control
+//GuiColorPicker : Color Picker control (multiple color controls)
 func GuiColorPicker(bounds Rectangle, color Color) Color {
 	ccolor := *color.cptr()
 	cbounds := *bounds.cptr()
 	res := C.GuiColorPicker(cbounds, ccolor)
 	return newColorFromPointer(unsafe.Pointer(&res))
+}
+
+//GuiColorPanel : Color Panel control
+func GuiColorPanel(bounds Rectangle, color Color) Color {
+	ccolor := *color.cptr()
+	cbounds := *bounds.cptr()
+	res := C.GuiColorPanel(cbounds, ccolor)
+	return newColorFromPointer(unsafe.Pointer(&res))
+}
+
+//GuiColorBarAlpha : Color Bar Alpha control
+func GuiColorBarAlpha(bounds Rectangle, alpha float32) float32 {
+	cbounds := *bounds.cptr()
+	res := C.GuiColorBarAlpha(cbounds, C.float(alpha))
+	return float32(res)
+}
+
+//GuiColorBarHue : Color Bar Hue control
+func GuiColorBarHue(bounds Rectangle, value float32) float32 {
+	cbounds := *bounds.cptr()
+	res := C.GuiColorBarHue(cbounds, C.float(value))
+	return float32(res)
 }
 
 //GuiLoadStyle : Load style file (.rgs)
@@ -424,111 +469,4 @@ func GuiLoadStyle(fileName string) {
 //GuiLoadStyleDefault : Load style default over global style
 func GuiLoadStyleDefault() {
 	C.GuiLoadStyleDefault()
-}
-
-//GuiIconText : Get text with icon id prepended
-func GuiIconText(iconId int, text string) string {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiIconText(C.int(int32(iconId)), ctext)
-	return C.GoString(res)
-}
-
-//GuiTextBoxSetActive : Sets the active textbox
-func GuiTextBoxSetActive(bounds Rectangle) {
-	cbounds := *bounds.cptr()
-	C.GuiTextBoxSetActive(cbounds)
-}
-
-//GuiTextBoxGetActive : Get bounds of active textbox
-func GuiTextBoxGetActive() Rectangle {
-	res := C.GuiTextBoxGetActive()
-	return newRectangleFromPointer(unsafe.Pointer(&res))
-}
-
-//GuiTextBoxSetCursor : Set cursor position of active textbox
-func GuiTextBoxSetCursor(cursor int) {
-	C.GuiTextBoxSetCursor(C.int(int32(cursor)))
-}
-
-//GuiTextBoxGetCursor : Get cursor position of active textbox
-func GuiTextBoxGetCursor() int {
-	res := C.GuiTextBoxGetCursor()
-	return int(int32(res))
-}
-
-//GuiTextBoxSetSelection : Set selection of active textbox
-func GuiTextBoxSetSelection(start int, length int) {
-	C.GuiTextBoxSetSelection(C.int(int32(start)), C.int(int32(length)))
-}
-
-//GuiTextBoxGetSelection : Get selection of active textbox (x - selection start  y - selection length)
-func GuiTextBoxGetSelection() Vector2 {
-	res := C.GuiTextBoxGetSelection()
-	return newVector2FromPointer(unsafe.Pointer(&res))
-}
-
-//GuiTextBoxIsActive : Returns true if a textbox control with specified `bounds` is the active textbox
-func GuiTextBoxIsActive(bounds Rectangle) bool {
-	cbounds := *bounds.cptr()
-	res := C.GuiTextBoxIsActive(cbounds)
-	return bool(res)
-}
-
-//GuiTextBoxGetState : Get state for the active textbox
-func GuiTextBoxGetState() GuiTextBoxState {
-	res := C.GuiTextBoxGetState()
-	return newGuiTextBoxStateFromPointer(unsafe.Pointer(&res))
-}
-
-//GuiTextBoxSetState : Set state for the active textbox (state must be valid else things will break)
-func GuiTextBoxSetState(state GuiTextBoxState) {
-	cstate := *state.cptr()
-	C.GuiTextBoxSetState(cstate)
-}
-
-//GuiTextBoxSelectAll : Select all characters in the active textbox (same as pressing `CTRL` + `A`)
-func GuiTextBoxSelectAll(text string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	C.GuiTextBoxSelectAll(ctext)
-}
-
-//GuiTextBoxCopy : Copy selected text to clipboard from the active textbox (same as pressing `CTRL` + `C`)
-func GuiTextBoxCopy(text string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	C.GuiTextBoxCopy(ctext)
-}
-
-//GuiTextBoxPaste : Paste text from clipboard into the textbox (same as pressing `CTRL` + `V`)
-func GuiTextBoxPaste(text string, textSize int) string {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	C.GuiTextBoxPaste(ctext, C.int(int32(textSize)))
-	return C.GoString(ctext)
-}
-
-//GuiTextBoxCut : Cut selected text in the active textbox and copy it to clipboard (same as pressing `CTRL` + `X`)
-func GuiTextBoxCut(text string) string {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	C.GuiTextBoxCut(ctext)
-	return C.GoString(ctext)
-}
-
-//GuiTextBoxDelete : Deletes a character or selection before from the active textbox (depending on `before`). Returns bytes deleted.
-func GuiTextBoxDelete(text string, length int, before bool) (int, string) {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiTextBoxDelete(ctext, C.int(int32(length)), C.bool(before))
-	return int(int32(res)), C.GoString(ctext)
-}
-
-//GuiTextBoxGetByteIndex : Get the byte index for a character starting at position `from` with index `start` until position `to`.
-func GuiTextBoxGetByteIndex(text string, start int, from int, to int) int {
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
-	res := C.GuiTextBoxGetByteIndex(ctext, C.int(int32(start)), C.int(int32(from)), C.int(int32(to)))
-	return int(int32(res))
 }

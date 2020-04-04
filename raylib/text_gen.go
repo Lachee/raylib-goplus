@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -114,16 +114,12 @@ func DrawTextRec(font Font, text string, rec Rectangle, fontSize float32, spacin
 	C.DrawTextRec(cfont, ctext, crec, C.float(fontSize), C.float(spacing), C.bool(wordWrap), ctint)
 }
 
-//DrawTextRecEx : Draw text using font inside rectangle limits with support for text selection
-func DrawTextRecEx(font Font, text string, rec Rectangle, fontSize float32, spacing float32, wordWrap bool, tint Color, selectStart int, selectLength int, selectText Color, selectBack Color) {
-	cselectBack := *selectBack.cptr()
-	cselectText := *selectText.cptr()
+//DrawTextCodepoint : Draw one character (codepoint)
+func DrawTextCodepoint(font Font, codepoint int, position Vector2, scale float32, tint Color) {
 	ctint := *tint.cptr()
-	crec := *rec.cptr()
-	ctext := C.CString(text)
-	defer C.free(unsafe.Pointer(ctext))
+	cposition := *position.cptr()
 	cfont := *font.cptr()
-	C.DrawTextRecEx(cfont, ctext, crec, C.float(fontSize), C.float(spacing), C.bool(wordWrap), ctint, C.int(selectStart), C.int(selectLength), cselectText, cselectBack)
+	C.DrawTextCodepoint(cfont, C.int(int32(codepoint)), cposition, C.float(scale), ctint)
 }
 
 //MeasureText : Measure string width for default font
@@ -144,8 +140,8 @@ func MeasureTextEx(font Font, text string, fontSize float32, spacing float32) Ve
 }
 
 //GetGlyphIndex : Get index position for a unicode character on font
-func GetGlyphIndex(font Font, character int) int {
+func GetGlyphIndex(font Font, codepoint int) int {
 	cfont := *font.cptr()
-	res := C.GetGlyphIndex(cfont, C.int(int32(character)))
+	res := C.GetGlyphIndex(cfont, C.int(int32(codepoint)))
 	return int(int32(res))
 }

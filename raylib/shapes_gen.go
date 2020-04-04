@@ -1,7 +1,7 @@
 package raylib
 
 /*
-//Generated 2020-01-21T13:50:21+11:00
+//Generated 2020-04-04T13:59:26+11:00
 #include "raylib.h"
 #include <stdlib.h>
 #include "go.h"
@@ -101,6 +101,18 @@ func DrawCircleV(center Vector2, radius float32, color Color) {
 func DrawCircleLines(centerX int, centerY int, radius float32, color Color) {
 	ccolor := *color.cptr()
 	C.DrawCircleLines(C.int(int32(centerX)), C.int(int32(centerY)), C.float(radius), ccolor)
+}
+
+//DrawEllipse : Draw ellipse
+func DrawEllipse(centerX int, centerY int, radiusH float32, radiusV float32, color Color) {
+	ccolor := *color.cptr()
+	C.DrawEllipse(C.int(int32(centerX)), C.int(int32(centerY)), C.float(radiusH), C.float(radiusV), ccolor)
+}
+
+//DrawEllipseLines : Draw ellipse outline
+func DrawEllipseLines(centerX int, centerY int, radiusH float32, radiusV float32, color Color) {
+	ccolor := *color.cptr()
+	C.DrawEllipseLines(C.int(int32(centerX)), C.int(int32(centerY)), C.float(radiusH), C.float(radiusV), ccolor)
 }
 
 //DrawRing : Draw ring
@@ -238,11 +250,11 @@ func DrawPoly(center Vector2, sides int, radius float32, rotation float32, color
 	C.DrawPoly(ccenter, C.int(int32(sides)), C.float(radius), C.float(rotation), ccolor)
 }
 
-//SetShapesTexture : Define default texture used to draw shapes
-func SetShapesTexture(texture Texture2D, source Rectangle) {
-	csource := *source.cptr()
-	ctexture := *texture.cptr()
-	C.SetShapesTexture(ctexture, csource)
+//DrawPolyLines : Draw a polygon outline of n sides
+func DrawPolyLines(center Vector2, sides int, radius float32, rotation float32, color Color) {
+	ccolor := *color.cptr()
+	ccenter := *center.cptr()
+	C.DrawPolyLines(ccenter, C.int(int32(sides)), C.float(radius), C.float(rotation), ccolor)
 }
 
 //CheckCollisionRecs : Check collision between two rectangles
