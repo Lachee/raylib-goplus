@@ -20,7 +20,7 @@ func main() {
 			LogFatal
 			LogNone
 	*/
-	r.SetTraceLogLevel(r.LogAll)
+	r.SetTraceLogLevel(r.LogNone)
 
 	//We don't want our logs to throw a panic
 	r.SetTraceLogExit(r.LogNone)
@@ -37,7 +37,7 @@ func main() {
 		// logger or some other tracking.
 		//Note that r.TraceLogType has a function ToString that will convert its number
 		// but in this case, we are using ToUniformedString that converts it to a 5 letter code.
-		fmt.Println("[" + logType.ToUniformedString() + "] " + text)
+		fmt.Println("LOG: [" + logType.ToUniformedString() + "] " + text)
 	})
 
 	//Prepare the window. This should be done after the SetTraceLogCallback so we dont
@@ -45,12 +45,19 @@ func main() {
 	r.InitWindow(800, 450, "Raylib Go Plus - Hellow World")
 	r.SetTargetFPS(60)
 
+	var text, err = r.LoadTexture("../resources/dwarf.obj")
+	if err != nil {
+		fmt.Println("ERROR", err)
+	}
+
 	//Draw every frame
 	for !r.WindowShouldClose() {
 
 		//Begin the drawing
 		r.BeginDrawing()
 		r.ClearBackground(r.RayWhite)
+
+		r.DrawTexture(text, 100, 10, r.White)
 
 		//Draw a new GUI button that we can press to show the logs
 		if r.GuiButton(r.NewRectangle(10, 10, 200, 25), "I make a log!") {

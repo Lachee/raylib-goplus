@@ -7,7 +7,10 @@ package raylib
 #include "go.h"
 */
 import "C"
-import "unsafe"
+import (
+	"errors"
+	"unsafe"
+)
 
 //LoadImage : Load image from file into CPU memory (RAM)
 func LoadImage(fileName string) *Image {
@@ -801,13 +804,20 @@ func ImageDrawTextEx(dst *Image, position Vector2, font *Font, text string, font
 }
 
 //LoadTexture : Load texture from file into GPU memory (VRAM)
-func LoadTexture(fileName string) Texture2D {
+func LoadTexture(fileName string) (Texture2D, error) {
+	logLastMessage = ""
+
 	cfileName := C.CString(fileName)
 	defer C.free(unsafe.Pointer(cfileName))
 	res := C.LoadTexture(cfileName)
+
+	if (logLastType == LogError || logLastType == LogWarning) && logLastMessage != "" {
+		return Texture2D{}, errors.New(logLastMessage)
+	}
+
 	retval := newTexture2DFromPointer(unsafe.Pointer(&res))
 	RegisterUnloadable(retval)
-	return retval
+	return retval, nil
 }
 
 //LoadTextureFromImage : Load texture from image data

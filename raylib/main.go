@@ -74,6 +74,9 @@ func init() {
 	//Setup the unloadables so they finalize
 	runtime.SetFinalizer(&unloadables, finalizeUnloadables)
 
+	//Set the default trace callback. We are setting a default callback because the Load errors are fetched from the logs.
+	SetTraceLogCallback(nil)
+
 	//Reset the scale, this seems to be broken on mac?
 	SetMouseScale(1, 1)
 }

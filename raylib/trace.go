@@ -12,6 +12,7 @@ void Go_TraceLogWrapper(int logType, const char *text) {
   TraceLog(logType, text);
 }
 
+//This function is the callback that raylib will execute. As you can see, it prepares the data for the onTraceCallback which is a gofunc.
 void Go_CustomCallbackHook(int logType, const char *text, va_list args) {
   char buffer[MAX_TRACELOG_BUFFER_SIZE] = { 0 };
   vsprintf (buffer, text, args);
@@ -37,7 +38,30 @@ import (
 
 var logLevelType TraceLogType = LogInfo
 var logLevelExit TraceLogType = LogError
+
+type traceHistory struct {
+	Type    TraceLogType
+	Message string
+}
+
+var logHistory []traceHistory = nil
+
+func beginTraceCapture() {
+
+}
+
+//traceCallback is called when there is a message to log
 var traceCallback func(logType TraceLogType, text string)
+
+//tracePanicCheck will panic if the logType is set to exit.
+func tracePanicCheck(logType TraceLogType, message string) {
+	//If the log is greater than the exit log, then we need to exit too.
+	// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
+	if logType >= logLevelExit && logLevelExit != LogNone {
+		panic(message)
+		//os.Exit(1)
+	}
+}
 
 //SetTraceLogLevel : Set the current threshold (minimum) log level
 func SetTraceLogLevel(logType TraceLogType) {
@@ -54,12 +78,25 @@ func SetTraceLogExit(logType TraceLogType) {
 
 //SetTraceLogCallback : Set the callback for custom logging.
 func SetTraceLogCallback(callback func(logType TraceLogType, text string)) {
-	traceCallback = callback
+	if callback == nil {
+		//Set the default callback. We require a default callback as the LoadXXXX errors use the lastLogMessage.
+		traceCallback = defaultTraceCallback
+	} else {
+		//Set the callback
+		traceCallback = callback
+	}
+
+	//Update if we should enable or not
 	if traceCallback != nil {
 		C.Go_EnableCustomCallback()
 	} else {
 		C.Go_DisableCustomCallback()
 	}
+}
+
+//defaultTraceCallback : The default callback for raylib
+func defaultTraceCallback(logType TraceLogType, text string) {
+	fmt.Println("[" + logType.ToUniformedString() + "] " + text)
 }
 
 //TraceLog creates a new log with a particular type. If a custom callback for logs
@@ -111,16 +148,6 @@ func TraceError(a ...interface{}) {
 //TraceFatal creates an error log
 func TraceFatal(a ...interface{}) {
 	TraceLog(LogFatal, a...)
-}
-
-//tracePanicCheck will panic if the logType is set to exit.
-func tracePanicCheck(logType TraceLogType, message string) {
-	//If the log is greater than the exit log, then we need to exit too.
-	// (this is normally handled on the C function, but since we overridden it, we need to do it manually.)
-	if logType >= logLevelExit && logLevelExit != LogNone {
-		panic(message)
-		//os.Exit(1)
-	}
 }
 
 type TraceLogType int32
