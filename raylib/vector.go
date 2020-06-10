@@ -87,7 +87,7 @@ func (v Vector2) Scale(scale float32) Vector2 {
 
 //Multiply a vector by another vector
 func (v Vector2) Multiply(v2 Vector2) Vector2 {
-	return Vector2{X: v.X * v2.Y, Y: v.Y * v2.Y}
+	return Vector2{X: v.X * v2.X, Y: v.Y * v2.Y}
 }
 
 //Negate or Inverts a vector
@@ -253,7 +253,7 @@ func (v Vector3) Scale(scale float32) Vector3 {
 
 //Multiply a vector by another vector
 func (v Vector3) Multiply(v2 Vector3) Vector3 {
-	return Vector3{X: v.X * v2.Y, Y: v.Y * v2.Y, Z: v.Z * v2.Z}
+	return Vector3{X: v.X * v2.X, Y: v.Y * v2.Y, Z: v.Z * v2.Z}
 }
 
 //Negate or Inverts a vector
@@ -412,7 +412,7 @@ func (v Vector4) Scale(scale float32) Vector4 {
 
 //Multiply a vector by another vector
 func (v Vector4) Multiply(v2 Vector4) Vector4 {
-	return Vector4{X: v.X * v2.Y, Y: v.Y * v2.Y, Z: v.Z * v2.Z, W: v.W * v2.W}
+	return Vector4{X: v.X * v2.X, Y: v.Y * v2.Y, Z: v.Z * v2.Z, W: v.W * v2.W}
 }
 
 //Divide  a vector by a value (v / d)

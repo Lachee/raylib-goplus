@@ -20,7 +20,6 @@ package raylib
 
 #cgo linux,!wayland LDFLAGS: -lGL -lm -pthread -ldl -lrt -lX11
 #cgo linux,wayland LDFLAGS: -lGL -lm -pthread -ldl -lrt -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon
-
 #cgo linux,!wayland CFLAGS: -D_GLFW_X11
 #cgo linux,wayland CFLAGS: -D_GLFW_WAYLAND
 
@@ -34,6 +33,9 @@ package raylib
 #cgo windows,opengl11 CFLAGS: -DGRAPHICS_API_OPENGL_11
 #cgo windows,opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_21
 #cgo windows,!opengl11,!opengl21 CFLAGS: -DGRAPHICS_API_OPENGL_33
+
+#cgo wasm CFLAGS: -DPLATFORM_WEB -DRAYGUI_IMPLEMENTATION
+
 #define SUPPORT_TRACELOG
 #include "raylib.h"
 #include <stdlib.h>
